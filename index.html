@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatNet - Threat Intelligence Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-name">ThreatNet</span>
+                        <span class="logo-tagline">Intelligence Platform</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('actors')">
+                    <i class="fas fa-users-cog"></i>
+                    <span>Threat Actors</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('campaigns')">
+                    <i class="fas fa-crosshairs"></i>
+                    <span>Campaigns</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('intelligence')">
+                    <i class="fas fa-brain"></i>
+                    <span>Intelligence</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('analytics')">
+                    <i class="fas fa-chart-network"></i>
+                    <span>Analytics</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('iocs')">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>IOCs</span>
+                    <div class="nav-indicator"></div>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="threat-level-indicator">
+                    <div class="indicator-pulse">
+                        <div class="pulse-dot"></div>
+                        <div class="pulse-ring"></div>
+                    </div>
+                    <div class="threat-status">
+                        <span class="status-label">Global Threat Level</span>
+                        <span class="status-value">CRITICAL</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="search-section">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="globalSearch" placeholder="Search threat actors, campaigns, IOCs...">
+                        <div class="search-suggestions" id="searchSuggestions"></div>
+                        <div class="search-filters">
+                            <button class="filter-btn" onclick="toggleAdvancedSearch()">
+                                <i class="fas fa-sliders-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <button class="action-btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="action-btn" title="Export Data">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User">
+                        <div class="user-status"></div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Threat Intelligence Dashboard</h1>
+                        <p class="header-subtitle">Real-time global threat landscape monitoring</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-secondary">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Intelligence
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card critical">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="metric-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+12</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">847</div>
+                            <div class="metric-label">Active Threat Actors</div>
+                            <div class="metric-sublabel">This week</div>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="chart-bar" style="height: 60%"></div>
+                            <div class="chart-bar" style="height: 80%"></div>
+                            <div class="chart-bar" style="height: 45%"></div>
+                            <div class="chart-bar" style="height: 90%"></div>
+                            <div class="chart-bar" style="height: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card high">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-crosshairs"></i>
+                            </div>
+                            <div class="metric-trend down">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>-3</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">234</div>
+                            <div class="metric-label">Active Campaigns</div>
+                            <div class="metric-sublabel">This week</div>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="chart-bar" style="height: 70%"></div>
+                            <div class="chart-bar" style="height: 85%"></div>
+                            <div class="chart-bar" style="height: 60%"></div>
+                            <div class="chart-bar" style="height: 75%"></div>
+                            <div class="chart-bar" style="height: 80%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card medium">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+                            <div class="metric-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+156</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">15.2K</div>
+                            <div class="metric-label">IOCs Tracked</div>
+                            <div class="metric-sublabel">Today</div>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="chart-bar" style="height: 40%"></div>
+                            <div class="chart-bar" style="height: 65%"></div>
+                            <div class="chart-bar" style="height: 80%"></div>
+                            <div class="chart-bar" style="height: 95%"></div>
+                            <div class="chart-bar" style="height: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card info">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="metric-trend neutral">
+                                <i class="fas fa-minus"></i>
+                                <span>0</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">67</div>
+                            <div class="metric-label">Countries</div>
+                            <div class="metric-sublabel">Coverage</div>
+                        </div>
+                        <div class="metric-chart">
+                            <div class="chart-bar" style="height: 85%"></div>
+                            <div class="chart-bar" style="height: 85%"></div>
+                            <div class="chart-bar" style="height: 85%"></div>
+                            <div class="chart-bar" style="height: 85%"></div>
+                            <div class="chart-bar" style="height: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-card activity-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-clock"></i>
+                                <h3>Recent Activity</h3>
+                            </div>
+                            <button class="card-action">View All</button>
+                        </div>
+                        <div class="activity-timeline" id="recentActivity">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card threats-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-fire"></i>
+                                <h3>Top Threats</h3>
+                            </div>
+                            <button class="card-action">View All</button>
+                        </div>
+                        <div class="top-threats-list" id="topThreats">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Threat Map -->
+                <div class="dashboard-card full-width map-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-globe-americas"></i>
+                            <h3>Global Threat Intelligence Map</h3>
+                        </div>
+                        <div class="map-controls">
+                            <button class="map-btn active">Live</button>
+                            <button class="map-btn">24h</button>
+                            <button class="map-btn">7d</button>
+                            <button class="map-btn">30d</button>
+                        </div>
+                    </div>
+                    <div class="threat-map">
+                        <div class="map-overlay">
+                            <div class="map-stats">
+                                <div class="map-stat">
+                                    <span class="stat-number">1,247</span>
+                                    <span class="stat-label">Active Threats</span>
+                                </div>
+                                <div class="map-stat">
+                                    <span class="stat-number">89</span>
+                                    <span class="stat-label">Countries</span>
+                                </div>
+                                <div class="map-stat">
+                                    <span class="stat-number">24/7</span>
+                                    <span class="stat-label">Monitoring</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="map-placeholder">
+                            <i class="fas fa-globe-americas"></i>
+                            <p>Interactive threat intelligence map showing global actor locations and recent activities</p>
+                            <div class="map-legend">
+                                <div class="legend-item">
+                                    <div class="legend-dot critical"></div>
+                                    <span>Critical Threats</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot high"></div>
+                                    <span>High Threats</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot medium"></div>
+                                    <span>Medium Threats</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Threat Actors Section -->
+            <section id="actors" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Threat Actor Intelligence</h1>
+                        <p class="header-subtitle">Comprehensive profiles of global threat actors</p>
+                    </div>
+                    <div class="header-filters">
+                        <select id="categoryFilter" onchange="filterActors()">
+                            <option value="all">All Categories</option>
+                            <option value="apt">APT Groups</option>
+                            <option value="ransomware">Ransomware Groups</option>
+                            <option value="nation-state">Nation-State</option>
+                            <option value="cybercriminal">Cybercriminal</option>
+                            <option value="hacktivist">Hacktivist</option>
+                        </select>
+                        <select id="regionFilter" onchange="filterActors()">
+                            <option value="all">All Regions</option>
+                            <option value="china">China</option>
+                            <option value="russia">Russia</option>
+                            <option value="north-korea">North Korea</option>
+                            <option value="iran">Iran</option>
+                            <option value="usa">United States</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                        <select id="threatLevelFilter" onchange="filterActors()">
+                            <option value="all">All Threat Levels</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <button class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Actor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="actors-grid" id="actorsGrid">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Actor Profile Section -->
+            <section id="actor-profile" class="content-section">
+                <div id="actorProfileContent">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Other sections -->
+            <section id="campaigns" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Campaign Intelligence</h1>
+                        <p class="header-subtitle">Track and analyze threat campaigns</p>
+                    </div>
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Coming Soon</h3>
+                    <p>Advanced campaign tracking and analysis features are under development</p>
+                </div>
+            </section>
+
+            <section id="intelligence" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Intelligence Reports</h1>
+                        <p class="header-subtitle">Comprehensive threat intelligence reports</p>
+                    </div>
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Coming Soon</h3>
+                    <p>Intelligence reporting and analysis features are under development</p>
+                </div>
+            </section>
+
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Threat Analytics</h1>
+                        <p class="header-subtitle">Advanced threat behavior analytics</p>
+                    </div>
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Coming Soon</h3>
+                    <p>Advanced analytics and machine learning features are under development</p>
+                </div>
+            </section>
+
+            <section id="iocs" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Indicators of Compromise</h1>
+                        <p class="header-subtitle">IOC database and threat hunting</p>
+                    </div>
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Coming Soon</h3>
+                    <p>IOC management and threat hunting features are under development</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div class="footer-content">
+                    <div class="footer-bottom">
+                        <div class="footer-copyright">
+                            <div class="copyright-text">
+                                <p>&copy; 2025 ThreatNet Intelligence Platform. All rights reserved.</p>
+                                <p class="creator-info">
+                                    Created with ❤️ by <strong>Rahul</strong> | 
+                                    <a href="https://github.com/w3bcooki3" target="_blank" rel="noopener noreferrer" class="github-link">
+                                        <i class="fab fa-github"></i>
+                                        GitHub
+                                    </a>
+                                </p>
+                            </div>
+                            
+                            <div class="footer-social">
+                                <a href="https://github.com/w3bcooki3" target="_blank" rel="noopener noreferrer" class="social-link github" title="GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/fnu-rahul-a48427199/" target="_blank" rel="noopener noreferrer" class="social-link linkedin" title="LinkedIn">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="footer-disclaimer">
+                            <p>
+                                <i class="fas fa-info-circle"></i>
+                                This platform is demo software for educational purposes only.
+                                It is not intended for real-world use and does not represent actual threat intelligence.
+                                You cannot use this plaform for any commericial or production purposes. All rights reserved.
+                                All data is fictional and generated for demonstration purposes. 
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
