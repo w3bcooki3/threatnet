@@ -1,0 +1,83 @@
+[
+  {
+    "id": 100001,
+    "title": "Incident Response Playbook",
+    "description": "Standard operating procedures for detecting, analyzing, and responding to cybersecurity incidents.",
+    "createdAt": 1700000000000,
+    "updatedAt": 1700000000000,
+    "sections": [
+      {
+        "id": 100101,
+        "title": "Phase 1: Detection & Analysis",
+        "description": "Initial steps for identifying potential security incidents and gathering preliminary information.",
+        "createdAt": 1700000001000,
+        "updatedAt": 1700000001000,
+        "entries": [
+          {
+            "id": 10010101,
+            "title": "Alert Triage Checklist",
+            "content": "<h3>Purpose:</h3>\nTo quickly assess the severity and validity of security alerts.\n\n<h3>Steps:</h3>\n<ol>\n  <li><b>Verify Alert Source:</b> Confirm the alert originated from a legitimate security tool (SIEM, EDR, Firewall).</li>\n  <li><b>Initial Context Gathering:</b>\n    <ul>\n      <li>What systems are involved (IPs, Hostnames)?</li>\n      <li>What user accounts are involved?</li>\n      <li>What time did the event occur?</li>\n      <li>What is the nature of the alert (e.g., malware detection, abnormal login, data exfiltration)?</li>\n    </ul>\n  </li>\n  <li><b>False Positive Analysis:</b> Is this a known benign activity or a misconfiguration? Check baselines.</li>\n  <li><b>Severity Assessment:</b> Assign a preliminary severity (Low, Medium, High, Critical) based on potential impact and confidence.</li>\n  <li><b>Escalation Path:</b> Based on severity, follow the defined escalation matrix.</li>\n</ol>\n\n<p><b>Recommendation:</b> Automate as much of the initial context gathering as possible using SOAR playbooks.</p>",
+            "tags": ["detection", "ir", "checklist", "triage", "siem", "edr"],
+            "references": "NIST SP 800-61 Rev. 2, SANS Incident Handler's Handbook",
+            "createdAt": 1700000001001,
+            "updatedAt": 1700000001001
+          },
+          {
+            "id": 10010102,
+            "title": "Initial Malware Identification",
+            "content": "<h3>Objective:</h3>\nDetermine if suspicious files are malicious and their basic characteristics.\n\n<h3>Tools & Techniques:</h3>\n<ul>\n  <li><b>VirusTotal:</b> Upload suspicious hashes/files for multi-AV scan and community insights.<br><img src=\"https://via.placeholder.com/600x300?text=VirusTotal+Screenshot\" alt=\"VirusTotal Scan Example\"></li>\n  <li><b>Hybrid Analysis:</b> For dynamic analysis (sandboxing) of executables and documents.<br><a href=\"https://www.hybrid-analysis.com/\" target=\"_blank\">Hybrid Analysis Website</a></li>\n  <li><b>Strings Utility:</b> Extract readable strings from binaries (useful for IOCs, paths, URLs).\n<pre><code class=\"language-bash\">\nstrings /path/to/malicious_file.exe | grep -E 'http|ftp|ssh|.onion'\n</code></pre>\n  </li>\n  <li><b>YARA Rules:</b> Apply existing YARA rules or write new ones to identify malware families.</li>\n</ul>\n\n<p><b>Tip:</b> Always handle suspicious files in a controlled, isolated environment (e.g., a dedicated analysis VM).</p>",
+            "tags": ["malware-analysis", "detection", "ir", "tools", "virustotal", "sandbox"],
+            "references": "VirusTotal.com, Hybrid-Analysis.com, YARA Documentation",
+            "createdAt": 1700000001002,
+            "updatedAt": 1700000001002
+          }
+        ]
+      },
+      {
+        "id": 100102,
+        "title": "Phase 2: Containment",
+        "description": "Steps to limit the scope and impact of an incident.",
+        "createdAt": 1700000002000,
+        "updatedAt": 1700000002000,
+        "entries": [
+          {
+            "id": 10010201,
+            "title": "Network Isolation Strategies",
+            "content": "<h3>Purpose:</h3>\nPrevent lateral movement and C2 communication from compromised systems.\n\n<h3>Methods:</h3>\n<ol>\n  <li><b>Logical Isolation:</b>\n    <ul>\n      <li>Disable network adapters on affected hosts.</li>\n      <li>Apply host-based firewall rules to block suspicious traffic.</li>\n      <li>Move compromised systems to a quarantined VLAN or network segment.</li>\n    </ul>\n  </li>\n  <li><b>Physical Isolation:</b> (Last resort, consider forensic implications)\n    <ul>\n      <li>Unplug network cables from affected devices.</li>\n    </ul>\n  </li>\n</ol>\n\n<pre><code class=\"language-powershell\">\n# Example PowerShell to disable network adapter\nGet-NetAdapter -Name \"Ethernet\" | Disable-NetAdapter -Confirm:$false\n\n# Example for Windows Firewall (block all outbound except to IR server)\nNetsh advfirewall firewall add rule name=\"BlockAllOutbound\" dir=out action=block enable=yes\nNetsh advfirewall firewall add rule name=\"AllowIROutbound\" dir=out action=allow remoteip=192.168.1.100 enable=yes\n</code></pre>\n\n<p><b>Important:</b> Always document actions taken and their timestamp. Ensure isolated systems can still be accessed by IR tools if needed.</p>",
+            "tags": ["containment", "ir", "network-security", "powershell"],
+            "references": "NIST SP 800-61 Rev. 2, CIS Controls v8",
+            "createdAt": 1700000002001,
+            "updatedAt": 1700000002001
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 100002,
+    "title": "Threat Hunting Playbook",
+    "description": "Proactive methodologies for discovering unseen threats within the network environment.",
+    "createdAt": 1700000003000,
+    "updatedAt": 1700000003000,
+    "sections": [
+      {
+        "id": 100201,
+        "title": "Hunting for Persistence Mechanisms",
+        "description": "Strategies to uncover how adversaries maintain access to systems.",
+        "createdAt": 1700000004000,
+        "updatedAt": 1700000004000,
+        "entries": [
+          {
+            "id": 10020101,
+            "title": "Sysmon Rule for Run Keys",
+            "content": "Sysmon is invaluable for endpoint visibility. You can use it to hunt for suspicious modifications to common Windows persistence locations like Run keys.\n\n<h3>Sysmon Configuration Snippet:</h3>\n<pre><code class=\"language-xml\">\n&lt;!-- Detects modifications to Run, RunOnce, RunServices, etc. --&gt;\n&lt;RuleGroup name=\"Persistence_RunKeys\" groupRelation=\"or\"&gt;\n  &lt;RegistryEvent onmatch=\"exclude\"&gt;\n    &lt;TargetObject name=\"Sysmon service startup\" condition=\"contains\"&gt;HKLM\\System\\CurrentControlSet\\Services\\SysmonDrv\\&lt;/TargetObject&gt;\n  &lt;/RegistryEvent&gt;\n\n  &lt;RegistryEvent onmatch=\"include\"&gt;\n    &lt;TargetObject condition=\"contains\"&gt;HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run&lt;/TargetObject&gt;\n    &lt;TargetObject condition=\"contains\"&gt;HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run&lt;/TargetObject&gt;\n    &lt;TargetObject condition=\"contains\"&gt;HKLM\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run&lt;/TargetObject&gt;\n    &lt;TargetObject condition=\"contains\"&gt;HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce&lt;/TargetObject&gt;\n    &lt;TargetObject condition=\"contains\"&gt;HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce&lt;/TargetObject&gt;\n  &lt;/RegistryEvent&gt;\n&lt;/RuleGroup&gt;\n</code></pre>\n\n<p><b>Note:</b> This is a basic example. Real-world Sysmon configurations are far more complex and require careful tuning to avoid false positives.</p>",
+            "tags": ["sysmon", "persistence", "threat-hunting", "windows", "xml", "configuration"],
+            "references": "Sysmon documentation, Sysmon-Modular by Olaf Hartong",
+            "createdAt": 1700000004001,
+            "updatedAt": 1700000004001
+          }
+        ]
+      }
+    ]
+  }
+]

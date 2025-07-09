@@ -1,5 +1,5 @@
 // Enhanced Threat Actor Database with comprehensive profiles
-const threatActors = [
+let threatActors = [
     {
         id: 1,
         name: "APT1 (Comment Crew)",
@@ -302,6 +302,235 @@ const threatActors = [
     }
 ];
 
+// Intelligence Vault Data
+let intelligenceTools = [
+    // General Tools
+    {
+        id: 1,
+        name: "Maltego",
+        url: "https://www.maltego.com",
+        parentCategory: "general",
+        childCategory: "all-tools",
+        description: "Comprehensive link analysis and data mining application for gathering and connecting information for investigative tasks.",
+        tags: ["investigation", "link-analysis", "osint", "commercial"],
+        isPinned: false,
+        isStarred: true,
+        dateAdded: "2024-01-15"
+    },
+    {
+        id: 2,
+        name: "Shodan",
+        url: "https://www.shodan.io",
+        parentCategory: "osint",
+        childCategory: "search-engines",
+        description: "Search engine for Internet-connected devices. Find exposed databases, webcams, industrial systems, and more.",
+        tags: ["iot", "search", "reconnaissance", "devices"],
+        isPinned: true,
+        isStarred: true,
+        dateAdded: "2024-01-14"
+    },
+    {
+        id: 3,
+        name: "VirusTotal",
+        url: "https://www.virustotal.com",
+        parentCategory: "malware-analysis",
+        childCategory: "file-analysis",
+        description: "Free online service that analyzes files and URLs for viruses, worms, trojans and other malicious content.",
+        tags: ["malware", "analysis", "free", "hash-lookup"],
+        isPinned: true,
+        isStarred: false,
+        dateAdded: "2024-01-13"
+    },
+    {
+        id: 4,
+        name: "Wireshark",
+        url: "https://www.wireshark.org",
+        parentCategory: "network-security",
+        childCategory: "packet-analysis",
+        description: "World's foremost and widely-used network protocol analyzer for troubleshooting, analysis, and protocol development.",
+        tags: ["network", "packet-capture", "analysis", "free", "open-source"],
+        isPinned: false,
+        isStarred: true,
+        dateAdded: "2024-01-12"
+    },
+    {
+        id: 5,
+        name: "Autopsy",
+        url: "https://www.autopsy.com",
+        parentCategory: "digital-forensics",
+        childCategory: "disk-analysis",
+        description: "Digital forensics platform and graphical interface to The Sleuth Kit and other digital forensics tools.",
+        tags: ["forensics", "disk-analysis", "free", "open-source"],
+        isPinned: false,
+        isStarred: false,
+        dateAdded: "2024-01-11"
+    },
+    {
+        id: 6,
+        name: "MISP",
+        url: "https://www.misp-project.org",
+        parentCategory: "threat-intelligence",
+        childCategory: "threat-sharing",
+        description: "Open source threat intelligence platform for sharing, storing and correlating Indicators of Compromise.",
+        tags: ["threat-intel", "ioc", "sharing", "open-source"],
+        isPinned: true,
+        isStarred: true,
+        dateAdded: "2024-01-10"
+    },
+    {
+        id: 7,
+        name: "TheHive",
+        url: "https://thehive-project.org",
+        parentCategory: "incident-response",
+        childCategory: "case-management",
+        description: "Scalable, open source and free Security Incident Response Platform designed to make life easier for SOCs and CSIRTs.",
+        tags: ["incident-response", "case-management", "open-source", "soc"],
+        isPinned: false,
+        isStarred: true,
+        dateAdded: "2024-01-09"
+    },
+    {
+        id: 8,
+        name: "Nessus",
+        url: "https://www.tenable.com/products/nessus",
+        parentCategory: "compliance",
+        childCategory: "vulnerability-assessment",
+        description: "Comprehensive vulnerability scanner that identifies vulnerabilities, configuration issues, and malware.",
+        tags: ["vulnerability", "scanning", "compliance", "commercial"],
+        isPinned: false,
+        isStarred: false,
+        dateAdded: "2024-01-08"
+    }
+];
+
+// Parent-Child Category Mapping
+const categoryMapping = {
+    general: {
+        name: "General",
+        icon: "fas fa-home",
+        children: {
+            "all-tools": "All Tools",
+            "favorites": "Favorites",
+            "recently-added": "Recently Added",
+            "most-used": "Most Used"
+        }
+    },
+    osint: {
+        name: "OSINT & Investigation",
+        icon: "fas fa-search-location",
+        children: {
+            "search-engines": "Search Engines",
+            "social-media": "Social Media Intelligence",
+            "people-search": "People Search",
+            "email-investigation": "Email Investigation",
+            "phone-investigation": "Phone Investigation",
+            "username-investigation": "Username Investigation",
+            "domain-investigation": "Domain Investigation",
+            "image-investigation": "Image Investigation",
+            "geolocation": "Geolocation",
+            "dark-web": "Dark Web",
+            "breach-data": "Breach Data",
+            "public-records": "Public Records"
+        }
+    },
+    "digital-forensics": {
+        name: "Digital Forensics",
+        icon: "fas fa-microscope",
+        children: {
+            "disk-analysis": "Disk Analysis",
+            "memory-analysis": "Memory Analysis",
+            "mobile-forensics": "Mobile Forensics",
+            "network-forensics": "Network Forensics",
+            "timeline-analysis": "Timeline Analysis",
+            "artifact-analysis": "Artifact Analysis",
+            "file-recovery": "File Recovery",
+            "metadata-analysis": "Metadata Analysis",
+            "registry-analysis": "Registry Analysis",
+            "log-analysis": "Log Analysis"
+        }
+    },
+    "malware-analysis": {
+        name: "Malware Analysis",
+        icon: "fas fa-virus",
+        children: {
+            "file-analysis": "File Analysis",
+            "dynamic-analysis": "Dynamic Analysis",
+            "static-analysis": "Static Analysis",
+            "sandboxes": "Sandboxes",
+            "reverse-engineering": "Reverse Engineering",
+            "hash-lookup": "Hash Lookup",
+            "yara-rules": "YARA Rules",
+            "decompilers": "Decompilers",
+            "debuggers": "Debuggers",
+            "hex-editors": "Hex Editors"
+        }
+    },
+    "network-security": {
+        name: "Network Security",
+        icon: "fas fa-network-wired",
+        children: {
+            "packet-analysis": "Packet Analysis",
+            "network-scanning": "Network Scanning",
+            "vulnerability-scanning": "Vulnerability Scanning",
+            "port-scanning": "Port Scanning",
+            "ssl-analysis": "SSL Analysis",
+            "dns-analysis": "DNS Analysis",
+            "ip-analysis": "IP Analysis",
+            "url-analysis": "URL Analysis",
+            "traffic-analysis": "Traffic Analysis",
+            "intrusion-detection": "Intrusion Detection"
+        }
+    },
+    "threat-intelligence": {
+        name: "Threat Intelligence",
+        icon: "fas fa-shield-alt",
+        children: {
+            "ioc-analysis": "IOC Analysis",
+            "threat-feeds": "Threat Feeds",
+            "threat-hunting": "Threat Hunting",
+            "attribution": "Attribution",
+            "threat-sharing": "Threat Sharing",
+            "vulnerability-research": "Vulnerability Research",
+            "exploit-databases": "Exploit Databases",
+            "threat-reports": "Threat Reports",
+            "apt-tracking": "APT Tracking",
+            "campaign-tracking": "Campaign Tracking"
+        }
+    },
+    "incident-response": {
+        name: "Incident Response",
+        icon: "fas fa-exclamation-triangle",
+        children: {
+            "case-management": "Case Management",
+            "evidence-collection": "Evidence Collection",
+            "containment": "Containment",
+            "eradication": "Eradication",
+            "recovery": "Recovery",
+            "communication": "Communication",
+            "documentation": "Documentation",
+            "lessons-learned": "Lessons Learned",
+            "playbooks": "Playbooks",
+            "automation": "Automation"
+        }
+    },
+    "compliance": {
+        name: "Compliance & Legal",
+        icon: "fas fa-balance-scale",
+        children: {
+            "vulnerability-assessment": "Vulnerability Assessment",
+            "compliance-scanning": "Compliance Scanning",
+            "audit-tools": "Audit Tools",
+            "policy-management": "Policy Management",
+            "risk-assessment": "Risk Assessment",
+            "legal-tools": "Legal Tools",
+            "evidence-preservation": "Evidence Preservation",
+            "chain-of-custody": "Chain of Custody",
+            "reporting": "Reporting",
+            "certification": "Certification"
+        }
+    }
+};
+
 // Current filters and state
 let currentFilters = {
     category: 'all',
@@ -312,25 +541,110 @@ let currentFilters = {
 
 let filteredActors = [...threatActors];
 let currentActorId = null;
+let convertedMitreData = null;
+
+// Vault state
+let currentParentTab = 'general';
+let currentChildTab = 'all-tools';
+// Multi-Vault variables
+let vaults = [];
+let currentVaultId = null;
+let currentVaultParentTab = 'general';
+let currentVaultChildTab = 'all-entries';
+let currentVaultView = 'grid';
+let selectedEntries = new Set();
+let isEditingEntry = false;
+let editingEntryId = null;
+let entryToDelete = null;
+
+let selectedTools = new Set();
+let filteredTools = [...intelligenceTools];
+let editingToolId = null;
+let deleteTargetId = null;
+let deleteTargetType = 'single'; // 'single' or 'bulk'
+
+// Initialize global variables
+let currentView = 'grid'; // For vault view toggle
+let currentCaseStudyView = 'grid';
+let currentDashboardView = 'dashboard'; // For main navigation
+let vaultEntries = [];
+let caseStudies = [
+    {
+        id: 1,
+        title: "APT29 SolarWinds Supply Chain Attack Analysis",
+        source: "FireEye",
+        author: "Mandiant Intelligence Team",
+        url: "https://www.fireeye.com/blog/threat-research/2020/12/evasive-attacker-leverages-solarwinds-supply-chain-compromises-with-sunburst-backdoor.html",
+        category: "apt",
+        preview: "In-depth analysis of the sophisticated supply chain attack attributed to APT29, examining the SUNBURST backdoor and its deployment mechanisms across thousands of organizations worldwide.",
+        tags: ["APT29", "supply chain", "SUNBURST", "backdoor", "nation-state"],
+        notes: "Critical case study for understanding modern supply chain attacks",
+        dateAdded: "2024-01-15",
+        pinned: true,
+        starred: false
+    },
+    {
+        id: 2,
+        title: "Lazarus Group Cryptocurrency Exchange Heists",
+        source: "Chainalysis",
+        author: "Chainalysis Research Team",
+        url: "https://blog.chainalysis.com/reports/lazarus-group-cryptocurrency-theft-2022",
+        category: "crypto",
+        preview: "Comprehensive investigation into Lazarus Group's cryptocurrency theft operations, tracking over $1.7 billion in stolen funds and analyzing their money laundering techniques.",
+        tags: ["Lazarus", "cryptocurrency", "money laundering", "North Korea", "blockchain"],
+        notes: "Excellent resource for crypto investigation techniques",
+        dateAdded: "2024-01-10",
+        pinned: false,
+        starred: true
+    }
+];
+let currentThreatActor = null;
+
+let currentPreviewCaseStudy = null;
 
 // Navigation Functions
 function showSection(sectionName) {
     // Hide all sections
-    document.querySelectorAll('.content-section').forEach(section => {
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => {
         section.classList.remove('active');
+        // It's better to hide 'investigation-notes' through its class, not inline style
+        // If it's the section itself, removing 'active' should handle it.
+        // If there are other elements you want to specifically hide, manage them here.
     });
-    
+
     // Show selected section
     const targetSection = document.getElementById(sectionName);
     if (targetSection) {
         targetSection.classList.add('active');
+
+        // ************************************************************
+        // MODIFICATION START: Call rendering methods for Investigation Notes
+        // ************************************************************
+        if (sectionName === 'investigation-notes') {
+            // Ensure the instance exists before calling its methods
+            if (window.investigationNotes) {
+                window.investigationNotes.renderNotes();
+                window.investigationNotes.updateEmptyState();
+            } else {
+                // Fallback: If for some reason it wasn't initialized, do it now.
+                // This might happen if 'investigation-notes.js' loads later.
+                window.investigationNotes = new InvestigationNotes();
+                window.investigationNotes.renderNotes();
+                window.investigationNotes.updateEmptyState();
+            }
+        }
+        // ************************************************************
+        // MODIFICATION END
+        // ************************************************************
     }
-    
+
     // Update nav links - find the nav item that corresponds to this section
-    document.querySelectorAll('.nav-item').forEach(link => {
+    const navLinks = document.querySelectorAll('.nav-item');
+    navLinks.forEach(link => {
         link.classList.remove('active');
     });
-    
+
     // Find the correct nav item by looking for the one with the matching onclick attribute
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(navItem => {
@@ -339,13 +653,22 @@ function showSection(sectionName) {
             navItem.classList.add('active');
         }
     });
-    
-    // Load section-specific content
+
+    // Load section-specific content (existing logic)
     if (sectionName === 'actors') {
         loadActorsSection();
     } else if (sectionName === 'dashboard') {
         loadDashboard();
+    } else if (sectionName === 'import') {
+        loadImportSection();
+    } else if (sectionName === 'vault') {
+        loadVaultSection();
+     } else if (sectionName === 'blueteam-playbook') { // NEW: Blue Team Playbook
+        if (window.blueTeamPlaybook) {
+            window.blueTeamPlaybook.initializeUI(); // Call its initializer
+        }
     }
+    // No need for an else if for 'investigation-notes' here, as it's handled above.
 }
 
 function showActorProfile(actorId) {
@@ -372,10 +695,22 @@ function showActorProfile(actorId) {
     
     // Render actor profile
     renderActorProfile(actor);
+    
+    // Scroll to top of the page smoothly
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
 function goBackToActors() {
     showSection('actors');
+    
+    // Scroll to top when going back to actors list
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
 // Dashboard Functions
@@ -781,6 +1116,902 @@ function renderActorProfile(actor) {
     `;
 }
 
+// Intelligence Vault Functions
+function loadVaultSection() {
+    renderParentTabs();
+    renderChildTabs();
+    applyVaultFilters();
+    setupVaultSearch();
+}
+
+function renderParentTabs() {
+    const parentTabsContainer = document.querySelector('.parent-tabs');
+    if (!parentTabsContainer) return;
+    
+    parentTabsContainer.innerHTML = Object.entries(categoryMapping).map(([key, category]) => `
+        <div class="parent-tab ${key === currentParentTab ? 'active' : ''}" 
+             data-parent="${key}" onclick="switchParentTab('${key}')">
+            <i class="${category.icon}"></i>
+            <span>${category.name}</span>
+        </div>
+    `).join('');
+}
+
+function renderChildTabs() {
+    const childTabsContainer = document.getElementById('childTabs');
+    if (!childTabsContainer) return;
+    
+    const currentCategory = categoryMapping[currentParentTab];
+    if (!currentCategory) return;
+    
+    childTabsContainer.innerHTML = Object.entries(currentCategory.children).map(([key, name]) => `
+        <div class="child-tab ${key === currentChildTab ? 'active' : ''}" 
+             data-child="${key}" onclick="switchChildTab('${key}')">
+            ${name}
+        </div>
+    `).join('');
+}
+
+function switchParentTab(parentTab) {
+    currentParentTab = parentTab;
+    
+    // Reset to first child tab
+    const firstChildKey = Object.keys(categoryMapping[parentTab].children)[0];
+    currentChildTab = firstChildKey;
+    
+    // Clear selection
+    selectedTools.clear();
+    updateBulkActions();
+    
+    renderParentTabs();
+    renderChildTabs();
+    applyVaultFilters();
+}
+
+function switchChildTab(childTab) {
+    currentChildTab = childTab;
+    
+    // Clear selection
+    selectedTools.clear();
+    updateBulkActions();
+    
+    renderChildTabs();
+    applyVaultFilters();
+}
+
+function applyVaultFilters() {
+    const searchTerm = document.getElementById('vaultSearch')?.value.toLowerCase() || '';
+    
+    filteredTools = intelligenceTools.filter(tool => {
+        // Search filter
+        if (searchTerm && !tool.name.toLowerCase().includes(searchTerm) && 
+            !tool.description.toLowerCase().includes(searchTerm) &&
+            !tool.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+            return false;
+        }
+        
+        // Category filter
+        if (currentParentTab === 'general') {
+            if (currentChildTab === 'favorites') {
+                return tool.isStarred;
+            } else if (currentChildTab === 'recently-added') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return new Date(tool.dateAdded) > weekAgo;
+            } else if (currentChildTab === 'most-used') {
+                return tool.isPinned;
+            }
+            // 'all-tools' shows everything
+            return true;
+        } else {
+            // Filter by parent category
+            if (tool.parentCategory !== currentParentTab) {
+                return false;
+            }
+            
+            // Filter by child category if not 'all'
+            if (currentChildTab !== 'all' && tool.childCategory !== currentChildTab) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    // Apply sorting
+    sortTools();
+    renderTools();
+}
+
+function sortTools() {
+    const sortBy = document.getElementById('vaultSortFilter')?.value || 'name-asc';
+    
+    filteredTools.sort((a, b) => {
+        switch (sortBy) {
+            case 'name-asc':
+                return a.name.localeCompare(b.name);
+            case 'name-desc':
+                return b.name.localeCompare(a.name);
+            case 'date-new':
+                return new Date(b.dateAdded) - new Date(a.dateAdded);
+            case 'date-old':
+                return new Date(a.dateAdded) - new Date(b.dateAdded);
+            case 'pinned':
+                return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+            case 'starred':
+                return (b.isStarred ? 1 : 0) - (a.isStarred ? 1 : 0);
+            default:
+                return 0;
+        }
+    });
+}
+
+function filterToolsByStatus() {
+    const statusFilter = document.getElementById('vaultStatusFilter')?.value || 'all';
+    
+    if (statusFilter === 'all') {
+        applyVaultFilters();
+        return;
+    }
+    
+    filteredTools = filteredTools.filter(tool => {
+        switch (statusFilter) {
+            case 'pinned':
+                return tool.isPinned;
+            case 'starred':
+                return tool.isStarred;
+            case 'recent':
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return new Date(tool.dateAdded) > weekAgo;
+            default:
+                return true;
+        }
+    });
+    
+    renderTools();
+}
+
+function renderTools() {
+    const toolsGrid = document.getElementById('toolsGrid');
+    if (!toolsGrid) return;
+    
+    toolsGrid.className = currentView === 'grid' ? 'tools-grid' : 'tools-list';
+    
+    if (filteredTools.length === 0) {
+        toolsGrid.innerHTML = `
+            <div class="no-tools">
+                <div class="no-tools-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No tools found</h3>
+                <p>Try adjusting your search criteria or add new tools to your vault.</p>
+                <button class="btn-primary" onclick="showAddToolModal()">
+                    <i class="fas fa-plus"></i>
+                    Add New Tool
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    toolsGrid.innerHTML = filteredTools.map(tool => createToolCard(tool)).join('');
+}
+
+function createToolCard(tool) {
+    const isSelected = selectedTools.has(tool.id);
+    
+    if (currentView === 'list') {
+        return `
+            <div class="tool-item ${isSelected ? 'selected' : ''}" data-tool-id="${tool.id}">
+                <div class="tool-checkbox">
+                    <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                           onchange="toggleToolSelection(${tool.id})">
+                </div>
+                <div class="tool-info">
+                    <div class="tool-header">
+                        <h3 class="tool-name">${tool.name}</h3>
+                        <div class="tool-url">
+                            <a href="${tool.url}" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-external-link-alt"></i>
+                                ${tool.url}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="tool-description">${tool.description}</div>
+                    <div class="tool-tags">
+                        ${tool.tags.map(tag => `<span class="tool-tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="tool-actions">
+                    <button class="tool-action-btn ${tool.isPinned ? 'active' : ''}" 
+                            onclick="togglePin(${tool.id})" title="Pin Tool">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="tool-action-btn ${tool.isStarred ? 'active' : ''}" 
+                            onclick="toggleStar(${tool.id})" title="Star Tool">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="tool-action-btn" onclick="openTool(${tool.id})" title="Open Tool">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="tool-action-btn" onclick="editTool(${tool.id})" title="Edit Tool">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="tool-action-btn danger" onclick="deleteTool(${tool.id})" title="Delete Tool">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="tool-card ${isSelected ? 'selected' : ''}" data-tool-id="${tool.id}">
+                <div class="tool-checkbox">
+                    <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                           onchange="toggleToolSelection(${tool.id})">
+                </div>
+                <div class="tool-header">
+                    <div class="tool-status">
+                        ${tool.isPinned ? '<i class="fas fa-thumbtack pinned" title="Pinned"></i>' : ''}
+                        ${tool.isStarred ? '<i class="fas fa-star starred" title="Starred"></i>' : ''}
+                    </div>
+                    <h3 class="tool-name">${tool.name}</h3>
+                    <div class="tool-url">
+                        <a href="${tool.url}" target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-external-link-alt"></i>
+                            ${tool.url}
+                        </a>
+                    </div>
+                </div>
+                <div class="tool-description">${tool.description}</div>
+                <div class="tool-tags">
+                    ${tool.tags.map(tag => `<span class="tool-tag">${tag}</span>`).join('')}
+                </div>
+                <div class="tool-actions">
+                    <button class="tool-action-btn ${tool.isPinned ? 'active' : ''}" 
+                            onclick="togglePin(${tool.id})" title="Pin Tool">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="tool-action-btn ${tool.isStarred ? 'active' : ''}" 
+                            onclick="toggleStar(${tool.id})" title="Star Tool">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="tool-action-btn" onclick="openTool(${tool.id})" title="Open Tool">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="tool-action-btn" onclick="editTool(${tool.id})" title="Edit Tool">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="tool-action-btn danger" onclick="deleteTool(${tool.id})" title="Delete Tool">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function toggleView(view) {
+    currentView = view;
+    
+    // Update view buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+    });
+    
+    renderTools();
+}
+
+function setupVaultSearch() {
+    const searchInput = document.getElementById('vaultSearch');
+    if (!searchInput) return;
+    
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            applyVaultFilters();
+        }, 300);
+    });
+}
+
+// Tool Management Functions
+function showAddToolModal() {
+    editingToolId = null;
+    document.getElementById('modalTitle').textContent = 'Add New Tool';
+    document.getElementById('saveButtonText').textContent = 'Save Tool';
+    document.getElementById('addToolForm').reset();
+    document.getElementById('customCategoryGroup').style.display = 'none';
+    updateChildCategories();
+    document.getElementById('addToolModal').style.display = 'flex';
+}
+
+function closeAddToolModal() {
+    document.getElementById('addToolModal').style.display = 'none';
+    editingToolId = null;
+}
+
+function updateChildCategories() {
+    const parentSelect = document.getElementById('toolParentCategory');
+    const childSelect = document.getElementById('toolChildCategory');
+    const customGroup = document.getElementById('customCategoryGroup');
+    
+    const selectedParent = parentSelect.value;
+    
+    if (selectedParent === 'custom') {
+        customGroup.style.display = 'block';
+        childSelect.innerHTML = '<option value="custom">Custom Category</option>';
+        return;
+    } else {
+        customGroup.style.display = 'none';
+    }
+    
+    childSelect.innerHTML = '<option value="">Select Child Category</option>';
+    
+    if (selectedParent && categoryMapping[selectedParent]) {
+        const children = categoryMapping[selectedParent].children;
+        Object.entries(children).forEach(([key, name]) => {
+            childSelect.innerHTML += `<option value="${key}">${name}</option>`;
+        });
+    }
+}
+
+function saveToolForm(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const toolData = {
+        name: formData.get('toolName'),
+        url: formData.get('toolUrl'),
+        parentCategory: formData.get('toolParentCategory'),
+        childCategory: formData.get('toolChildCategory'),
+        description: formData.get('toolDescription') || '',
+        tags: formData.get('toolTags') ? formData.get('toolTags').split(',').map(tag => tag.trim()) : [],
+        isPinned: false,
+        isStarred: false,
+        dateAdded: new Date().toISOString().split('T')[0]
+    };
+    
+    // Handle custom categories
+    if (toolData.parentCategory === 'custom') {
+        const customParent = formData.get('customParentCategory');
+        if (customParent) {
+            toolData.parentCategory = customParent.toLowerCase().replace(/\s+/g, '-');
+            toolData.childCategory = 'custom';
+        }
+    }
+    
+    // Check for duplicates
+    const existingTool = intelligenceTools.find(tool => 
+        tool.name.toLowerCase() === toolData.name.toLowerCase() && 
+        tool.id !== editingToolId
+    );
+    
+    if (existingTool) {
+        showNotification('A tool with this name already exists!', 'error');
+        return;
+    }
+    
+    if (editingToolId) {
+        // Update existing tool
+        const toolIndex = intelligenceTools.findIndex(tool => tool.id === editingToolId);
+        if (toolIndex !== -1) {
+            intelligenceTools[toolIndex] = { ...intelligenceTools[toolIndex], ...toolData };
+            showNotification('Tool updated successfully!', 'success');
+        }
+    } else {
+        // Add new tool
+        const newTool = {
+            id: Math.max(...intelligenceTools.map(t => t.id)) + 1,
+            ...toolData
+        };
+        intelligenceTools.push(newTool);
+        showNotification('Tool added successfully!', 'success');
+    }
+    
+    closeAddToolModal();
+    applyVaultFilters();
+}
+
+function editTool(toolId) {
+    const tool = intelligenceTools.find(t => t.id === toolId);
+    if (!tool) return;
+    
+    editingToolId = toolId;
+    document.getElementById('modalTitle').textContent = 'Edit Tool';
+    document.getElementById('saveButtonText').textContent = 'Update Tool';
+    
+    // Populate form
+    document.getElementById('toolName').value = tool.name;
+    document.getElementById('toolUrl').value = tool.url;
+    document.getElementById('toolParentCategory').value = tool.parentCategory;
+    document.getElementById('toolDescription').value = tool.description;
+    document.getElementById('toolTags').value = tool.tags.join(', ');
+    
+    updateChildCategories();
+    setTimeout(() => {
+        document.getElementById('toolChildCategory').value = tool.childCategory;
+    }, 100);
+    
+    document.getElementById('addToolModal').style.display = 'flex';
+}
+
+function deleteTool(toolId) {
+    deleteTargetId = toolId;
+    deleteTargetType = 'single';
+    
+    const tool = intelligenceTools.find(t => t.id === toolId);
+    document.getElementById('deleteMessage').textContent = 
+        `Are you sure you want to delete "${tool.name}"? This action cannot be undone.`;
+    
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    deleteTargetId = null;
+    deleteTargetType = 'single';
+}
+
+function confirmDelete() {
+    if (deleteTargetType === 'single' && deleteTargetId) {
+        const toolIndex = intelligenceTools.findIndex(t => t.id === deleteTargetId);
+        if (toolIndex !== -1) {
+            const toolName = intelligenceTools[toolIndex].name;
+            intelligenceTools.splice(toolIndex, 1);
+            showNotification(`"${toolName}" deleted successfully!`, 'success');
+        }
+    } else if (deleteTargetType === 'bulk') {
+        const deletedCount = selectedTools.size;
+        intelligenceTools = intelligenceTools.filter(tool => !selectedTools.has(tool.id));
+        selectedTools.clear();
+        showNotification(`${deletedCount} tools deleted successfully!`, 'success');
+        updateBulkActions();
+    }
+    
+    closeDeleteModal();
+    applyVaultFilters();
+}
+
+function togglePin(toolId) {
+    const tool = intelligenceTools.find(t => t.id === toolId);
+    if (tool) {
+        tool.isPinned = !tool.isPinned;
+        showNotification(`Tool ${tool.isPinned ? 'pinned' : 'unpinned'}!`, 'info');
+        applyVaultFilters();
+    }
+}
+
+function toggleStar(toolId) {
+    const tool = intelligenceTools.find(t => t.id === toolId);
+    if (tool) {
+        tool.isStarred = !tool.isStarred;
+        showNotification(`Tool ${tool.isStarred ? 'starred' : 'unstarred'}!`, 'info');
+        applyVaultFilters();
+    }
+}
+
+function openTool(toolId) {
+    const tool = intelligenceTools.find(t => t.id === toolId);
+    if (tool) {
+        window.open(tool.url, '_blank', 'noopener,noreferrer');
+    }
+}
+
+// Bulk Operations
+function toggleToolSelection(toolId) {
+    if (selectedTools.has(toolId)) {
+        selectedTools.delete(toolId);
+    } else {
+        selectedTools.add(toolId);
+    }
+    
+    updateBulkActions();
+    updateToolCardSelection(toolId);
+}
+
+function updateToolCardSelection(toolId) {
+    const toolCard = document.querySelector(`[data-tool-id="${toolId}"]`);
+    if (toolCard) {
+        toolCard.classList.toggle('selected', selectedTools.has(toolId));
+    }
+}
+
+function updateBulkActions() {
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectedTools.size > 0) {
+        bulkActions.style.display = 'flex';
+        selectedCount.textContent = `${selectedTools.size} selected`;
+    } else {
+        bulkActions.style.display = 'none';
+    }
+}
+
+function bulkPin() {
+    selectedTools.forEach(toolId => {
+        const tool = intelligenceTools.find(t => t.id === toolId);
+        if (tool) tool.isPinned = true;
+    });
+    
+    showNotification(`${selectedTools.size} tools pinned!`, 'success');
+    clearSelection();
+    applyVaultFilters();
+}
+
+function bulkStar() {
+    selectedTools.forEach(toolId => {
+        const tool = intelligenceTools.find(t => t.id === toolId);
+        if (tool) tool.isStarred = true;
+    });
+    
+    showNotification(`${selectedTools.size} tools starred!`, 'success');
+    clearSelection();
+    applyVaultFilters();
+}
+
+function bulkDelete() {
+    deleteTargetType = 'bulk';
+    document.getElementById('deleteMessage').textContent = 
+        `Are you sure you want to delete ${selectedTools.size} selected tools? This action cannot be undone.`;
+    
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function clearSelection() {
+    selectedTools.clear();
+    updateBulkActions();
+    
+    // Update UI
+    document.querySelectorAll('.tool-card, .tool-item').forEach(card => {
+        card.classList.remove('selected');
+        const checkbox = card.querySelector('input[type="checkbox"]');
+        if (checkbox) checkbox.checked = false;
+    });
+}
+
+// Import/Export Functions
+function importTools() {
+    document.getElementById('importToolsModal').style.display = 'flex';
+    setupToolsFileUpload();
+}
+
+function closeImportToolsModal() {
+    document.getElementById('importToolsModal').style.display = 'none';
+}
+
+function setupToolsFileUpload() {
+    const fileInput = document.getElementById('toolsFileInput');
+    const uploadArea = document.getElementById('toolsFileUploadArea');
+    
+    if (!fileInput || !uploadArea) return;
+    
+    fileInput.addEventListener('change', handleToolsFileSelect);
+    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('dragleave', handleDragLeave);
+    uploadArea.addEventListener('drop', handleToolsFileDrop);
+    uploadArea.addEventListener('click', () => fileInput.click());
+}
+
+function handleToolsFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) {
+        processToolsFile(file);
+    }
+}
+
+function handleToolsFileDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        processToolsFile(files[0]);
+    }
+}
+
+async function processToolsFile(file) {
+    if (!file.name.endsWith('.json')) {
+        showNotification('Please select a JSON file', 'error');
+        return;
+    }
+    
+    try {
+        const text = await file.text();
+        const importedTools = JSON.parse(text);
+        
+        if (!Array.isArray(importedTools)) {
+            throw new Error('JSON file must contain an array of tools');
+        }
+        
+        let importedCount = 0;
+        let duplicateCount = 0;
+        
+        importedTools.forEach(toolData => {
+            // Check for duplicates
+            const existingTool = intelligenceTools.find(tool => 
+                tool.name.toLowerCase() === toolData.name.toLowerCase()
+            );
+            
+            if (existingTool) {
+                duplicateCount++;
+                return;
+            }
+            
+            // Add new tool
+            const newTool = {
+                id: Math.max(...intelligenceTools.map(t => t.id)) + 1,
+                name: toolData.name || 'Unnamed Tool',
+                url: toolData.url || '',
+                parentCategory: toolData.parentCategory || 'general',
+                childCategory: toolData.childCategory || 'all-tools',
+                description: toolData.description || '',
+                tags: Array.isArray(toolData.tags) ? toolData.tags : [],
+                isPinned: false,
+                isStarred: false,
+                dateAdded: new Date().toISOString().split('T')[0]
+            };
+            
+            intelligenceTools.push(newTool);
+            importedCount++;
+        });
+        
+        closeImportToolsModal();
+        
+        let message = `Successfully imported ${importedCount} tools!`;
+        if (duplicateCount > 0) {
+            message += ` (${duplicateCount} duplicates skipped)`;
+        }
+        
+        showNotification(message, 'success');
+        applyVaultFilters();
+        
+    } catch (error) {
+        showNotification(`Import failed: ${error.message}`, 'error');
+    }
+}
+
+function exportTools() {
+    const dataStr = JSON.stringify(intelligenceTools, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `intelligence-tools-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
+    showNotification('Tools exported successfully!', 'success');
+}
+
+// Notification System
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icon = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    }[type] || 'fas fa-info-circle';
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="${icon}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="closeNotification(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            closeNotification(notification.querySelector('.notification-close'));
+        }
+    }, 5000);
+}
+
+function closeNotification(button) {
+    const notification = button.closest('.notification');
+    if (notification) {
+        notification.style.animation = 'slideOut 0.3s ease-in-out';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }
+}
+
+// Import Section Functions
+function loadImportSection() {
+    setupFileUpload();
+}
+
+function setupFileUpload() {
+    const fileInput = document.getElementById('mitreFileInput');
+    const uploadArea = document.getElementById('fileUploadArea');
+    
+    if (!fileInput || !uploadArea) return;
+    
+    // File input change handler
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('dragleave', handleDragLeave);
+    uploadArea.addEventListener('drop', handleFileDrop);
+    uploadArea.addEventListener('click', () => fileInput.click());
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+}
+
+function handleFileDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        processFile(files[0]);
+    }
+}
+
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) {
+        processFile(file);
+    }
+}
+
+async function processFile(file) {
+    if (!file.name.endsWith('.json')) {
+        alert('Please select a JSON file');
+        return;
+    }
+    
+    showProgress();
+    
+    try {
+        const text = await file.text();
+        const mitreData = JSON.parse(text);
+        
+        updateProgress(20, 'Parsing MITRE data...');
+        
+        // Validate MITRE data structure
+        if (!mitreData.objects || !Array.isArray(mitreData.objects)) {
+            throw new Error('Invalid MITRE data format');
+        }
+        
+        updateProgress(40, 'Converting threat groups...');
+        
+        // Convert MITRE data using the converter
+        const converter = new MitreConverter();
+        const convertedData = await converter.convertMitreObjects(mitreData.objects);
+        
+        updateProgress(80, 'Finalizing import...');
+        
+        // Store converted data
+        convertedMitreData = convertedData;
+        
+        // Update threat actors array
+        threatActors = [...threatActors, ...convertedData];
+        filteredActors = [...threatActors];
+        
+        updateProgress(100, 'Import completed successfully!');
+        
+        setTimeout(() => {
+            showResults(convertedData);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Import error:', error);
+        hideProgress();
+        alert(`Import failed: ${error.message}`);
+    }
+}
+
+function showProgress() {
+    document.getElementById('importProgress').style.display = 'block';
+    document.getElementById('importResults').style.display = 'none';
+}
+
+function updateProgress(percentage, message) {
+    document.getElementById('progressFill').style.width = `${percentage}%`;
+    document.getElementById('progressText').textContent = `${percentage}%`;
+    document.getElementById('progressDetails').textContent = message;
+}
+
+function hideProgress() {
+    document.getElementById('importProgress').style.display = 'none';
+}
+
+function showResults(data) {
+    hideProgress();
+    
+    const resultsContainer = document.getElementById('importResults');
+    const statsContainer = document.getElementById('resultsStats');
+    
+    // Calculate statistics
+    const stats = {
+        total: data.length,
+        critical: data.filter(a => a.threatLevel === 'critical').length,
+        high: data.filter(a => a.threatLevel === 'high').length,
+        medium: data.filter(a => a.threatLevel === 'medium').length,
+        nationState: data.filter(a => a.category === 'nation-state').length,
+        apt: data.filter(a => a.category === 'apt').length
+    };
+    
+    statsContainer.innerHTML = `
+        <div class="stat-item">
+            <div class="stat-value">${stats.total}</div>
+            <div class="stat-label">Total Imported</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${stats.critical}</div>
+            <div class="stat-label">Critical Threats</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${stats.high}</div>
+            <div class="stat-label">High Threats</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${stats.nationState}</div>
+            <div class="stat-label">Nation-State</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${stats.apt}</div>
+            <div class="stat-label">APT Groups</div>
+        </div>
+    `;
+    
+    resultsContainer.style.display = 'block';
+}
+
+function downloadConvertedData() {
+    if (!convertedMitreData) {
+        alert('No converted data available');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(convertedMitreData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'mitre-threat-actors.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
+}
+
 // Share Profile Function
 function shareProfile(actorId) {
     const actor = threatActors.find(a => a.id === actorId);
@@ -837,7 +2068,8 @@ function performGlobalSearch() {
     currentFilters.search = searchTerm;
     
     // If we're on the actors page, apply filters
-    if (document.getElementById('actors') && document.getElementById('actors').classList.contains('active')) {
+    const actorsSection = document.getElementById('actors');
+    if (actorsSection && actorsSection.classList.contains('active')) {
         applyFilters();
     } else {
         // Switch to actors page and then apply filters
@@ -851,8 +2083,2441 @@ function toggleAdvancedSearch() {
     console.log('Advanced search toggled');
 }
 
+// ==========================================
+// MULTI-VAULT SYSTEM
+// ==========================================
+
+// Vault parent-child tab structure
+const vaultTabStructure = {
+    general: {
+        name: 'General',
+        icon: 'fas fa-home',
+        children: {
+            'all-entries': 'All Entries',
+            'recent': 'Recently Added',
+            'priority': 'High Priority',
+            'starred': 'Starred',
+            'notes': 'Investigation Notes'
+        }
+    },
+    identity: {
+        name: 'Identity & Social',
+        icon: 'fas fa-user-secret',
+        children: {
+            'social': 'Social Media Profiles',
+            'username': 'Usernames/Handles',
+            'email': 'Email Addresses',
+            'phone': 'Phone Numbers',
+            'dating': 'Dating Profiles',
+            'persona': 'Personas/Identities',
+            'publicrecord': 'Public Records'
+        }
+    },
+    communication: {
+        name: 'Communication',
+        icon: 'fas fa-comments',
+        children: {
+            'messaging': 'Messaging Apps',
+            'telegram': 'Telegram Channels',
+            'forum': 'Forums/Markets',
+            'paste': 'Paste Sites',
+            'link': 'Social/Internet Links'
+        }
+    },
+    financial: {
+        name: 'Financial',
+        icon: 'fas fa-dollar-sign',
+        children: {
+            'crypto': 'Crypto Transactions',
+            'vendor': 'Underground Vendors',
+            'breach': 'Data Breaches',
+            'credential': 'Credential Dumps'
+        }
+    },
+    technical: {
+        name: 'Technical',
+        icon: 'fas fa-code',
+        children: {
+            'domain': 'Domains/IPs/URLs',
+            'network': 'Network Analysis',
+            'metadata': 'Metadata',
+            'vpn': 'VPN/Anonymity',
+            'honeypot': 'Honeypots'
+        }
+    },
+    media: {
+        name: 'Media & Files',
+        icon: 'fas fa-photo-video',
+        children: {
+            'media': 'Images/Videos',
+            'audio': 'Audio Files',
+            'document': 'Documents',
+            'archive': 'Archives/Cache',
+            'facial': 'Facial Recognition'
+        }
+    },
+    intelligence: {
+        name: 'Intelligence',
+        icon: 'fas fa-brain',
+        children: {
+            'threat': 'Threat Intelligence',
+            'vulnerability': 'Vulnerabilities',
+            'malware': 'Malware/Files',
+            'exploit': 'Exploits/Markets',
+            'tool': 'Tools'
+        }
+    },
+    underground: {
+        name: 'Underground',
+        icon: 'fas fa-mask',
+        children: {
+            'password': 'Passwords',
+            'keyword': 'Keywords',
+            'location': 'Locations'
+        }
+    }
+};
+
+// Entry type field definitions
+const entryTypeFields = {
+    tool: {
+        fields: [
+            { name: 'url', label: 'Tool URL', type: 'url', required: true },
+            { name: 'category', label: 'Category', type: 'text' },
+            { name: 'version', label: 'Version', type: 'text' }
+        ]
+    },
+    email: {
+        fields: [
+            { name: 'email', label: 'Email Address', type: 'email', required: true },
+            { name: 'domain', label: 'Domain', type: 'text' },
+            { name: 'provider', label: 'Email Provider', type: 'text' },
+            { name: 'verified', label: 'Verified', type: 'checkbox' }
+        ]
+    },
+    phone: {
+        fields: [
+            { name: 'number', label: 'Phone Number', type: 'tel', required: true },
+            { name: 'country', label: 'Country Code', type: 'text' },
+            { name: 'carrier', label: 'Carrier', type: 'text' },
+            { name: 'type', label: 'Type', type: 'select', options: ['Mobile', 'Landline', 'VoIP', 'Unknown'] }
+        ]
+    },
+    crypto: {
+        fields: [
+            { name: 'address', label: 'Wallet Address', type: 'text', required: true },
+            { name: 'currency', label: 'Currency', type: 'select', options: ['Bitcoin', 'Ethereum', 'Monero', 'Litecoin', 'Other'] },
+            { name: 'amount', label: 'Amount', type: 'number' },
+            { name: 'txid', label: 'Transaction ID', type: 'text' }
+        ]
+    },
+    location: {
+        fields: [
+            { name: 'address', label: 'Address', type: 'text', required: true },
+            { name: 'coordinates', label: 'GPS Coordinates', type: 'text' },
+            { name: 'city', label: 'City', type: 'text' },
+            { name: 'country', label: 'Country', type: 'text' }
+        ]
+    },
+    link: {
+        fields: [
+            { name: 'url', label: 'URL', type: 'url', required: true },
+            { name: 'platform', label: 'Platform', type: 'text' },
+            { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'Suspended', 'Unknown'] }
+        ]
+    },
+    media: {
+        fields: [
+            { name: 'url', label: 'Media URL', type: 'url', required: true },
+            { name: 'type', label: 'Media Type', type: 'select', options: ['Image', 'Video', 'Audio', 'Document'] },
+            { name: 'resolution', label: 'Resolution', type: 'text' },
+            { name: 'filesize', label: 'File Size', type: 'text' }
+        ]
+    },
+    social: {
+        fields: [
+            { name: 'username', label: 'Username', type: 'text', required: true },
+            { name: 'platform', label: 'Platform', type: 'select', options: ['Facebook', 'Twitter', 'Instagram', 'LinkedIn', 'TikTok', 'YouTube', 'Other'] },
+            { name: 'url', label: 'Profile URL', type: 'url' },
+            { name: 'followers', label: 'Followers Count', type: 'number' }
+        ]
+    },
+    domain: {
+        fields: [
+            { name: 'domain', label: 'Domain/IP/URL', type: 'text', required: true },
+            { name: 'type', label: 'Type', type: 'select', options: ['Domain', 'IP Address', 'URL', 'Subdomain'] },
+            { name: 'registrar', label: 'Registrar', type: 'text' },
+            { name: 'created', label: 'Creation Date', type: 'date' }
+        ]
+    },
+    username: {
+        fields: [
+            { name: 'username', label: 'Username/Handle', type: 'text', required: true },
+            { name: 'platforms', label: 'Platforms Found', type: 'text' },
+            { name: 'availability', label: 'Availability', type: 'select', options: ['Available', 'Taken', 'Suspended', 'Unknown'] }
+        ]
+    },
+    threat: {
+        fields: [
+            { name: 'indicator', label: 'Threat Indicator', type: 'text', required: true },
+            { name: 'type', label: 'Indicator Type', type: 'select', options: ['IP', 'Domain', 'Hash', 'URL', 'Email', 'Other'] },
+            { name: 'severity', label: 'Severity', type: 'select', options: ['Low', 'Medium', 'High', 'Critical'] },
+            { name: 'confidence', label: 'Confidence', type: 'select', options: ['Low', 'Medium', 'High'] }
+        ]
+    },
+    document: {
+        fields: [
+            { name: 'filename', label: 'File Name', type: 'text', required: true },
+            { name: 'url', label: 'Document URL', type: 'url' },
+            { name: 'type', label: 'Document Type', type: 'select', options: ['PDF', 'DOC', 'XLS', 'TXT', 'Other'] },
+            { name: 'hash', label: 'File Hash', type: 'text' }
+        ]
+    }
+};
+
+// Load vaults from localStorage
+function loadVaults() {
+    const savedVaults = localStorage.getItem('investigationVaults');
+    if (savedVaults) {
+        vaults = JSON.parse(savedVaults);
+    }
+    renderVaultTabs();
+}
+
+// Save vaults to localStorage
+function saveVaults() {
+    localStorage.setItem('investigationVaults', JSON.stringify(vaults));
+}
+
+// Show create vault modal
+function showCreateVaultModal() {
+    document.getElementById('createVaultModal').style.display = 'flex';
+    document.getElementById('vaultName').focus();
+    
+    // Setup color picker
+    setupColorPicker();
+    setupIconPicker();
+}
+
+// Close create vault modal
+function closeCreateVaultModal() {
+    document.getElementById('createVaultModal').style.display = 'none';
+    document.getElementById('createVaultForm').reset();
+}
+
+// Setup color picker
+function setupColorPicker() {
+    const colorPresets = document.querySelectorAll('.color-preset');
+    const colorInput = document.getElementById('vaultColor');
+    
+    colorPresets.forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            colorInput.value = color;
+            
+            // Update active state
+            colorPresets.forEach(p => p.classList.remove('active'));
+            preset.classList.add('active');
+        });
+    });
+}
+
+// Setup icon picker
+function setupIconPicker() {
+    const iconOptions = document.querySelectorAll('.icon-option');
+    const iconInput = document.getElementById('vaultIcon');
+    
+    iconOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const icon = option.dataset.icon;
+            iconInput.value = icon;
+            
+            // Update active state
+            iconOptions.forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+        });
+    });
+}
+
+// Create new vault
+function createNewVault(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const vaultData = {
+        id: Date.now().toString(),
+        name: formData.get('vaultName'),
+        description: formData.get('vaultDescription') || '',
+        color: formData.get('vaultColor'),
+        icon: formData.get('vaultIcon'),
+        created: new Date().toISOString(),
+        entries: [],
+        stats: {
+            totalEntries: 0,
+            lastModified: new Date().toISOString()
+        }
+    };
+    
+    // Check for duplicate names
+    if (vaults.some(vault => vault.name.toLowerCase() === vaultData.name.toLowerCase())) {
+        showNotification('A vault with this name already exists', 'error');
+        return;
+    }
+    
+    vaults.push(vaultData);
+    saveVaults();
+    renderVaultTabs();
+    
+    // Switch to the new vault
+    switchToVault(vaultData.id);
+    
+    closeCreateVaultModal();
+    showNotification(`Vault "${vaultData.name}" created successfully`, 'success');
+}
+
+// Render vault tabs
+function renderVaultTabs() {
+    const vaultTabs = document.getElementById('vaultTabs');
+    const emptyState = document.getElementById('emptyVaultState');
+    const activeContent = document.getElementById('activeVaultContent');
+    
+    if (vaults.length === 0) {
+        vaultTabs.innerHTML = '';
+        emptyState.style.display = 'flex';
+        activeContent.style.display = 'none';
+        return;
+    }
+    
+    emptyState.style.display = 'none';
+    activeContent.style.display = 'block';
+    
+    vaultTabs.innerHTML = vaults.map(vault => `
+        <div class="vault-tab ${vault.id === currentVaultId ? 'active' : ''}" 
+             onclick="switchToVault('${vault.id}')"
+             data-vault-id="${vault.id}">
+            <div class="vault-tab-icon" style="background-color: ${vault.color}">
+                <i class="${vault.icon}"></i>
+            </div>
+            <div class="vault-tab-content">
+                <div class="vault-tab-name">${vault.name}</div>
+                <div class="vault-tab-stats">${vault.entries.length} entries</div>
+            </div>
+            <div class="vault-tab-actions">
+                <button class="vault-action-btn" onclick="event.stopPropagation(); showVaultManagement('${vault.id}')" title="Manage Vault">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // If no vault is selected, select the first one
+    if (!currentVaultId && vaults.length > 0) {
+        switchToVault(vaults[0].id);
+    }
+}
+
+// Switch to vault
+function switchToVault(vaultId) {
+    currentVaultId = vaultId;
+    const vault = vaults.find(v => v.id === vaultId);
+    
+    if (!vault) return;
+    
+    // Update active tab
+    document.querySelectorAll('.vault-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.vaultId === vaultId);
+    });
+    
+    // Update vault header
+    updateVaultHeader(vault);
+    
+    // Reset to general tab
+    currentVaultParentTab = 'general';
+    currentVaultChildTab = 'all-entries';
+    
+    // Update parent tabs
+    updateVaultParentTabs();
+    
+    // Update child tabs
+    updateVaultChildTabs();
+    
+    // Render entries
+    renderVaultEntries();
+}
+
+// Update vault header
+function updateVaultHeader(vault) {
+    const vaultHeader = document.getElementById('vaultHeader');
+    vaultHeader.innerHTML = `
+        <div class="vault-header-content">
+            <div class="vault-header-icon" style="background-color: ${vault.color}">
+                <i class="${vault.icon}"></i>
+            </div>
+            <div class="vault-header-info">
+                <h2>${vault.name}</h2>
+                <p>${vault.description || 'No description provided'}</p>
+                <div class="vault-header-stats">
+                    <span class="stat-item">
+                        <i class="fas fa-database"></i>
+                        ${vault.entries.length} entries
+                    </span>
+                    <span class="stat-item">
+                        <i class="fas fa-calendar"></i>
+                        Created ${new Date(vault.created).toLocaleDateString()}
+                    </span>
+                    <span class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        Modified ${new Date(vault.stats.lastModified).toLocaleDateString()}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Update vault parent tabs
+function updateVaultParentTabs() {
+    document.querySelectorAll('.vault-parent-tabs .parent-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.parent === currentVaultParentTab);
+    });
+}
+
+// Switch vault parent tab
+function switchVaultParentTab(parentTab) {
+    currentVaultParentTab = parentTab;
+    currentVaultChildTab = Object.keys(vaultTabStructure[parentTab].children)[0];
+    
+    updateVaultParentTabs();
+    updateVaultChildTabs();
+    renderVaultEntries();
+}
+
+// Update vault child tabs
+function updateVaultChildTabs() {
+    const vaultChildTabs = document.getElementById('vaultChildTabs');
+    const children = vaultTabStructure[currentVaultParentTab].children;
+    
+    vaultChildTabs.innerHTML = Object.entries(children).map(([key, name]) => `
+        <div class="child-tab ${key === currentVaultChildTab ? 'active' : ''}" 
+             onclick="switchVaultChildTab('${key}')">
+            ${name}
+        </div>
+    `).join('');
+}
+
+// Switch vault child tab
+function switchVaultChildTab(childTab) {
+    currentVaultChildTab = childTab;
+    updateVaultChildTabs();
+    renderVaultEntries();
+}
+
+// Show add entry modal
+function showAddEntryModal() {
+    if (!currentVaultId) {
+        showNotification('Please select a vault first', 'warning');
+        return;
+    }
+    
+    document.getElementById('addEntryModal').style.display = 'flex';
+    document.getElementById('entryModalTitle').textContent = 'Add New Entry';
+    document.getElementById('saveEntryButtonText').textContent = 'Save Entry';
+    document.getElementById('addEntryForm').reset();
+    isEditingEntry = false;
+    editingEntryId = null;
+    
+    // Clear dynamic fields
+    document.getElementById('dynamicFields').innerHTML = '';
+}
+
+// Close add entry modal
+function closeAddEntryModal() {
+    document.getElementById('addEntryModal').style.display = 'none';
+    document.getElementById('addEntryForm').reset();
+    isEditingEntry = false;
+    editingEntryId = null;
+}
+
+// Update entry fields based on type
+function updateEntryFields() {
+    const entryType = document.getElementById('entryType').value;
+    const dynamicFields = document.getElementById('dynamicFields');
+    
+    if (!entryType || !entryTypeFields[entryType]) {
+        dynamicFields.innerHTML = '';
+        return;
+    }
+    
+    const fields = entryTypeFields[entryType].fields;
+    
+    dynamicFields.innerHTML = fields.map(field => {
+        if (field.type === 'select') {
+            return `
+                <div class="form-group">
+                    <label for="field_${field.name}">${field.label}${field.required ? ' *' : ''}</label>
+                    <select id="field_${field.name}" name="field_${field.name}" ${field.required ? 'required' : ''}>
+                        <option value="">Select ${field.label}</option>
+                        ${field.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+        } else if (field.type === 'checkbox') {
+            return `
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="field_${field.name}" name="field_${field.name}">
+                        ${field.label}
+                    </label>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="form-group">
+                    <label for="field_${field.name}">${field.label}${field.required ? ' *' : ''}</label>
+                    <input type="${field.type}" id="field_${field.name}" name="field_${field.name}" 
+                           ${field.required ? 'required' : ''} 
+                           placeholder="Enter ${field.label.toLowerCase()}">
+                </div>
+            `;
+        }
+    }).join('');
+}
+
+// Add metadata pair
+function addMetadataPair() {
+    const container = document.getElementById('metadataContainer');
+    const pairDiv = document.createElement('div');
+    pairDiv.className = 'metadata-pair';
+    pairDiv.innerHTML = `
+        <input type="text" class="metadata-key" placeholder="Key">
+        <input type="text" class="metadata-value" placeholder="Value">
+        <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
+            <i class="fas fa-minus"></i>
+        </button>
+    `;
+    container.appendChild(pairDiv);
+}
+
+// Remove metadata pair
+function removeMetadataPair(button) {
+    const container = document.getElementById('metadataContainer');
+    if (container.children.length > 1) {
+        button.parentElement.remove();
+    }
+}
+
+// Save vault entry
+function saveVaultEntry(event) {
+    event.preventDefault();
+    
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const formData = new FormData(event.target);
+    const entryType = formData.get('entryType');
+    
+    // Collect dynamic fields
+    const dynamicData = {};
+    if (entryTypeFields[entryType]) {
+        entryTypeFields[entryType].fields.forEach(field => {
+            const value = formData.get(`field_${field.name}`);
+            if (value !== null) {
+                dynamicData[field.name] = field.type === 'checkbox' ? !!value : value;
+            }
+        });
+    }
+    
+    // Collect metadata from key-value pairs
+    const customMetadata = {};
+    const metadataPairs = document.querySelectorAll('.metadata-pair');
+    metadataPairs.forEach(pair => {
+        const key = pair.querySelector('.metadata-key').value.trim();
+        const value = pair.querySelector('.metadata-value').value.trim();
+        if (key && value) {
+            customMetadata[key] = value;
+        }
+    });
+    
+    const entryData = {
+        id: isEditingEntry ? editingEntryId : Date.now().toString(),
+        type: entryType,
+        name: formData.get('entryName'),
+        description: formData.get('entryDescription') || '',
+        investigationNotes: formData.get('investigationNotes') || '',
+        tags: formData.get('entryTags') ? formData.get('entryTags').split(',').map(tag => tag.trim()) : [],
+        source: formData.get('entrySource') || '',
+        priority: formData.get('entryPriority'),
+        dynamicData: dynamicData,
+        customMetadata: customMetadata,
+        created: isEditingEntry ? vault.entries.find(e => e.id === editingEntryId)?.created : new Date().toISOString(),
+        modified: new Date().toISOString(),
+        starred: isEditingEntry ? vault.entries.find(e => e.id === editingEntryId)?.starred || false : false,
+        pinned: isEditingEntry ? vault.entries.find(e => e.id === editingEntryId)?.pinned || false : false
+    };
+    
+    // Check for duplicates (only for new entries)
+    if (!isEditingEntry) {
+        const duplicate = vault.entries.find(entry => 
+            entry.name.toLowerCase() === entryData.name.toLowerCase() && 
+            entry.type === entryData.type
+        );
+        
+        if (duplicate) {
+            showNotification('An entry with this name and type already exists', 'error');
+            return;
+        }
+    }
+    
+    if (isEditingEntry) {
+        // Update existing entry
+        const index = vault.entries.findIndex(e => e.id === editingEntryId);
+        if (index !== -1) {
+            vault.entries[index] = entryData;
+        }
+    } else {
+        // Add new entry
+        vault.entries.push(entryData);
+    }
+    
+    // Update vault stats
+    vault.stats.totalEntries = vault.entries.length;
+    vault.stats.lastModified = new Date().toISOString();
+    
+    saveVaults();
+    renderVaultTabs();
+    updateVaultHeader(vault);
+    renderVaultEntries();
+    
+    closeAddEntryModal();
+    showNotification(
+        isEditingEntry ? 'Entry updated successfully' : 'Entry added successfully', 
+        'success'
+    );
+}
+
+// Render vault entries
+function renderVaultEntries() {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    let entries = [...vault.entries];
+    
+    // Filter by child tab
+    if (currentVaultChildTab !== 'all-entries') {
+        if (currentVaultChildTab === 'recent') {
+            entries = entries.sort((a, b) => new Date(b.created) - new Date(a.created)).slice(0, 20);
+        } else if (currentVaultChildTab === 'priority') {
+            entries = entries.filter(entry => entry.priority === 'high' || entry.priority === 'critical');
+        } else if (currentVaultChildTab === 'starred') {
+            entries = entries.filter(entry => entry.starred);
+        } else if (currentVaultChildTab === 'notes') {
+            entries = entries.filter(entry => entry.investigationNotes);
+        } else {
+            // Filter by entry type
+            entries = entries.filter(entry => entry.type === currentVaultChildTab);
+        }
+    }
+    
+    // Apply search filter
+    const searchTerm = document.getElementById('vaultEntrySearch')?.value.toLowerCase();
+    if (searchTerm) {
+        entries = entries.filter(entry => 
+            entry.name.toLowerCase().includes(searchTerm) ||
+            entry.description.toLowerCase().includes(searchTerm) ||
+            entry.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    // Apply type filter
+    const typeFilter = document.getElementById('vaultEntryTypeFilter')?.value;
+    if (typeFilter && typeFilter !== 'all') {
+        entries = entries.filter(entry => entry.type === typeFilter);
+    }
+    
+    // Apply sorting
+    const sortFilter = document.getElementById('vaultSortFilter')?.value;
+    if (sortFilter) {
+        switch (sortFilter) {
+            case 'date-new':
+                entries.sort((a, b) => new Date(b.created) - new Date(a.created));
+                break;
+            case 'date-old':
+                entries.sort((a, b) => new Date(a.created) - new Date(b.created));
+                break;
+            case 'name-asc':
+                entries.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case 'name-desc':
+                entries.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            case 'type':
+                entries.sort((a, b) => a.type.localeCompare(b.type));
+                break;
+            case 'priority':
+                const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+                entries.sort((a, b) => (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0));
+                break;
+        }
+    }
+    
+    const vaultEntriesGrid = document.getElementById('vaultEntriesGrid');
+    
+    if (entries.length === 0) {
+        vaultEntriesGrid.innerHTML = `
+            <div class="empty-entries-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3>No Entries Found</h3>
+                <p>No entries match your current filters. Try adjusting your search or filters.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    vaultEntriesGrid.className = `vault-entries-${currentVaultView}`;
+    vaultEntriesGrid.innerHTML = entries.map(entry => createVaultEntryCard(entry)).join('');
+}
+
+// Create vault entry card
+function createVaultEntryCard(entry) {
+    const priorityColors = {
+        low: '#10b981',
+        medium: '#f59e0b',
+        high: '#ef4444',
+        critical: '#dc2626'
+    };
+    
+    const typeIcons = {
+        tool: 'fas fa-tools',
+        email: 'fas fa-envelope',
+        phone: 'fas fa-phone',
+        crypto: 'fab fa-bitcoin',
+        location: 'fas fa-map-marker-alt',
+        link: 'fas fa-link',
+        media: 'fas fa-photo-video',
+        social: 'fas fa-users',
+        domain: 'fas fa-globe',
+        username: 'fas fa-user',
+        threat: 'fas fa-shield-alt',
+        document: 'fas fa-file-alt'
+    };
+    
+    return `
+        <div class="vault-entry-card" data-entry-id="${entry.id}">
+            <div class="entry-card-header">
+                <div class="entry-type-icon">
+                    <i class="${typeIcons[entry.type] || 'fas fa-file'}"></i>
+                </div>
+                <div class="entry-priority" style="background-color: ${priorityColors[entry.priority]}"></div>
+                <div class="entry-actions">
+                    <button class="entry-action-btn ${entry.starred ? 'active' : ''}" 
+                            onclick="toggleEntryStarred('${entry.id}')" title="Star">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="entry-action-btn ${entry.pinned ? 'active' : ''}" 
+                            onclick="toggleEntryPinned('${entry.id}')" title="Pin">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="entry-action-btn" onclick="editVaultEntry('${entry.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="entry-action-btn danger" onclick="deleteVaultEntry('${entry.id}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="entry-card-content">
+                <h3 class="entry-name">${entry.name}</h3>
+                <div class="entry-type">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</div>
+                
+                ${entry.description ? `<p class="entry-description">${entry.description}</p>` : ''}
+                
+                <div class="entry-dynamic-data">
+                    ${Object.entries(entry.dynamicData || {}).map(([key, value]) => 
+                        value ? `<div class="dynamic-field">
+                            <strong>${key}:</strong> 
+                            ${key.includes('url') || key.includes('link') ? 
+                                `<a href="${value}" target="_blank" rel="noopener noreferrer">${value}</a>` : 
+                                value}
+                        </div>` : ''
+                    ).join('')}
+                </div>
+                
+                ${entry.investigationNotes ? `
+                    <div class="entry-notes">
+                        <strong>Investigation Notes:</strong>
+                        <p>${entry.investigationNotes}</p>
+                    </div>
+                ` : ''}
+                
+                ${entry.tags.length > 0 ? `
+                    <div class="entry-tags">
+                        ${entry.tags.map(tag => `<span class="entry-tag">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="entry-metadata">
+                    <span class="entry-date">
+                        <i class="fas fa-calendar"></i>
+                        ${new Date(entry.created).toLocaleDateString()}
+                    </span>
+                    ${entry.source ? `
+                        <span class="entry-source">
+                            <i class="fas fa-source"></i>
+                            ${entry.source}
+                        </span>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Toggle entry starred
+function toggleEntryStarred(entryId) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (entry) {
+        entry.starred = !entry.starred;
+        entry.modified = new Date().toISOString();
+        vault.stats.lastModified = new Date().toISOString();
+        
+        saveVaults();
+        renderVaultEntries();
+        showNotification(
+            entry.starred ? 'Entry starred' : 'Entry unstarred', 
+            'success'
+        );
+    }
+}
+
+// Toggle entry pinned
+function toggleEntryPinned(entryId) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (entry) {
+        entry.pinned = !entry.pinned;
+        entry.modified = new Date().toISOString();
+        vault.stats.lastModified = new Date().toISOString();
+        
+        saveVaults();
+        renderVaultEntries();
+        showNotification(
+            entry.pinned ? 'Entry pinned' : 'Entry unpinned', 
+            'success'
+        );
+    }
+}
+
+// Edit vault entry
+function editVaultEntry(entryId) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (!entry) return;
+    
+    isEditingEntry = true;
+    editingEntryId = entryId;
+    
+    // Show modal
+    document.getElementById('addEntryModal').style.display = 'flex';
+    document.getElementById('entryModalTitle').textContent = 'Edit Entry';
+    document.getElementById('saveEntryButtonText').textContent = 'Update Entry';
+    
+    // Populate form
+    document.getElementById('entryType').value = entry.type;
+    document.getElementById('entryName').value = entry.name;
+    document.getElementById('entryDescription').value = entry.description;
+    document.getElementById('investigationNotes').value = entry.investigationNotes;
+    document.getElementById('entryTags').value = entry.tags.join(', ');
+    document.getElementById('entrySource').value = entry.source;
+    document.getElementById('entryPriority').value = entry.priority;
+    
+    // Populate metadata pairs
+    const metadataContainer = document.getElementById('metadataContainer');
+    if (metadataContainer) {
+        metadataContainer.innerHTML = '';
+    }
+    
+    if (Object.keys(entry.customMetadata || {}).length > 0) {
+        Object.entries(entry.customMetadata).forEach(([key, value]) => {
+            const pairDiv = document.createElement('div');
+            pairDiv.className = 'metadata-pair';
+            pairDiv.innerHTML = `
+                <input type="text" class="metadata-key" placeholder="Key" value="${key}">
+                <input type="text" class="metadata-value" placeholder="Value" value="${value}">
+                <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            if (metadataContainer) {
+                metadataContainer.appendChild(pairDiv);
+            }
+        });
+    } else {
+        // Add one empty pair
+        if (metadataContainer) {
+            addMetadataPair();
+        }
+    }
+    
+    // Update dynamic fields
+    updateEntryFields();
+    
+    // Populate dynamic fields
+    setTimeout(() => {
+        Object.entries(entry.dynamicData || {}).forEach(([key, value]) => {
+            const field = document.getElementById(`field_${key}`);
+            if (field) {
+                if (field.type === 'checkbox') {
+                    field.checked = value;
+                } else {
+                    field.value = value;
+                }
+            }
+        });
+    }, 100);
+}
+
+// Delete vault entry
+function deleteVaultEntry(entryId) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (!entry) return;
+    
+    entryToDelete = entryId;
+    
+    // Show custom delete modal
+    document.getElementById('deleteMessage').textContent = 
+        `Are you sure you want to delete the entry "${entry.name}"? This action cannot be undone.`;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+// Confirm delete entry
+function confirmDeleteEntry() {
+    if (!entryToDelete) return;
+    
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const entryIndex = vault.entries.findIndex(e => e.id === entryToDelete);
+    if (entryIndex !== -1) {
+        const entryName = vault.entries[entryIndex].name;
+        vault.entries.splice(entryIndex, 1);
+        vault.stats.totalEntries = vault.entries.length;
+        vault.stats.lastModified = new Date().toISOString();
+        
+        saveVaults();
+        renderVaultTabs();
+        updateVaultHeader(vault);
+        renderVaultEntries();
+        
+        showNotification(`Entry "${entryName}" deleted successfully`, 'success');
+    }
+    
+    closeDeleteModal();
+    entryToDelete = null;
+}
+
+// Toggle vault view
+function toggleVaultView(view) {
+    currentVaultView = view;
+    
+    // Update view buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+    });
+    
+    renderVaultEntries();
+}
+
+// Filter vault entries
+function filterVaultEntries() {
+    renderVaultEntries();
+}
+
+// Sort vault entries
+function sortVaultEntries() {
+    renderVaultEntries();
+}
+
+// Export vault data
+function exportVaultData() {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) {
+        showNotification('No vault selected', 'warning');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(vault, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `vault-${vault.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    showNotification('Vault exported successfully', 'success');
+}
+
+// Export all vaults
+function exportAllVaults() {
+    if (vaults.length === 0) {
+        showNotification('No vaults to export', 'warning');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(vaults, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `all-vaults-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+    showNotification('All vaults exported successfully', 'success');
+}
+
+// Import vault data
+function importVaultData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // Check if it's a single vault or multiple vaults
+                if (Array.isArray(importedData)) {
+                    // Multiple vaults
+                    let importedCount = 0;
+                    importedData.forEach(vault => {
+                        if (vault.id && vault.name && vault.entries) {
+                            // Check for duplicate names
+                            if (!vaults.some(v => v.name.toLowerCase() === vault.name.toLowerCase())) {
+                                vault.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+                                vaults.push(vault);
+                                importedCount++;
+                            }
+                        }
+                    });
+                    
+                    if (importedCount > 0) {
+                        saveVaults();
+                        renderVaultTabs();
+                        showNotification(`${importedCount} vault(s) imported successfully`, 'success');
+                    } else {
+                        showNotification('No new vaults imported (duplicates or invalid data)', 'warning');
+                    }
+                } else if (importedData.id && importedData.name && importedData.entries) {
+                    // Single vault
+                    if (!vaults.some(v => v.name.toLowerCase() === importedData.name.toLowerCase())) {
+                        importedData.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+                        vaults.push(importedData);
+                        saveVaults();
+                        renderVaultTabs();
+                        showNotification('Vault imported successfully', 'success');
+                    } else {
+                        showNotification('Vault with this name already exists', 'error');
+                    }
+                } else {
+                    showNotification('Invalid vault data format', 'error');
+                }
+            } catch (error) {
+                showNotification('Error parsing JSON file', 'error');
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+    input.click();
+}
+
+// Show vault management modal
+function showVaultManagement(vaultId) {
+    currentVaultId = vaultId;
+    document.getElementById('vaultManagementModal').style.display = 'flex';
+}
+
+// Close vault management modal
+function closeVaultManagementModal() {
+    document.getElementById('vaultManagementModal').style.display = 'none';
+}
+
+// Edit vault
+function editVault() {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    // Populate edit form (reuse create form)
+    document.getElementById('vaultName').value = vault.name;
+    document.getElementById('vaultDescription').value = vault.description;
+    document.getElementById('vaultColor').value = vault.color;
+    document.getElementById('vaultIcon').value = vault.icon;
+    
+    // Change form behavior to edit mode
+    const form = document.getElementById('createVaultForm');
+    form.onsubmit = function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(event.target);
+        vault.name = formData.get('vaultName');
+        vault.description = formData.get('vaultDescription');
+        vault.color = formData.get('vaultColor');
+        vault.icon = formData.get('vaultIcon');
+        vault.stats.lastModified = new Date().toISOString();
+        
+        saveVaults();
+        renderVaultTabs();
+        updateVaultHeader(vault);
+        
+        closeCreateVaultModal();
+        closeVaultManagementModal();
+        showNotification('Vault updated successfully', 'success');
+        
+        // Reset form behavior
+        form.onsubmit = createNewVault;
+    };
+    
+    closeVaultManagementModal();
+    showCreateVaultModal();
+    document.querySelector('#createVaultModal h3').textContent = 'Edit Vault';
+}
+
+// Duplicate vault
+function duplicateVault() {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    const duplicatedVault = {
+        ...vault,
+        id: Date.now().toString(),
+        name: `${vault.name} (Copy)`,
+        created: new Date().toISOString(),
+        stats: {
+            ...vault.stats,
+            lastModified: new Date().toISOString()
+        },
+        entries: vault.entries.map(entry => ({
+            ...entry,
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+        }))
+    };
+    
+    vaults.push(duplicatedVault);
+    saveVaults();
+    renderVaultTabs();
+    
+    closeVaultManagementModal();
+    showNotification('Vault duplicated successfully', 'success');
+}
+
+// Archive vault (for now, just add archived flag)
+function archiveVault() {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    vault.archived = !vault.archived;
+    vault.stats.lastModified = new Date().toISOString();
+    
+    saveVaults();
+    renderVaultTabs();
+    
+    closeVaultManagementModal();
+    showNotification(
+        vault.archived ? 'Vault archived' : 'Vault unarchived', 
+        'success'
+    );
+}
+
+// Delete vault
+function deleteVault() {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    
+    // Show confirmation
+    document.getElementById('deleteMessage').textContent = 
+        `Are you sure you want to delete the vault "${vault.name}" and all its ${vault.entries.length} entries? This action cannot be undone.`;
+    
+    // Override confirm delete to handle vault deletion
+    const originalConfirmDelete = window.confirmDelete;
+    window.confirmDelete = function() {
+        const vaultIndex = vaults.findIndex(v => v.id === currentVaultId);
+        if (vaultIndex !== -1) {
+            const vaultName = vaults[vaultIndex].name;
+            vaults.splice(vaultIndex, 1);
+            
+            saveVaults();
+            renderVaultTabs();
+            
+            // Reset current vault if deleted
+            if (vaults.length > 0) {
+                switchToVault(vaults[0].id);
+            } else {
+                currentVaultId = null;
+            }
+            
+            showNotification(`Vault "${vaultName}" deleted successfully`, 'success');
+        }
+        
+        closeDeleteModal();
+        closeVaultManagementModal();
+        
+        // Restore original function
+        window.confirmDelete = originalConfirmDelete;
+    };
+    
+    closeVaultManagementModal();
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+// Save custom vault entry
+function saveCustomVaultEntry(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('entryName').value;
+    const type = document.getElementById('entryType').value;
+    const tags = document.getElementById('entryTags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const notes = document.getElementById('entryNotes').value;
+    const description = document.getElementById('entryDescription').value;
+    
+    // Collect metadata from key-value pairs
+    const metadata = {};
+    const metadataPairs = document.querySelectorAll('.metadata-pair');
+    metadataPairs.forEach(pair => {
+        const key = pair.querySelector('.metadata-key').value.trim();
+        const value = pair.querySelector('.metadata-value').value.trim();
+        if (key && value) {
+            metadata[key] = value;
+        }
+    });
+    
+    if (!name.trim()) {
+        showNotification('Entry name is required', 'error');
+        return;
+    }
+    
+    const entry = {
+        id: Date.now().toString(),
+        name: name,
+        type: type,
+        description: description,
+        notes: notes,
+        tags: tags,
+        metadata: metadata,
+        createdAt: new Date().toISOString()
+    };
+    
+    // Add to current vault
+    const vault = customVaults.find(v => v.id === currentCustomVaultId);
+    if (vault) {
+        vault.entries.push(entry);
+        saveCustomVaults();
+        renderCustomVaultEntries(currentCustomVaultId);
+    }
+    
+    // Clear form
+    document.getElementById('customVaultEntryForm').reset();
+    
+    // Reset metadata container to single pair
+    const metadataContainer = document.getElementById('metadataContainer');
+    metadataContainer.innerHTML = `
+        <div class="metadata-pair">
+            <input type="text" class="metadata-key" placeholder="Key">
+            <input type="text" class="metadata-value" placeholder="Value">
+            <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    closeCustomVaultEntryModal();
+    
+    showNotification('Entry saved successfully!', 'success');
+}
+
+// Render custom vault entries
+function renderCustomVaultEntries(vaultId) {
+    const vault = customVaults.find(v => v.id === vaultId);
+    if (!vault) return;
+    
+    const entriesContainer = document.getElementById('customVaultEntriesContainer');
+    if (!entriesContainer) return;
+    
+    if (vault.entries.length === 0) {
+        entriesContainer.innerHTML = `
+            <div class="no-entries">
+                <div class="no-entries-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>No entries yet</h3>
+                <p>Start adding entries to organize your investigation data</p>
+                <button class="btn-primary" onclick="showCustomVaultEntryModal()">
+                    <i class="fas fa-plus"></i>
+                    Add First Entry
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    entriesContainer.innerHTML = vault.entries.map(entry => {
+        const metadataHtml = Object.keys(entry.metadata).length > 0 
+            ? Object.entries(entry.metadata).map(([key, value]) => 
+                `<div class="metadata-item"><strong>${key}:</strong> ${value}</div>`
+              ).join('')
+            : '<div class="metadata-item">No metadata</div>';
+            
+        return `
+            <div class="custom-vault-entry-card" data-entry-id="${entry.id}">
+                <div class="entry-card-header">
+                    <div class="entry-type-badge ${entry.type}">
+                        <i class="fas fa-${getEntryTypeIcon(entry.type)}"></i>
+                        ${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}
+                    </div>
+                    <div class="entry-actions">
+                        <button class="entry-action-btn" onclick="editCustomVaultEntry('${entry.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="entry-action-btn" onclick="deleteCustomVaultEntry('${entry.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="entry-card-content">
+                    <h4 class="entry-title">${entry.name}</h4>
+                    ${entry.description ? `<p class="entry-description">${entry.description}</p>` : ''}
+                    
+                    <div class="entry-metadata">
+                        <h5>Metadata:</h5>
+                        ${metadataHtml}
+                    </div>
+                    
+                    ${entry.notes ? `
+                        <div class="entry-notes">
+                            <h5>Investigation Notes:</h5>
+                            <p>${entry.notes}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${entry.tags.length > 0 ? `
+                        <div class="entry-tags">
+                            ${entry.tags.map(tag => `<span class="entry-tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="entry-footer">
+                        <span class="entry-date">Created: ${new Date(entry.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Get icon for entry type
+function getEntryTypeIcon(type) {
+    const icons = {
+        'tool': 'tools',
+        'email': 'envelope',
+        'phone': 'phone',
+        'crypto': 'coins',
+        'location': 'map-marker-alt',
+        'link': 'link',
+        'media': 'image',
+        'password': 'key',
+        'keyword': 'tag',
+        'social': 'users',
+        'domain': 'globe',
+        'username': 'user',
+        'threat': 'shield-alt',
+        'vulnerability': 'bug',
+        'malware': 'virus',
+        'breach': 'exclamation-triangle',
+        'credential': 'id-card',
+        'forum': 'comments',
+        'vendor': 'store',
+        'telegram': 'paper-plane',
+        'paste': 'clipboard',
+        'document': 'file-alt',
+        'network': 'network-wired',
+        'metadata': 'info-circle',
+        'archive': 'archive',
+        'messaging': 'comment-dots',
+        'dating': 'heart',
+        'audio': 'volume-up',
+        'facial': 'eye',
+        'persona': 'mask',
+        'vpn': 'user-secret',
+        'honeypot': 'spider',
+        'exploit': 'bomb',
+        'publicrecord': 'file-contract'
+    };
+    return icons[type] || 'question';
+}
+
+// Delete custom vault entry
+function deleteCustomVaultEntry(entryId) {
+    const vault = customVaults.find(v => v.id === currentCustomVaultId);
+    if (!vault) return;
+    
+    const entryIndex = vault.entries.findIndex(e => e.id === entryId);
+    if (entryIndex !== -1) {
+        vault.entries.splice(entryIndex, 1);
+        saveCustomVaults();
+        renderCustomVaultEntries(currentCustomVaultId);
+        showNotification('Entry deleted successfully!', 'success');
+    }
+}
+
+// ==========================================
+// MITRE DATA IMPORT FUNCTIONALITY
+// ==========================================
+
+// Show specific view
+function showView(viewName) {
+    // Hide all views
+    const views = ['dashboard', 'actors', 'multi-vault', 'case-studies', 'settings'];
+    views.forEach(view => {
+        const element = document.getElementById(view);
+        if (element) {
+            element.classList.remove('active');
+        }
+    });
+    
+    // Show selected view
+    const selectedView = document.getElementById(viewName);
+    if (selectedView) {
+        selectedView.classList.add('active');
+    }
+    
+    // Update current view
+    currentDashboardView = viewName;
+    
+    // Load view-specific content
+    switch (viewName) {
+        case 'dashboard':
+            loadDashboard();
+            break;
+        case 'actors':
+            loadActorsSection();
+            break;
+        case 'multi-vault':
+            // Multi-vault is handled by existing functions
+            break;
+        case 'case-studies':
+            if (typeof loadCaseStudiesView === 'function') {
+                loadCaseStudiesView();
+            }
+            break;
+        case 'settings':
+            if (typeof loadSettingsView === 'function') {
+                loadSettingsView();
+            }
+            break;
+    }
+}
+
+// Case Studies Management
+let currentCaseStudiesView = 'grid';
+let editingCaseStudyId = null;
+let currentPreviewUrl = null;
+
+function loadCaseStudiesView() {
+    updateCaseStudiesStats();
+    renderCaseStudies();
+}
+
+function updateCaseStudiesStats() {
+    const totalStudies = caseStudies.length;
+    const starredStudies = caseStudies.filter(study => study.starred).length;
+    const pinnedStudies = caseStudies.filter(study => study.pinned).length;
+    const categories = [...new Set(caseStudies.map(study => study.category))].length;
+
+    document.getElementById('total-case-studies').textContent = totalStudies;
+    document.getElementById('starred-case-studies').textContent = starredStudies;
+    document.getElementById('pinned-case-studies').textContent = pinnedStudies;
+    document.getElementById('case-study-categories').textContent = categories;
+}
+
+function toggleCaseStudiesView() {
+    currentCaseStudiesView = currentCaseStudiesView === 'grid' ? 'list' : 'grid';
+    const container = document.getElementById('case-studies-container');
+    const toggleBtn = document.getElementById('case-studies-view-toggle');
+    
+    if (currentCaseStudiesView === 'grid') {
+        container.className = 'case-studies-grid';
+        toggleBtn.innerHTML = '<i class="fas fa-th"></i> Grid View';
+    } else {
+        container.className = 'case-studies-list';
+        toggleBtn.innerHTML = '<i class="fas fa-list"></i> List View';
+    }
+    
+    renderCaseStudies();
+}
+
+function showAddCaseStudyForm() {
+    editingCaseStudyId = null;
+    document.getElementById('case-study-modal-title').textContent = 'Add New Case Study';
+    document.getElementById('case-study-form').reset();
+    document.getElementById('add-case-study-modal').style.display = 'block';
+}
+
+function closeAddCaseStudyModal() {
+    document.getElementById('add-case-study-modal').style.display = 'none';
+    editingCaseStudyId = null;
+}
+
+async function autoFetchCaseStudyInfo() {
+    const urlInput = document.getElementById('case-study-url');
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        showNotification('Please enter a URL first', 'error');
+        return;
+    }
+    
+    const fetchBtn = document.getElementById('auto-fetch-btn');
+    const originalText = fetchBtn.innerHTML;
+    fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+    fetchBtn.disabled = true;
+    
+    try {
+        // Since we can't directly fetch due to CORS, we'll simulate the auto-fetch
+        // In a real application, this would go through a backend service
+        await simulateAutoFetch(url);
+        showNotification('Information fetched successfully!', 'success');
+    } catch (error) {
+        console.error('Auto-fetch error:', error);
+        showNotification('Could not auto-fetch. Please fill manually.', 'warning');
+    } finally {
+        fetchBtn.innerHTML = originalText;
+        fetchBtn.disabled = false;
+    }
+}
+
+async function simulateAutoFetch(url) {
+    // Simulate fetching delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Extract domain for source
+    const domain = new URL(url).hostname.replace('www.', '');
+    
+    // Simulate extracted data based on common patterns
+    const simulatedData = {
+        title: generateSimulatedTitle(url),
+        author: generateSimulatedAuthor(domain),
+        source: generateSimulatedSource(domain),
+        preview: generateSimulatedPreview(url),
+        category: guessCategory(url)
+    };
+    
+    // Fill the form with simulated data
+    document.getElementById('case-study-title').value = simulatedData.title;
+    document.getElementById('case-study-author').value = simulatedData.author;
+    document.getElementById('case-study-source').value = simulatedData.source;
+    document.getElementById('case-study-preview').value = simulatedData.preview;
+    document.getElementById('case-study-category').value = simulatedData.category;
+}
+
+function generateSimulatedTitle(url) {
+    const titles = [
+        'Advanced Persistent Threat Analysis: A Deep Dive Investigation',
+        'Cryptocurrency Fraud Investigation: Following the Digital Trail',
+        'Social Media Intelligence Gathering Techniques',
+        'Malware Analysis: Reverse Engineering Sophisticated Threats',
+        'Digital Forensics Case Study: Uncovering Hidden Evidence',
+        'Threat Hunting Methodology: Proactive Cyber Defense',
+        'OSINT Investigation: Open Source Intelligence Techniques',
+        'Incident Response Case Study: Containing Advanced Threats',
+        'Blockchain Investigation: Tracing Illicit Transactions',
+        'Cyber Crime Investigation: From Evidence to Prosecution'
+    ];
+    return titles[Math.floor(Math.random() * titles.length)];
+}
+
+function generateSimulatedAuthor(domain) {
+    const authors = [
+        'Dr. Sarah Chen', 'Michael Rodriguez', 'Alex Thompson', 'Dr. Emily Watson',
+        'David Kim', 'Jessica Martinez', 'Robert Johnson', 'Dr. Lisa Anderson',
+        'James Wilson', 'Maria Garcia', 'Christopher Lee', 'Dr. Amanda Taylor'
+    ];
+    return authors[Math.floor(Math.random() * authors.length)];
+}
+
+function generateSimulatedSource(domain) {
+    const sources = {
+        'medium.com': 'Medium',
+        'krebsonsecurity.com': 'Krebs on Security',
+        'bleepingcomputer.com': 'BleepingComputer',
+        'threatpost.com': 'Threatpost',
+        'darkreading.com': 'Dark Reading',
+        'securityweek.com': 'SecurityWeek',
+        'fireeye.com': 'FireEye',
+        'crowdstrike.com': 'CrowdStrike',
+        'mandiant.com': 'Mandiant'
+    };
+    return sources[domain] || domain.charAt(0).toUpperCase() + domain.slice(1);
+}
+
+function generateSimulatedPreview(url) {
+    const previews = [
+        'This comprehensive case study examines a sophisticated cyber attack campaign targeting financial institutions. The investigation reveals advanced techniques used by threat actors, including custom malware, social engineering tactics, and persistence mechanisms. Key findings include attribution analysis, timeline reconstruction, and defensive recommendations.',
+        'An in-depth analysis of a cryptocurrency fraud scheme involving multiple blockchain networks. This investigation demonstrates advanced tracing techniques, wallet clustering analysis, and cross-chain transaction tracking. The case study provides valuable insights into modern financial crime investigation methodologies.',
+        'This research presents a detailed methodology for conducting social media intelligence operations. The study covers platform-specific techniques, privacy considerations, and legal frameworks. Practical examples demonstrate effective SOCMINT collection and analysis procedures for investigative purposes.',
+        'A technical deep-dive into malware reverse engineering techniques used to analyze a sophisticated threat. The case study covers static and dynamic analysis methods, code deobfuscation, and behavioral analysis. Key insights include threat actor attribution and defensive countermeasures.'
+    ];
+    return previews[Math.floor(Math.random() * previews.length)];
+}
+
+function guessCategory(url) {
+    const urlLower = url.toLowerCase();
+    if (urlLower.includes('crypto') || urlLower.includes('bitcoin') || urlLower.includes('blockchain')) return 'crypto';
+    if (urlLower.includes('social') || urlLower.includes('socmint') || urlLower.includes('osint')) return 'socmint';
+    if (urlLower.includes('malware') || urlLower.includes('reverse')) return 'malware-analysis';
+    if (urlLower.includes('threat') || urlLower.includes('hunt')) return 'threat-hunting';
+    if (urlLower.includes('forensic') || urlLower.includes('investigation')) return 'digital-forensics';
+    if (urlLower.includes('incident') || urlLower.includes('response')) return 'incident-response';
+    if (urlLower.includes('apt') || urlLower.includes('advanced')) return 'apt';
+    return 'osint';
+}
+
+function saveCaseStudy(event) {
+    event.preventDefault();
+    
+    const formData = {
+        url: document.getElementById('case-study-url').value.trim(),
+        title: document.getElementById('case-study-title').value.trim(),
+        author: document.getElementById('case-study-author').value.trim(),
+        source: document.getElementById('case-study-source').value.trim(),
+        category: document.getElementById('case-study-category').value,
+        preview: document.getElementById('case-study-preview').value.trim(),
+        tags: document.getElementById('case-study-tags').value.trim(),
+        notes: document.getElementById('case-study-notes').value.trim()
+    };
+    
+    // Validation
+    if (!formData.url || !formData.title || !formData.category) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Process tags
+    const tags = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+    
+    const caseStudy = {
+        id: editingCaseStudyId || Date.now(),
+        ...formData,
+        tags: tags,
+        dateAdded: editingCaseStudyId ? caseStudies.find(cs => cs.id === editingCaseStudyId).dateAdded : new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+        starred: editingCaseStudyId ? caseStudies.find(cs => cs.id === editingCaseStudyId).starred : false,
+        pinned: editingCaseStudyId ? caseStudies.find(cs => cs.id === editingCaseStudyId).pinned : false
+    };
+    
+    if (editingCaseStudyId) {
+        const index = caseStudies.findIndex(cs => cs.id === editingCaseStudyId);
+        caseStudies[index] = caseStudy;
+        showNotification('Case study updated successfully!', 'success');
+    } else {
+        caseStudies.push(caseStudy);
+        showNotification('Case study added successfully!', 'success');
+    }
+    
+    saveCaseStudiesToStorage();
+    closeAddCaseStudyModal();
+    loadCaseStudiesView();
+}
+
+function editCaseStudy(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (!caseStudy) return;
+    
+    editingCaseStudyId = id;
+    document.getElementById('case-study-modal-title').textContent = 'Edit Case Study';
+    
+    // Fill form with existing data
+    document.getElementById('case-study-url').value = caseStudy.url;
+    document.getElementById('case-study-title').value = caseStudy.title;
+    document.getElementById('case-study-author').value = caseStudy.author || '';
+    document.getElementById('case-study-source').value = caseStudy.source || '';
+    document.getElementById('case-study-category').value = caseStudy.category;
+    document.getElementById('case-study-preview').value = caseStudy.preview || '';
+    document.getElementById('case-study-tags').value = caseStudy.tags.join(', ');
+    document.getElementById('case-study-notes').value = caseStudy.notes || '';
+    
+    document.getElementById('add-case-study-modal').style.display = 'block';
+}
+
+function deleteCaseStudy(id) {
+    if (confirm('Are you sure you want to delete this case study?')) {
+        caseStudies = caseStudies.filter(cs => cs.id !== id);
+        saveCaseStudiesToStorage();
+        loadCaseStudiesView();
+        showNotification('Case study deleted successfully!', 'success');
+    }
+}
+
+function toggleCaseStudyStar(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (caseStudy) {
+        caseStudy.starred = !caseStudy.starred;
+        saveCaseStudiesToStorage();
+        renderCaseStudies();
+    }
+}
+
+function toggleCaseStudyPin(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (caseStudy) {
+        caseStudy.pinned = !caseStudy.pinned;
+        saveCaseStudiesToStorage();
+        renderCaseStudies();
+    }
+}
+
+function previewCaseStudy(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (!caseStudy) return;
+    
+    currentPreviewUrl = caseStudy.url;
+    
+    const previewContent = `
+        <div class="case-study-preview-header">
+            <h3>${caseStudy.title}</h3>
+            <div class="case-study-meta">
+                <span class="meta-item"><i class="fas fa-user"></i> ${caseStudy.author || 'Unknown Author'}</span>
+                <span class="meta-item"><i class="fas fa-building"></i> ${caseStudy.source || 'Unknown Source'}</span>
+                <span class="meta-item"><i class="fas fa-tag"></i> ${caseStudy.category}</span>
+                <span class="meta-item"><i class="fas fa-calendar"></i> ${new Date(caseStudy.dateAdded).toLocaleDateString()}</span>
+            </div>
+        </div>
+        
+        <div class="case-study-preview-body">
+            <div class="preview-section">
+                <h4>Preview Content</h4>
+                <p>${caseStudy.preview || 'No preview available'}</p>
+            </div>
+            
+            ${caseStudy.tags.length > 0 ? `
+                <div class="preview-section">
+                    <h4>Tags</h4>
+                    <div class="tags-container">
+                        ${caseStudy.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${caseStudy.notes ? `
+                <div class="preview-section">
+                    <h4>Notes</h4>
+                    <p>${caseStudy.notes}</p>
+                </div>
+            ` : ''}
+            
+            <div class="preview-section">
+                <h4>URL</h4>
+                <a href="${caseStudy.url}" target="_blank" class="url-link">${caseStudy.url}</a>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('case-study-preview-content').innerHTML = previewContent;
+    document.getElementById('case-study-preview-modal').style.display = 'block';
+}
+
+function closeCaseStudyPreviewModal() {
+    document.getElementById('case-study-preview-modal').style.display = 'none';
+    currentPreviewUrl = null;
+}
+
+function openExternalCaseStudy() {
+    if (currentPreviewUrl) {
+        window.open(currentPreviewUrl, '_blank');
+    }
+}
+
+function filterCaseStudies() {
+    const searchTerm = document.getElementById('case-studies-search').value.toLowerCase();
+    const categoryFilter = document.getElementById('case-studies-category-filter').value;
+    const sortBy = document.getElementById('case-studies-sort').value;
+    
+    let filteredStudies = caseStudies.filter(study => {
+        const matchesSearch = !searchTerm || 
+            study.title.toLowerCase().includes(searchTerm) ||
+            study.author.toLowerCase().includes(searchTerm) ||
+            study.source.toLowerCase().includes(searchTerm) ||
+            study.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+        
+        const matchesCategory = !categoryFilter || study.category === categoryFilter;
+        
+        return matchesSearch && matchesCategory;
+    });
+    
+    // Sort studies
+    filteredStudies.sort((a, b) => {
+        switch (sortBy) {
+            case 'newest':
+                return new Date(b.dateAdded) - new Date(a.dateAdded);
+            case 'oldest':
+                return new Date(a.dateAdded) - new Date(b.dateAdded);
+            case 'title':
+                return a.title.localeCompare(b.title);
+            case 'author':
+                return (a.author || '').localeCompare(b.author || '');
+            case 'starred':
+                return b.starred - a.starred;
+            case 'pinned':
+                return b.pinned - a.pinned;
+            default:
+                return 0;
+        }
+    });
+    
+    renderCaseStudies(filteredStudies);
+}
+
+function renderCaseStudies(studiesToRender = null) {
+    const container = document.getElementById('case-studies-container');
+    const studies = studiesToRender || caseStudies;
+    
+    if (studies.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <h3>No Case Studies Found</h3>
+                <p>Start building your research collection by adding case studies</p>
+                <button class="btn-primary" onclick="showAddCaseStudyForm()">
+                    <i class="fas fa-plus"></i> Add First Case Study
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort pinned items first
+    const sortedStudies = [...studies].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return 0;
+    });
+    
+    if (currentCaseStudiesView === 'grid') {
+        container.innerHTML = sortedStudies.map(study => createCaseStudyCard(study)).join('');
+    } else {
+        container.innerHTML = sortedStudies.map(study => createCaseStudyListItem(study)).join('');
+    }
+}
+
+function createCaseStudyCard(study) {
+    const categoryColors = {
+        'crypto': '#f39c12',
+        'blockchain': '#e67e22',
+        'socmint': '#3498db',
+        'threat-hunting': '#e74c3c',
+        'osint': '#2ecc71',
+        'digital-forensics': '#9b59b6',
+        'malware-analysis': '#34495e',
+        'incident-response': '#e74c3c',
+        'cyber-crime': '#c0392b',
+        'apt': '#8e44ad'
+    };
+    
+    const categoryColor = categoryColors[study.category] || '#95a5a6';
+    
+    return `
+        <div class="case-study-card ${study.pinned ? 'pinned' : ''}" onclick="previewCaseStudy(${study.id})">
+            <div class="case-study-header">
+                <div class="case-study-badges">
+                    ${study.pinned ? '<span class="badge badge-pinned"><i class="fas fa-thumbtack"></i></span>' : ''}
+                    ${study.starred ? '<span class="badge badge-starred"><i class="fas fa-star"></i></span>' : ''}
+                </div>
+                <div class="case-study-actions" onclick="event.stopPropagation()">
+                    <button class="action-btn ${study.starred ? 'active' : ''}" onclick="toggleCaseStudyStar(${study.id})" title="Star">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="action-btn ${study.pinned ? 'active' : ''}" onclick="toggleCaseStudyPin(${study.id})" title="Pin">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="action-btn" onclick="editCaseStudy(${study.id})" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete" onclick="deleteCaseStudy(${study.id})" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="case-study-content">
+                <div class="case-study-category" style="background-color: ${categoryColor}">
+                    ${study.category.replace('-', ' ').toUpperCase()}
+                </div>
+                
+                <h3 class="case-study-title">${study.title}</h3>
+                
+                <div class="case-study-meta">
+                    <span class="meta-item">
+                        <i class="fas fa-user"></i> ${study.author || 'Unknown'}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-building"></i> ${study.source || 'Unknown'}
+                    </span>
+                </div>
+                
+                <p class="case-study-preview">${study.preview ? study.preview.substring(0, 150) + '...' : 'No preview available'}</p>
+                
+                ${study.tags.length > 0 ? `
+                    <div class="case-study-tags">
+                        ${study.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        ${study.tags.length > 3 ? `<span class="tag-more">+${study.tags.length - 3}</span>` : ''}
+                    </div>
+                ` : ''}
+                
+                <div class="case-study-footer">
+                    <span class="date-added">
+                        <i class="fas fa-calendar"></i> ${new Date(study.dateAdded).toLocaleDateString()}
+                    </span>
+                    <span class="external-link">
+                        <i class="fas fa-external-link-alt"></i> View Study
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createCaseStudyListItem(study) {
+    const categoryColors = {
+        'crypto': '#f39c12',
+        'blockchain': '#e67e22',
+        'socmint': '#3498db',
+        'threat-hunting': '#e74c3c',
+        'osint': '#2ecc71',
+        'digital-forensics': '#9b59b6',
+        'malware-analysis': '#34495e',
+        'incident-response': '#e74c3c',
+        'cyber-crime': '#c0392b',
+        'apt': '#8e44ad'
+    };
+    
+    const categoryColor = categoryColors[study.category] || '#95a5a6';
+    
+    return `
+        <div class="case-study-list-item ${study.pinned ? 'pinned' : ''}" onclick="previewCaseStudy(${study.id})">
+            <div class="list-item-content">
+                <div class="list-item-header">
+                    <div class="list-item-badges">
+                        ${study.pinned ? '<span class="badge badge-pinned"><i class="fas fa-thumbtack"></i></span>' : ''}
+                        ${study.starred ? '<span class="badge badge-starred"><i class="fas fa-star"></i></span>' : ''}
+                        <span class="category-badge" style="background-color: ${categoryColor}">
+                            ${study.category.replace('-', ' ').toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="list-item-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn ${study.starred ? 'active' : ''}" onclick="toggleCaseStudyStar(${study.id})" title="Star">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        <button class="action-btn ${study.pinned ? 'active' : ''}" onclick="toggleCaseStudyPin(${study.id})" title="Pin">
+                            <i class="fas fa-thumbtack"></i>
+                        </button>
+                        <button class="action-btn" onclick="editCaseStudy(${study.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteCaseStudy(${study.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <h3 class="list-item-title">${study.title}</h3>
+                
+                <div class="list-item-meta">
+                    <span class="meta-item">
+                        <i class="fas fa-user"></i> ${study.author || 'Unknown Author'}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-building"></i> ${study.source || 'Unknown Source'}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-calendar"></i> ${new Date(study.dateAdded).toLocaleDateString()}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-external-link-alt"></i> External Link
+                    </span>
+                </div>
+                
+                <p class="list-item-preview">${study.preview ? study.preview.substring(0, 200) + '...' : 'No preview available'}</p>
+                
+                ${study.tags.length > 0 ? `
+                    <div class="list-item-tags">
+                        ${study.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        ${study.tags.length > 5 ? `<span class="tag-more">+${study.tags.length - 5} more</span>` : ''}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function saveCaseStudiesToStorage() {
+    localStorage.setItem('threatnet_case_studies', JSON.stringify(caseStudies));
+}
+
+function loadCaseStudiesFromStorage() {
+    const stored = localStorage.getItem('threatnet_case_studies');
+    if (stored) {
+        caseStudies = JSON.parse(stored);
+    }
+}
+
+// Case Studies Functions
+function setCaseStudyView(view) {
+    currentCaseStudyView = view;
+    
+    // Update button states
+    document.getElementById('grid-view-btn').classList.toggle('active', view === 'grid');
+    document.getElementById('list-view-btn').classList.toggle('active', view === 'list');
+    
+    renderCaseStudies();
+}
+
+function renderCaseStudies() {
+    const container = document.getElementById('case-studies-grid');
+    
+    if (currentCaseStudyView === 'grid') {
+        container.className = 'case-studies-grid';
+        container.innerHTML = caseStudies.map(caseStudy => `
+            <div class="case-study-card ${caseStudy.pinned ? 'pinned' : ''} ${caseStudy.starred ? 'starred' : ''}" 
+                 onclick="showCaseStudyPreview(${caseStudy.id})">
+                <div class="case-study-header">
+                    <h3 class="case-study-title">${caseStudy.title}</h3>
+                    <div class="case-study-actions">
+                        <button class="case-study-action-btn ${caseStudy.pinned ? 'pinned' : ''}" 
+                                onclick="event.stopPropagation(); toggleCaseStudyPin(${caseStudy.id})" 
+                                title="Pin">
+                            <i class="fas fa-thumbtack"></i>
+                        </button>
+                        <button class="case-study-action-btn ${caseStudy.starred ? 'starred' : ''}" 
+                                onclick="event.stopPropagation(); toggleCaseStudyStar(${caseStudy.id})" 
+                                title="Star">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        <button class="case-study-action-btn" 
+                                onclick="event.stopPropagation(); editCaseStudy(${caseStudy.id})" 
+                                title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="case-study-action-btn" 
+                                onclick="event.stopPropagation(); deleteCaseStudy(${caseStudy.id})" 
+                                title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="case-study-meta">
+                    ${caseStudy.source ? `<span class="case-study-source">${caseStudy.source}</span>` : ''}
+                    ${caseStudy.author ? `<span class="case-study-author">${caseStudy.author}</span>` : ''}
+                </div>
+                
+                ${caseStudy.category ? `<div class="case-study-category">${caseStudy.category.toUpperCase()}</div>` : ''}
+                
+                <div class="case-study-preview">${caseStudy.preview}</div>
+                
+                <div class="case-study-tags">
+                    ${caseStudy.tags.map(tag => `<span class="case-study-tag">${tag}</span>`).join('')}
+                </div>
+                
+                <div class="case-study-footer">
+                    <span>Added: ${caseStudy.dateAdded}</span>
+                    <span><i class="fas fa-external-link-alt"></i></span>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.className = 'case-studies-list';
+        container.innerHTML = caseStudies.map(caseStudy => `
+            <div class="case-study-list-item ${caseStudy.pinned ? 'pinned' : ''} ${caseStudy.starred ? 'starred' : ''}" 
+                 onclick="showCaseStudyPreview(${caseStudy.id})">
+                <div class="case-study-list-content">
+                    <h3 class="case-study-list-title">${caseStudy.title}</h3>
+                    <div class="case-study-list-meta">
+                        ${caseStudy.source ? `${caseStudy.source} • ` : ''}
+                        ${caseStudy.author ? `${caseStudy.author} • ` : ''}
+                        ${caseStudy.category ? `${caseStudy.category.toUpperCase()} • ` : ''}
+                        ${caseStudy.dateAdded}
+                    </div>
+                    <div class="case-study-list-preview">${caseStudy.preview}</div>
+                </div>
+                <div class="case-study-actions">
+                    <button class="case-study-action-btn ${caseStudy.pinned ? 'pinned' : ''}" 
+                            onclick="event.stopPropagation(); toggleCaseStudyPin(${caseStudy.id})" 
+                            title="Pin">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="case-study-action-btn ${caseStudy.starred ? 'starred' : ''}" 
+                            onclick="event.stopPropagation(); toggleCaseStudyStar(${caseStudy.id})" 
+                            title="Star">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="case-study-action-btn" 
+                            onclick="event.stopPropagation(); editCaseStudy(${caseStudy.id})" 
+                            title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="case-study-action-btn" 
+                            onclick="event.stopPropagation(); deleteCaseStudy(${caseStudy.id})" 
+                            title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function showAddCaseStudyModal() {
+    document.getElementById('addCaseStudyModal').style.display = 'block';
+    document.getElementById('caseStudyForm').reset();
+}
+
+function closeAddCaseStudyModal() {
+    document.getElementById('addCaseStudyModal').style.display = 'none';
+}
+
+function saveCaseStudy() {
+    const title = document.getElementById('caseStudyTitle').value.trim();
+    const source = document.getElementById('caseStudySource').value.trim();
+    const author = document.getElementById('caseStudyAuthor').value.trim();
+    const url = document.getElementById('caseStudyUrl').value.trim();
+    const category = document.getElementById('caseStudyCategory').value;
+    const preview = document.getElementById('caseStudyPreview').value.trim();
+    const tags = document.getElementById('caseStudyTags').value.trim();
+    const notes = document.getElementById('caseStudyNotes').value.trim();
+    
+    if (!title || !url) {
+        alert('Please fill in the required fields (Title and URL)');
+        return;
+    }
+    
+    const newCaseStudy = {
+        id: Date.now(),
+        title,
+        source,
+        author,
+        url,
+        category,
+        preview,
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+        notes,
+        dateAdded: new Date().toISOString().split('T')[0],
+        pinned: false,
+        starred: false
+    };
+    
+    caseStudies.unshift(newCaseStudy);
+    renderCaseStudies();
+    closeAddCaseStudyModal();
+    
+    // Show success message
+    showNotification('Case study added successfully!', 'success');
+}
+
+function autoFetchCaseStudyInfo() {
+    const url = document.getElementById('caseStudyUrl').value.trim();
+    
+    if (!url) {
+        alert('Please enter a URL first');
+        return;
+    }
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+    button.disabled = true;
+    
+    // Simulate auto-fetch (in real implementation, this would call an API)
+    setTimeout(() => {
+        // Mock data based on URL
+        if (url.includes('fireeye') || url.includes('mandiant')) {
+            document.getElementById('caseStudySource').value = 'Mandiant';
+            document.getElementById('caseStudyAuthor').value = 'Mandiant Research Team';
+            document.getElementById('caseStudyPreview').value = 'Advanced threat research and analysis from Mandiant\'s security experts.';
+        } else if (url.includes('chainalysis')) {
+            document.getElementById('caseStudySource').value = 'Chainalysis';
+            document.getElementById('caseStudyAuthor').value = 'Chainalysis Research';
+            document.getElementById('caseStudyPreview').value = 'Blockchain analysis and cryptocurrency investigation insights.';
+        } else {
+            // Generic auto-fill
+            const domain = new URL(url).hostname;
+            document.getElementById('caseStudySource').value = domain;
+            document.getElementById('caseStudyPreview').value = 'Auto-fetched content from ' + domain;
+        }
+        
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        showNotification('Information auto-fetched successfully!', 'success');
+    }, 2000);
+}
+
+function showCaseStudyPreview(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (!caseStudy) return;
+    
+    currentPreviewCaseStudy = caseStudy;
+    
+    document.getElementById('previewTitle').textContent = caseStudy.title;
+    
+    const previewContent = `
+        <div class="preview-meta">
+            <h4>Case Study Details</h4>
+            ${caseStudy.source ? `<div class="preview-meta-item"><span class="preview-meta-label">Source:</span><span class="preview-meta-value">${caseStudy.source}</span></div>` : ''}
+            ${caseStudy.author ? `<div class="preview-meta-item"><span class="preview-meta-label">Author:</span><span class="preview-meta-value">${caseStudy.author}</span></div>` : ''}
+            ${caseStudy.category ? `<div class="preview-meta-item"><span class="preview-meta-label">Category:</span><span class="preview-meta-value">${caseStudy.category.toUpperCase()}</span></div>` : ''}
+            <div class="preview-meta-item"><span class="preview-meta-label">Added:</span><span class="preview-meta-value">${caseStudy.dateAdded}</span></div>
+            <div class="preview-meta-item"><span class="preview-meta-label">URL:</span><span class="preview-meta-value"><a href="${caseStudy.url}" target="_blank">${caseStudy.url}</a></span></div>
+        </div>
+        
+        <div class="preview-content">
+            <h4>Preview</h4>
+            <p>${caseStudy.preview}</p>
+            
+            ${caseStudy.notes ? `
+                <h4>Notes</h4>
+                <p>${caseStudy.notes}</p>
+            ` : ''}
+        </div>
+        
+        ${caseStudy.tags.length > 0 ? `
+            <div class="preview-tags">
+                ${caseStudy.tags.map(tag => `<span class="preview-tag">${tag}</span>`).join('')}
+            </div>
+        ` : ''}
+    `;
+    
+    document.getElementById('caseStudyPreviewContent').innerHTML = previewContent;
+    document.getElementById('caseStudyPreviewModal').style.display = 'block';
+}
+
+function closeCaseStudyPreview() {
+    document.getElementById('caseStudyPreviewModal').style.display = 'none';
+    currentPreviewCaseStudy = null;
+}
+
+function openExternalCaseStudy() {
+    if (currentPreviewCaseStudy) {
+        window.open(currentPreviewCaseStudy.url, '_blank');
+    }
+}
+
+function toggleCaseStudyPin(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (caseStudy) {
+        caseStudy.pinned = !caseStudy.pinned;
+        renderCaseStudies();
+    }
+}
+
+function toggleCaseStudyStar(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (caseStudy) {
+        caseStudy.starred = !caseStudy.starred;
+        renderCaseStudies();
+    }
+}
+
+function editCaseStudy(id) {
+    const caseStudy = caseStudies.find(cs => cs.id === id);
+    if (!caseStudy) return;
+    
+    // Populate form with existing data
+    document.getElementById('caseStudyTitle').value = caseStudy.title;
+    document.getElementById('caseStudySource').value = caseStudy.source || '';
+    document.getElementById('caseStudyAuthor').value = caseStudy.author || '';
+    document.getElementById('caseStudyUrl').value = caseStudy.url;
+    document.getElementById('caseStudyCategory').value = caseStudy.category || '';
+    document.getElementById('caseStudyPreview').value = caseStudy.preview || '';
+    document.getElementById('caseStudyTags').value = caseStudy.tags.join(', ');
+    document.getElementById('caseStudyNotes').value = caseStudy.notes || '';
+    
+    // Store the ID for updating
+    document.getElementById('caseStudyForm').dataset.editId = id;
+    
+    showAddCaseStudyModal();
+}
+
+function deleteCaseStudy(id) {
+    if (confirm('Are you sure you want to delete this case study?')) {
+        caseStudies = caseStudies.filter(cs => cs.id !== id);
+        renderCaseStudies();
+        showNotification('Case study deleted successfully!', 'success');
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        z-index: 10000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// Initialize the application
+function initializeApp() {
+    if (typeof loadThreatActorsFromStorage === 'function') {
+        loadThreatActorsFromStorage();
+    }
+    if (typeof loadVaultEntriesFromStorage === 'function') {
+        loadVaultEntriesFromStorage();
+    }
+    if (typeof loadCaseStudiesFromStorage === 'function') {
+        loadCaseStudiesFromStorage();
+    }
+    
+    // Set up form submission handlers
+    const vaultEntryForm = document.getElementById('vault-entry-form');
+    if (vaultEntryForm) {
+        vaultEntryForm.addEventListener('submit', saveVaultEntry);
+    }
+    
+    const caseStudyForm = document.getElementById('case-study-form');
+    if (caseStudyForm) {
+        caseStudyForm.addEventListener('submit', saveCaseStudy);
+    }
+    
+    // Load dashboard by default
+    showSection('dashboard');
+    renderCaseStudies();
+}
+
+// Make functions globally available
+window.showSection = showSection;
+window.showActorProfile = showActorProfile;
+window.goBackToActors = goBackToActors;
+window.filterActors = filterActors;
+window.switchParentTab = switchParentTab;
+window.switchChildTab = switchChildTab;
+window.toggleView = toggleView;
+window.showAddToolModal = showAddToolModal;
+window.closeAddToolModal = closeAddToolModal;
+window.updateChildCategories = updateChildCategories;
+window.saveToolForm = saveToolForm;
+window.editTool = editTool;
+window.deleteTool = deleteTool;
+window.togglePin = togglePin;
+window.toggleStar = toggleStar;
+window.openTool = openTool;
+window.toggleToolSelection = toggleToolSelection;
+window.bulkPin = bulkPin;
+window.bulkStar = bulkStar;
+window.bulkDelete = bulkDelete;
+window.clearSelection = clearSelection;
+window.closeDeleteModal = closeDeleteModal;
+window.confirmDelete = confirmDelete;
+window.importTools = importTools;
+window.exportTools = exportTools;
+window.closeImportToolsModal = closeImportToolsModal;
+window.sortTools = sortTools;
+window.filterToolsByStatus = filterToolsByStatus;
+window.showCreateVaultModal = showCreateVaultModal;
+window.closeCreateVaultModal = closeCreateVaultModal;
+window.createNewVault = createNewVault;
+window.switchToVault = switchToVault;
+window.switchVaultParentTab = switchVaultParentTab;
+window.switchVaultChildTab = switchVaultChildTab;
+window.showAddEntryModal = showAddEntryModal;
+window.closeAddEntryModal = closeAddEntryModal;
+window.updateEntryFields = updateEntryFields;
+window.saveVaultEntry = saveVaultEntry;
+window.toggleEntryStarred = toggleEntryStarred;
+window.toggleEntryPinned = toggleEntryPinned;
+window.editVaultEntry = editVaultEntry;
+window.deleteVaultEntry = deleteVaultEntry;
+window.toggleVaultView = toggleVaultView;
+window.filterVaultEntries = filterVaultEntries;
+window.sortVaultEntries = sortVaultEntries;
+window.exportVaultData = exportVaultData;
+window.exportAllVaults = exportAllVaults;
+window.importVaultData = importVaultData;
+window.showVaultManagement = showVaultManagement;
+window.closeVaultManagementModal = closeVaultManagementModal;
+window.editVault = editVault;
+window.duplicateVault = duplicateVault;
+window.archiveVault = archiveVault;
+window.deleteVault = deleteVault;
+window.toggleAdvancedSearch = toggleAdvancedSearch;
+window.shareProfile = shareProfile;
+window.downloadConvertedData = downloadConvertedData;
+window.setCaseStudyView = setCaseStudyView;
+window.showAddCaseStudyModal = showAddCaseStudyModal;
+window.closeAddCaseStudyModal = closeAddCaseStudyModal;
+window.saveCaseStudy = saveCaseStudy;
+window.autoFetchCaseStudyInfo = autoFetchCaseStudyInfo;
+window.showCaseStudyPreview = showCaseStudyPreview;
+window.closeCaseStudyPreview = closeCaseStudyPreview;
+window.openExternalCaseStudy = openExternalCaseStudy;
+window.toggleCaseStudyPin = toggleCaseStudyPin;
+window.toggleCaseStudyStar = toggleCaseStudyStar;
+window.editCaseStudy = editCaseStudy;
+window.deleteCaseStudy = deleteCaseStudy;
+
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeApp);
+
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
+    loadVaults();
     // Load initial dashboard
     loadDashboard();
     
@@ -878,7 +4543,8 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 currentFilters.search = this.value.toLowerCase();
-                if (document.getElementById('actors') && document.getElementById('actors').classList.contains('active')) {
+                const actorsSection = document.getElementById('actors');
+                if (actorsSection && actorsSection.classList.contains('active')) {
                     applyFilters();
                 }
             }, 300);
@@ -888,8 +4554,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            if (document.getElementById('actor-profile') && document.getElementById('actor-profile').classList.contains('active')) {
+            const profileSection = document.getElementById('actor-profile');
+            if (profileSection && profileSection.classList.contains('active')) {
                 goBackToActors();
+            }
+            
+            // Close modals
+            if (document.getElementById('addToolModal').style.display === 'flex') {
+                closeAddToolModal();
+            }
+            if (document.getElementById('deleteModal').style.display === 'flex') {
+                closeDeleteModal();
+            }
+            if (document.getElementById('importToolsModal').style.display === 'flex') {
+                closeImportToolsModal();
             }
         }
         
@@ -904,13 +4582,57 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.preventDefault();
                     showSection('actors');
                     break;
+                case '3':
+                    e.preventDefault();
+                    showSection('vault');
+                    break;
+                case 'investigation-notes':
+                    showSection('investigation-notes');
+                    break;
             }
         }
     });
     
     // Add smooth scrolling
     document.documentElement.style.scrollBehavior = 'smooth';
+    setupVaultSearch();
+    
+    // Setup file upload for MITRE import
+    setupFileUpload();
+    
+    // Initialize Investigation Notes if the script is loaded
+    if (typeof InvestigationNotes !== 'undefined') {
+        window.investigationNotes = new InvestigationNotes();
+    }
 });
+
+// Initialize the application
+function initializeApp() {
+    if (typeof loadThreatActorsFromStorage === 'function') {
+        loadThreatActorsFromStorage();
+    }
+    if (typeof loadVaultEntriesFromStorage === 'function') {
+        loadVaultEntriesFromStorage();
+    }
+    if (typeof loadCaseStudiesFromStorage === 'function') {
+        loadCaseStudiesFromStorage();
+    }
+    
+    // Set up form submission handlers
+    const vaultEntryForm = document.getElementById('vault-entry-form');
+    if (vaultEntryForm) {
+        vaultEntryForm.addEventListener('submit', saveVaultEntry);
+    }
+    
+    const caseStudyForm = document.getElementById('case-study-form');
+    if (caseStudyForm) {
+        caseStudyForm.addEventListener('submit', saveCaseStudy);
+    }
+    
+    // Load dashboard by default
+    showSection('dashboard');
+    renderCaseStudies();
+}
 
 // Utility Functions
 function formatDate(dateString) {
@@ -964,7 +4686,7 @@ const observer = new IntersectionObserver((entries) => {
 
 // Observe elements when they're added to the DOM
 function observeElements() {
-    document.querySelectorAll('.actor-card, .metric-card, .dashboard-card').forEach(el => {
+    document.querySelectorAll('.actor-card, .metric-card, .dashboard-card, .tool-card').forEach(el => {
         observer.observe(el);
     });
 }
