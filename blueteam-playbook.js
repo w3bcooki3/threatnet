@@ -658,12 +658,18 @@ class BlueTeamPlaybook {
         this.activeEditModalType = 'chapter'; // Set active modal type
         document.getElementById('chapter-modal-title').textContent = 'Create New Chapter';
         document.getElementById('chapter-form').reset();
+        // Clear originalFormValues for new entries so no "unsaved changes" prompt
+        this.originalFormValues = {};
         document.getElementById('playbook-chapter-modal').style.display = 'flex';
+        // Capture initial state *after* reset for comparison on close
         this.captureOriginalFormValues('chapter-form', ['chapter-name', 'chapter-description']);
     }
     closeChapterModal() {
-        // Check for unsaved changes before closing
-        if (this.activeEditModalType === 'chapter' && this.hasFormChanges('chapter-form', ['chapter-name', 'chapter-description'], this.originalFormValues)) {
+        // Only ask about unsaved changes if editing an existing item OR if creating a new item with changes
+        const isNewChapter = this.editingChapter === null;
+        const hasChanges = this.hasFormChanges('chapter-form', ['chapter-name', 'chapter-description'], this.originalFormValues);
+
+        if (!isNewChapter || hasChanges) {
             if (!confirm('You have unsaved changes. Discard changes?')) {
                 return; // User cancelled discard
             }
@@ -696,7 +702,10 @@ class BlueTeamPlaybook {
         }
         this.savePlaybookData();
         this.renderSidebar();
-        this.closeChapterModal(); // This will now go through the check for changes, but Save implies changes are desired.
+        // Crucial: Reset originalFormValues and activeEditModalType after a successful save
+        this.originalFormValues = {};
+        this.activeEditModalType = null;
+        this.closeChapterModal();
         this.updateMainContentHeader();
         this.showMainContentView('chapter-overview'); // Always show overview of the (newly selected) chapter
     }
@@ -724,12 +733,18 @@ class BlueTeamPlaybook {
         this.activeEditModalType = 'section'; // Set active modal type
         document.getElementById('section-modal-title').textContent = 'Create New Section';
         document.getElementById('section-form').reset();
+        // Clear originalFormValues for new entries
+        this.originalFormValues = {};
         document.getElementById('playbook-section-modal').style.display = 'flex';
+        // Capture initial state *after* reset for comparison on close
         this.captureOriginalFormValues('section-form', ['section-name', 'section-description']);
     }
     closeSectionModal() {
-        // Check for unsaved changes before closing
-        if (this.activeEditModalType === 'section' && this.hasFormChanges('section-form', ['section-name', 'section-description'], this.originalFormValues)) {
+        // Only ask if editing an existing item OR if creating a new item with changes
+        const isNewSection = this.editingSection === null;
+        const hasChanges = this.hasFormChanges('section-form', ['section-name', 'section-description'], this.originalFormValues);
+
+        if (!isNewSection || hasChanges) {
             if (!confirm('You have unsaved changes. Discard changes?')) {
                 return;
             }
@@ -765,6 +780,9 @@ class BlueTeamPlaybook {
         }
         this.savePlaybookData();
         this.renderSidebar();
+        // Crucial: Reset originalFormValues and activeEditModalType after a successful save
+        this.originalFormValues = {};
+        this.activeEditModalType = null;
         this.closeSectionModal();
         this.updateMainContentHeader();
         this.showMainContentView('section-entries'); // Show entries of the (newly selected) section
@@ -793,12 +811,18 @@ class BlueTeamPlaybook {
         this.activeEditModalType = 'entry'; // Set active modal type
         document.getElementById('entry-modal-title').textContent = 'Create New Entry';
         document.getElementById('entry-form').reset();
+        // Clear originalFormValues for new entries
+        this.originalFormValues = {};
         document.getElementById('playbook-entry-modal').style.display = 'flex';
+        // Capture initial state *after* reset for comparison on close
         this.captureOriginalFormValues('entry-form', ['entry-title', 'entry-content', 'entry-tags', 'entry-references']);
     }
     closeEntryModal() {
-        // Check for unsaved changes before closing
-        if (this.activeEditModalType === 'entry' && this.hasFormChanges('entry-form', ['entry-title', 'entry-content', 'entry-tags', 'entry-references'], this.originalFormValues)) {
+        // Only ask if editing an existing item OR if creating a new item with changes
+        const isNewEntry = this.editingEntry === null;
+        const hasChanges = this.hasFormChanges('entry-form', ['entry-title', 'entry-content', 'entry-tags', 'entry-references'], this.originalFormValues);
+
+        if (!isNewEntry || hasChanges) {
             if (!confirm('You have unsaved changes. Discard changes?')) {
                 return;
             }
@@ -838,6 +862,9 @@ class BlueTeamPlaybook {
         }
         this.savePlaybookData();
         this.renderSidebar();
+        // Crucial: Reset originalFormValues and activeEditModalType after a successful save
+        this.originalFormValues = {};
+        this.activeEditModalType = null;
         this.closeEntryModal();
         this.updateMainContentHeader();
         this.showMainContentView('entry-detail'); // Show detail of the (newly selected) entry
@@ -958,7 +985,15 @@ class BlueTeamPlaybook {
         fieldNames.forEach(name => {
             const element = form.elements[name];
             if (element) {
-                this.originalFormValues[name] = element.value;
+                // Special handling for tags: ensure it's always compared as a sorted string for consistency
+                if (name === 'entry-tags') {
+                    this.originalFormValues[name] = element.value.split(',').map(t => t.trim()).filter(Boolean).sort().join(',');
+                } else if (element.tagName === 'TEXTAREA') { // Also trim textarea values
+                    this.originalFormValues[name] = element.value.trim();
+                }
+                else {
+                    this.originalFormValues[name] = element.value;
+                }
             }
         });
     }
@@ -971,8 +1006,23 @@ class BlueTeamPlaybook {
         let changed = false;
         fieldNames.forEach(name => {
             const element = form.elements[name];
-            if (element && element.value !== originalValues[name]) {
-                changed = true;
+            if (element) {
+                if (name === 'entry-tags') {
+                    const currentTags = element.value.split(',').map(t => t.trim()).filter(Boolean).sort().join(',');
+                    const originalTagString = originalValues[name]; // Already a sorted string
+                    if (currentTags !== originalTagString) {
+                        changed = true;
+                    }
+                } else if (element.tagName === 'TEXTAREA') { // Trim textarea values for comparison
+                    if (element.value.trim() !== originalValues[name]) {
+                        changed = true;
+                    }
+                }
+                else {
+                    if (element.value !== originalValues[name]) {
+                        changed = true;
+                    }
+                }
             }
         });
         return changed;
@@ -983,28 +1033,33 @@ class BlueTeamPlaybook {
         let modalToCloseId = null;
         let formId = null;
         let fieldNames = [];
+        let isEditing = false; // Flag to determine if it's an existing entry being edited
 
-        // Determine which modal is currently open
+        // Determine which modal is currently open and if it's an edit operation
         if (document.getElementById('playbook-chapter-modal').style.display === 'flex') {
             modalToCloseId = 'playbook-chapter-modal';
             formId = 'chapter-form';
             fieldNames = ['chapter-name', 'chapter-description'];
+            isEditing = this.editingChapter !== null;
         } else if (document.getElementById('playbook-section-modal').style.display === 'flex') {
             modalToCloseId = 'playbook-section-modal';
             formId = 'section-form';
             fieldNames = ['section-name', 'section-description'];
+            isEditing = this.editingSection !== null;
         } else if (document.getElementById('playbook-entry-modal').style.display === 'flex') {
             modalToCloseId = 'playbook-entry-modal';
             formId = 'entry-form';
-            // Entry content is a textarea, use its value directly
             fieldNames = ['entry-title', 'entry-content', 'entry-tags', 'entry-references'];
+            isEditing = this.editingEntry !== null;
         } else if (document.getElementById('playbook-delete-confirm-modal').style.display === 'flex') {
              // If delete confirm modal is open, simply close it without asking for changes
              this.closeDeleteConfirmModal();
              return; // Exit function early
         }
 
-
+        // Only ask about unsaved changes if:
+        // A. It's an *existing* item being edited (isEditing is true) AND there are changes.
+        // B. It's a *new* item (isEditing is false) AND there are changes from the initial (empty) state.
         if (modalToCloseId && this.hasFormChanges(formId, fieldNames, this.originalFormValues)) {
             if (!confirm('You have unsaved changes. Discard changes?')) {
                 return; // User chose NOT to discard, so keep modal open
@@ -1045,6 +1100,12 @@ class BlueTeamPlaybook {
         URL.revokeObjectURL(url);
         this.showNotification('Playbook data exported successfully!', 'success');
     }
+
+    // Add this method to the BlueTeamPlaybook class
+    savePlaybookData() {
+        localStorage.setItem('blueteam-playbook-data', JSON.stringify(this.playbookData));
+    }
+
 
     // --- Utility Function (copied from script.js) ---
     formatDate(timestamp) {

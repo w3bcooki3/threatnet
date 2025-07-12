@@ -1172,20 +1172,18 @@
 
             <!-- Note Detail Modal -->
             <div id="note-detail-modal" class="modal">
-                <div class="modal-content note-detail-content">
-                    <div class="modal-header">
-                        <div class="note-detail-header-top-row">
-                            <h3 id="note-detail-title">Note Title</h3>
-                            <div class="note-detail-header-actions"> <button onclick="investigationNotes.editNote(investigationNotes.currentDetailNote.id)" class="btn-secondary">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <span class="close" onclick="investigationNotes.closeNoteDetailModal()">&times;</span>
-                            </div>
+                <div class="modal-content note-detail-modal-content"> <div class="modal-header note-detail-header"> <div class="note-detail-title-block"> <h3 id="note-detail-title">Note Title</h3>
+                            <p id="note-detail-case-id-display" class="note-detail-case-id-display"></p> 
                         </div>
                         
-                        <p id="note-detail-case-id-display" class="note-detail-case-id-display"></p> 
-                        
-                        <div class="note-detail-metadata-block">
+                        <div class="note-detail-header-actions">
+                            <button onclick="investigationNotes.editNote(investigationNotes.currentDetailNote.id)" class="btn-secondary">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <span class="close" onclick="investigationNotes.closeNoteDetailModal()">&times;</span>
+                        </div>
+
+                        <div class="note-detail-category-priority-row">
                             <span id="note-detail-category" class="note-detail-badge-text">Category</span> 
                             <span id="note-detail-priority" class="note-detail-badge-text">Priority</span> 
                         </div>

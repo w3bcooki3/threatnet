@@ -602,15 +602,55 @@ let currentThreatActor = null;
 
 let currentPreviewCaseStudy = null;
 
-// Navigation Functions
 function showSection(sectionName) {
+    // --- START MODAL CLOSING LOGIC ---
+    // Close Investigation Notes modals gracefully
+    if (window.investigationNotes) { // Check if the investigationNotes object is defined
+        // Attempt to click the close buttons if modals are open
+        const noteModal = document.getElementById('note-modal');
+        const noteDetailModal = document.getElementById('note-detail-modal');
+
+        if (noteModal && noteModal.style.display === 'block') {
+            const closeBtn = noteModal.querySelector('.close');
+            if (closeBtn) closeBtn.click(); // Simulate click on the close button
+        }
+        if (noteDetailModal && noteDetailModal.style.display === 'block') {
+            const closeBtn = noteDetailModal.querySelector('.close');
+            if (closeBtn) closeBtn.click(); // Simulate click on the close button
+        }
+    }
+
+    // Close Blue Team Playbook modals gracefully (assuming similar close button structure)
+    if (window.blueTeamPlaybook) { // Check if the blueTeamPlaybook object is defined
+        const chapterModal = document.getElementById('playbook-chapter-modal');
+        const sectionModal = document.getElementById('playbook-section-modal');
+        const entryModal = document.getElementById('playbook-entry-modal');
+        const deleteConfirmModal = document.getElementById('playbook-delete-confirm-modal');
+
+        if (chapterModal && chapterModal.style.display === 'flex') {
+            const closeBtn = chapterModal.querySelector('.close');
+            if (closeBtn) closeBtn.click();
+        }
+        if (sectionModal && sectionModal.style.display === 'flex') {
+            const closeBtn = sectionModal.querySelector('.close');
+            if (closeBtn) closeBtn.click();
+        }
+        if (entryModal && entryModal.style.display === 'flex') {
+            const closeBtn = entryModal.querySelector('.close');
+            if (closeBtn) closeBtn.click();
+        }
+        if (deleteConfirmModal && deleteConfirmModal.style.display === 'flex') {
+            const closeBtn = deleteConfirmModal.querySelector('.close');
+            if (closeBtn) closeBtn.click();
+        }
+    }
+    // --- END MODAL CLOSING LOGIC ---
+
+
     // Hide all sections
     const sections = document.querySelectorAll('.content-section');
     sections.forEach(section => {
         section.classList.remove('active');
-        // It's better to hide 'investigation-notes' through its class, not inline style
-        // If it's the section itself, removing 'active' should handle it.
-        // If there are other elements you want to specifically hide, manage them here.
     });
 
     // Show selected section
@@ -618,25 +658,18 @@ function showSection(sectionName) {
     if (targetSection) {
         targetSection.classList.add('active');
 
-        // ************************************************************
-        // MODIFICATION START: Call rendering methods for Investigation Notes
-        // ************************************************************
+        // This part is for re-rendering when the section becomes active
         if (sectionName === 'investigation-notes') {
-            // Ensure the instance exists before calling its methods
             if (window.investigationNotes) {
                 window.investigationNotes.renderNotes();
                 window.investigationNotes.updateEmptyState();
             } else {
                 // Fallback: If for some reason it wasn't initialized, do it now.
-                // This might happen if 'investigation-notes.js' loads later.
                 window.investigationNotes = new InvestigationNotes();
                 window.investigationNotes.renderNotes();
                 window.investigationNotes.updateEmptyState();
             }
         }
-        // ************************************************************
-        // MODIFICATION END
-        // ************************************************************
     }
 
     // Update nav links - find the nav item that corresponds to this section
@@ -663,12 +696,11 @@ function showSection(sectionName) {
         loadImportSection();
     } else if (sectionName === 'vault') {
         loadVaultSection();
-     } else if (sectionName === 'blueteam-playbook') { // NEW: Blue Team Playbook
+    } else if (sectionName === 'blueteam-playbook') {
         if (window.blueTeamPlaybook) {
-            window.blueTeamPlaybook.initializeUI(); // Call its initializer
+            window.blueTeamPlaybook.initializeUI();
         }
     }
-    // No need for an else if for 'investigation-notes' here, as it's handled above.
 }
 
 function showActorProfile(actorId) {
@@ -3704,69 +3736,103 @@ function guessCategory(url) {
 
 function saveCaseStudy(event) {
     event.preventDefault();
-    
+
+    const form = document.getElementById('caseStudyForm');
     const formData = {
-        url: document.getElementById('case-study-url').value.trim(),
-        title: document.getElementById('case-study-title').value.trim(),
-        author: document.getElementById('case-study-author').value.trim(),
-        source: document.getElementById('case-study-source').value.trim(),
-        category: document.getElementById('case-study-category').value,
-        preview: document.getElementById('case-study-preview').value.trim(),
-        tags: document.getElementById('case-study-tags').value.trim(),
-        notes: document.getElementById('case-study-notes').value.trim()
+        url: form.elements['caseStudyUrl'].value.trim(),
+        title: form.elements['caseStudyTitle'].value.trim(),
+        author: form.elements['caseStudyAuthor'].value.trim(),
+        source: form.elements['caseStudySource'].value.trim(),
+        category: form.elements['caseStudyCategory'].value,
+        preview: form.elements['caseStudyPreview'].value.trim(),
+        tags: form.elements['caseStudyTags'].value.trim(),
+        notes: form.elements['caseStudyNotes'].value.trim()
     };
-    
+
     // Validation
     if (!formData.url || !formData.title || !formData.category) {
-        showNotification('Please fill in all required fields', 'error');
+        showNotification('Please fill in all required fields (Title, URL, Category)', 'warning');
         return;
     }
-    
+
     // Process tags
-    const tags = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-    
-    const caseStudy = {
-        id: editingCaseStudyId || Date.now(),
-        ...formData,
-        tags: tags,
-        dateAdded: editingCaseStudyId ? caseStudies.find(cs => cs.id === editingCaseStudyId).dateAdded : new Date().toISOString(),
-        dateModified: new Date().toISOString(),
-        starred: editingCaseStudyId ? caseStudies.find(cs => cs.id === editingCaseStudyId).starred : false,
-        pinned: editingCaseStudyId ? caseStudies.find(cs => cs.id === editingCaseStudyId).pinned : false
-    };
-    
-    if (editingCaseStudyId) {
-        const index = caseStudies.findIndex(cs => cs.id === editingCaseStudyId);
-        caseStudies[index] = caseStudy;
-        showNotification('Case study updated successfully!', 'success');
+    const tagsArray = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+
+    // Determine if it's an edit or a new entry
+    // The `editingCaseStudyId` global variable is used for this.
+    // It should be set by `editCaseStudy` and cleared by `closeAddCaseStudyModal`.
+    let caseStudy;
+    if (editingCaseStudyId) { // This variable is key to distinguishing edit from new
+        // Update existing case study
+        caseStudy = caseStudies.find(cs => cs.id === editingCaseStudyId);
+        if (caseStudy) {
+            Object.assign(caseStudy, {
+                title: formData.title,
+                source: formData.source,
+                author: formData.author,
+                url: formData.url,
+                category: formData.category,
+                preview: formData.preview,
+                tags: tagsArray,
+                notes: formData.notes,
+                dateModified: new Date().toISOString().split('T')[0] // Update modified date
+            });
+            showNotification('Case study updated successfully!', 'success');
+        } else {
+            // Fallback in case editingId was set but no matching case study found
+            console.error("Editing ID set but case study not found:", editingCaseStudyId);
+            showNotification('Error: Case study not found for update.', 'error');
+            return;
+        }
     } else {
-        caseStudies.push(caseStudy);
+        // Add new case study
+        caseStudy = {
+            id: Date.now(), // Unique ID for new entry
+            title: formData.title,
+            source: formData.source,
+            author: formData.author,
+            url: formData.url,
+            category: formData.category,
+            preview: formData.preview,
+            tags: tagsArray,
+            notes: formData.notes,
+            dateAdded: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+            dateModified: new Date().toISOString().split('T')[0],
+            pinned: false,
+            starred: false
+        };
+        caseStudies.unshift(caseStudy); // Add to the beginning
         showNotification('Case study added successfully!', 'success');
     }
-    
-    saveCaseStudiesToStorage();
-    closeAddCaseStudyModal();
-    loadCaseStudiesView();
+
+    saveCaseStudiesToStorage(); // Save to local storage after any change
+    closeAddCaseStudyModal(); // This will also clear editingCaseStudyId
+    loadCaseStudiesView(); // Re-render the view
 }
+
 
 function editCaseStudy(id) {
     const caseStudy = caseStudies.find(cs => cs.id === id);
     if (!caseStudy) return;
-    
+
+    // Set the global `editingCaseStudyId` to indicate an edit operation
     editingCaseStudyId = id;
-    document.getElementById('case-study-modal-title').textContent = 'Edit Case Study';
-    
-    // Fill form with existing data
-    document.getElementById('case-study-url').value = caseStudy.url;
-    document.getElementById('case-study-title').value = caseStudy.title;
-    document.getElementById('case-study-author').value = caseStudy.author || '';
-    document.getElementById('case-study-source').value = caseStudy.source || '';
-    document.getElementById('case-study-category').value = caseStudy.category;
-    document.getElementById('case-study-preview').value = caseStudy.preview || '';
-    document.getElementById('case-study-tags').value = caseStudy.tags.join(', ');
-    document.getElementById('case-study-notes').value = caseStudy.notes || '';
-    
-    document.getElementById('add-case-study-modal').style.display = 'block';
+
+    // Change the modal title to reflect 'Edit'
+    document.querySelector('#addCaseStudyModal .modal-header h3').textContent = 'Edit Case Study';
+
+    // Populate form fields with existing data
+    document.getElementById('caseStudyUrl').value = caseStudy.url;
+    document.getElementById('caseStudyTitle').value = caseStudy.title;
+    document.getElementById('caseStudySource').value = caseStudy.source || '';
+    document.getElementById('caseStudyAuthor').value = caseStudy.author || '';
+    document.getElementById('caseStudyCategory').value = caseStudy.category;
+    document.getElementById('caseStudyPreview').value = caseStudy.preview || '';
+    document.getElementById('caseStudyTags').value = caseStudy.tags.join(', ');
+    document.getElementById('caseStudyNotes').value = caseStudy.notes || '';
+
+    // Show the modal
+    document.getElementById('addCaseStudyModal').style.display = 'block';
 }
 
 function deleteCaseStudy(id) {

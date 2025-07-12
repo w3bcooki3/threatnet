@@ -1,0 +1,663 @@
+/* case-studies.css */
+
+/* Add these variables for better consistency in Case Studies section */
+:root {
+    --card-bg: rgba(255, 255, 255, 0.03); /* Dark theme card background */
+    --border-color: rgba(255, 255, 255, 0.08); /* Dark theme border */
+    --text-primary: #ffffff; /* Primary text color */
+    --text-secondary: rgba(255, 255, 255, 0.7); /* Secondary text color */
+    --hover-bg: rgba(255, 255, 255, 0.05); /* Hover background for interactive elements */
+    --primary-color: #ff4757; /* Accent color for links, buttons etc. */
+    --accent-color: #ff6b7a; /* Secondary accent color */
+    --warning-color: #ffc107; /* Warning yellow */
+    --danger-color: #dc3545; /* Danger red */
+}
+
+/* Case Studies Styles - REFINED */
+.case-studies-container {
+    padding: 20px 0; /* Consistent with other content */
+}
+
+.case-studies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem; /* Consistent gap with other grids */
+    margin-top: 1rem; /* Adjust top margin for spacing */
+}
+
+.case-study-card {
+    background: var(--card-bg); /* Dark theme background */
+    border: 1px solid var(--border-color); /* Dark theme border */
+    border-radius: 16px; /* Consistent border-radius */
+    padding: 1.5rem; /* Consistent padding */
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15); /* Subtle shadow */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden; /* Ensures inner content doesn't break layout */
+    display: flex; /* Use flexbox for internal layout */
+    flex-direction: column; /* Stack content vertically */
+}
+
+.case-study-card:hover {
+    transform: translateY(-4px); /* Lift on hover */
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25); /* More prominent shadow */
+    border-color: var(--primary-color); /* Accent border on hover */
+}
+
+/* Active/Pinned/Starred states */
+.case-study-card.pinned {
+    border-left: 5px solid var(--warning-color); /* Yellow accent for pinned */
+    background: rgba(255, 193, 7, 0.05); /* Light yellow background for pinned */
+}
+.case-study-card.starred {
+    border-right: 5px solid var(--primary-color); /* Red accent for starred */
+    background: rgba(255, 71, 87, 0.05); /* Light red background for starred */
+}
+/* Ensure hover over pinned/starred still changes to accent color */
+.case-study-card.pinned:hover {
+    border-left-color: var(--primary-color);
+}
+.case-study-card.starred:hover {
+    border-right-color: var(--primary-color);
+}
+
+
+.case-study-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Align items vertically */
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem; /* Space below header content */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Subtle separator */
+}
+
+.case-study-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0; /* Prevent badges from shrinking */
+}
+
+.badge {
+    padding: 0.3em 0.6em;
+    border-radius: 8px; /* More rounded */
+    font-size: 0.7em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.badge-pinned {
+    background: rgba(255, 193, 7, 0.15);
+    color: var(--warning-color);
+}
+
+.badge-starred {
+    background: rgba(255, 71, 87, 0.15);
+    color: var(--primary-color);
+}
+
+.case-study-actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease;
+    flex-shrink: 0; /* Prevent actions from shrinking */
+}
+
+.case-study-card:hover .case-study-actions,
+.case-study-card.starred .case-study-actions, /* Always show actions when starred */
+.case-study-card.pinned .case-study-actions { /* Always show actions when pinned */
+    opacity: 1;
+}
+
+.case-study-action-btn {
+    background: rgba(255, 255, 255, 0.08); /* Darker background */
+    border: none;
+    padding: 0.6rem; /* Adjust padding for icon-only buttons */
+    border-radius: 8px; /* More rounded */
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6); /* Lighter icon color */
+    transition: all 0.3s ease;
+    font-size: 0.9rem; /* Smaller icon size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; /* Fixed size for circular appearance */
+    height: 32px;
+}
+
+.case-study-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15); /* Lighter hover background */
+    color: #ffffff; /* White icon on hover */
+    transform: translateY(-1px); /* Slight lift */
+}
+
+.case-study-action-btn.active { /* For when starred/pinned is active */
+    color: var(--primary-color);
+    background: rgba(255, 71, 87, 0.15);
+}
+
+/* Specific colors for active pin/star */
+.case-study-action-btn.pinned.active {
+    color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.15);
+}
+.case-study-action-btn.starred.active {
+    color: var(--primary-color);
+    background: rgba(255, 71, 87, 0.15);
+}
+/* Ensure danger button stands out */
+.case-study-action-btn.delete {
+    background: rgba(220, 53, 69, 0.15); /* Red accent transparent */
+    color: var(--danger-color); /* Red accent text */
+}
+.case-study-action-btn.delete:hover {
+    background: rgba(220, 53, 69, 0.25);
+    color: white; /* White text on hover for contrast */
+}
+
+.case-study-content {
+    flex-grow: 1; /* Allows content to push footer to bottom */
+    display: flex;
+    flex-direction: column;
+}
+
+.case-study-category {
+    padding: 0.4rem 0.8rem; /* Adjusted padding for better fit */
+    border-radius: 12px; /* Rounded pill shape */
+    font-size: 0.75rem; /* Smaller font for categories */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block; /* Only take content width */
+    margin-bottom: 0.75rem; /* Spacing below category */
+    color: #ffffff; /* Ensure text is white for contrast */
+}
+
+.case-study-title {
+    font-size: 1.15rem; /* Slightly larger title */
+    font-weight: 700; /* Bolder title */
+    color: var(--text-primary); /* White title */
+    margin: 0 0 0.75rem 0; /* Adjusted margins */
+    line-height: 1.4;
+}
+
+.case-study-meta {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 0.75rem; /* Spacing between meta items */
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary); /* Lighter text for meta */
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem; /* Smaller gap for icon and text */
+    background: rgba(255, 255, 255, 0.05); /* Subtle background for meta items */
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px; /* Rounded corners */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.meta-item i {
+    color: var(--primary-color); /* Accent color for icons */
+}
+
+.case-study-preview {
+    color: var(--text-secondary); /* Lighter text for preview */
+    font-size: 0.95rem; /* Consistent font size */
+    line-height: 1.6;
+    margin-bottom: 1.5rem; /* Spacing below preview */
+    flex-grow: 1; /* Allow to take remaining space */
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Limit to 4 lines for more content */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.case-study-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem; /* Smaller gap for tags */
+    margin-bottom: 1rem; /* Spacing below tags */
+}
+
+.tag { /* Reusing .tool-tag style but for case studies. Renamed from .case-study-tag for clarity */
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.08); /* Dark theme tag background */
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Subtle border */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+.tag-more {
+    background: none; /* No background for "+X more" */
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+}
+
+
+.case-study-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6); /* Faded footer text */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Consistent border */
+    padding-top: 1rem; /* Padding above border */
+    margin-top: auto; /* Pushes footer to bottom */
+}
+
+.date-added, .external-link {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.external-link {
+    color: var(--primary-color); /* Accent color for link */
+    cursor: pointer;
+    font-weight: 600;
+}
+.external-link:hover {
+    text-decoration: underline;
+}
+
+/* List View for Case Studies - REFINED */
+.case-studies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Consistent smaller gap for list */
+    margin-top: 1rem;
+}
+
+.case-study-list-item {
+    background: var(--card-bg); /* Dark theme background */
+    border: 1px solid var(--border-color); /* Dark theme border */
+    border-radius: 12px; /* Consistent border-radius */
+    padding: 1.25rem 1.5rem; /* Consistent padding */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 1.5rem; /* Spacing between content and actions */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative; /* For actions opacity */
+}
+
+.case-study-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border-color: var(--primary-color);
+}
+
+/* Active/Pinned/Starred states for list items */
+.case-study-list-item.pinned {
+    border-left: 5px solid var(--warning-color);
+    background: rgba(255, 193, 7, 0.05);
+}
+.case-study-list-item.starred {
+    border-right: 5px solid var(--primary-color);
+    background: rgba(255, 71, 87, 0.05);
+}
+.case-study-list-item.pinned:hover {
+    border-left-color: var(--primary-color);
+}
+.case-study-list-item.starred:hover {
+    border-right-color: var(--primary-color);
+}
+
+.list-item-content {
+    flex: 1; /* Takes up available space */
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Allows content to shrink */
+}
+
+.list-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+.list-item-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.list-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease;
+    flex-shrink: 0; /* Prevent actions from shrinking */
+}
+
+.case-study-list-item:hover .list-item-actions,
+.case-study-list-item.starred .list-item-actions,
+.case-study-list-item.pinned .list-item-actions {
+    opacity: 1;
+}
+
+.list-item-title {
+    font-size: 1.1rem; /* Similar to card title */
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+}
+
+.list-item-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    display: flex;
+    gap: 0.5rem; /* Smaller gap for list meta */
+}
+.list-item-meta .meta-item { /* Reuse meta-item style for consistency */
+    background: rgba(255, 255, 255, 0.05); /* Subtle background for meta items */
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px; /* Rounded corners */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 0.4rem;
+}
+.list-item-meta .meta-item i {
+    color: var(--primary-color);
+}
+
+
+.list-item-preview {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit lines for a concise view */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.list-item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Category Colors for Case Studies (Updated to blend with dark theme) */
+/* The colors themselves are fine, but ensure the text is white against them */
+.case-study-category.crypto, .tag.crypto { background: #f39c12; color: #ffffff; }
+.case-study-category.blockchain, .tag.blockchain { background: #3498db; color: #ffffff; } /* Changed for better contrast */
+.case-study-category.socmint, .tag.socmint { background: #2ecc71; color: #ffffff; }
+.case-study-category.threat-hunting, .tag.threat-hunting { background: #e74c3c; color: #ffffff; }
+.case-study-category.malware-analysis, .tag.malware-analysis { background: #9b59b6; color: #ffffff; } /* Changed for better contrast */
+.case-study-category.incident-response, .tag.incident-response { background: #ff6b7a; color: #ffffff; } /* Consistent with primary accent */
+.case-study-category.forensics, .tag.forensics { background: #007bff; color: #ffffff; } /* Blue for forensics */
+.case-study-category.osint, .tag.osint { background: #00acee; color: #ffffff; } /* Light blue for OSINT */
+.case-study-category.apt, .tag.apt { background: #7877c6; color: #ffffff; } /* Purple for APT */
+.case-study-category.vulnerability, .tag.vulnerability { background: #f59e0b; color: #ffffff; } /* Orange for vulnerability */
+.case-study-category.other, .tag.other { background: #6c757d; color: #ffffff; } /* Gray for other */
+
+
+/* Modal Styles for Case Study Forms */
+#addCaseStudyModal .modal-content,
+#caseStudyPreviewModal .modal-content {
+    background: rgba(15, 15, 25, 0.95); /* Consistent with other modals */
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    color: #ffffff; /* Ensure text is visible in dark modal */
+}
+
+/* Buttons in Case Study Modals */
+#addCaseStudyModal .btn-primary,
+#caseStudyPreviewModal .btn-primary {
+    background: linear-gradient(135deg, #ff4757, #ff6b7a);
+    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+}
+#addCaseStudyModal .btn-primary:hover,
+#caseStudyPreviewModal .btn-primary:hover {
+    box-shadow: 0 8px 32px rgba(255, 71, 87, 0.4);
+}
+
+#addCaseStudyModal .btn-secondary,
+#caseStudyPreviewModal .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+#addCaseStudyModal .btn-secondary:hover,
+#caseStudyPreviewModal .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* Form inputs in Case Study Modal */
+#addCaseStudyModal .form-group input,
+#addCaseStudyModal .form-group select,
+#addCaseStudyModal .form-group textarea {
+    background: rgba(255, 255, 255, 0.05); /* Dark theme background */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Dark theme border */
+    color: #ffffff; /* Dark theme text */
+}
+#addCaseStudyModal .form-group input:focus,
+#addCaseStudyModal .form-group select:focus,
+#addCaseStudyModal .form-group textarea:focus {
+    border-color: #ff4757; /* Accent border on focus */
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1); /* Soft glow on focus */
+    background: rgba(255, 255, 255, 0.08); /* Slightly lighter background on focus */
+}
+
+/* URL Auto-fetch button */
+.url-input-group .btn-secondary { /* Target the button specifically to override wider buttons */
+    padding: 0.75rem 1rem; /* Adjust padding to look compact */
+    font-size: 0.95rem;
+    min-width: unset; /* Remove min-width if set by global btn-secondary */
+}
+.url-input-group .btn-secondary i {
+    margin-right: 0.5rem; /* Space between icon and text */
+}
+
+
+/* Case Study Preview Modal Content */
+.case-study-preview-content {
+    max-height: 500px; /* Limits height, overflow handled by modal-content */
+    overflow-y: auto; /* Enable scrolling for content if needed */
+    padding-bottom: 1rem; /* Add padding at bottom for scroll content */
+}
+
+.preview-meta {
+    background: rgba(255, 255, 255, 0.05); /* Dark background for meta block */
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-meta h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.preview-meta-item {
+    display: flex;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+.preview-meta-item:last-child {
+    margin-bottom: 0;
+}
+
+.preview-meta-label {
+    font-weight: 600;
+    min-width: 80px; /* Align labels */
+    color: var(--text-primary);
+}
+
+.preview-meta-value {
+    flex: 1;
+    color: var(--text-secondary);
+    word-break: break-word; /* Ensure long URLs/text break */
+}
+.preview-meta-value a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.preview-meta-value a:hover {
+    text-decoration: underline;
+}
+
+.preview-content {
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+.preview-content h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.preview-content p {
+    margin-bottom: 1em;
+}
+
+.preview-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.preview-tag { /* Reusing the .tag style from above */
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Empty State Message for Case Studies */
+.case-studies-section .empty-state { /* Target specifically to override generic empty state */
+    text-align: center;
+    padding: 4rem 2rem;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.case-studies-section .empty-state .empty-icon {
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 1.5rem;
+}
+
+.case-studies-section .empty-state h3 {
+    margin: 0 0 1rem 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.case-studies-section .empty-state p {
+    margin: 0 0 2rem 0;
+    font-size: 1rem;
+    max-width: 400px;
+}
+
+/* Header actions for view toggle */
+.section-header .view-toggle {
+    display: flex;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.section-header .view-toggle .view-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-header .view-toggle .view-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.section-header .view-toggle .view-btn.active {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+}
+
+/* Media Queries specific to case studies (adjusted from styles.css) */
+@media (max-width: 768px) {
+    .case-studies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Allow smaller cards on small screens */
+        gap: 1rem;
+    }
+    .case-study-card {
+        padding: 1rem;
+    }
+    .case-study-list-item {
+        flex-direction: column; /* Stack content in list view for small screens */
+        align-items: flex-start;
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    .case-study-list-content {
+        width: 100%; /* Take full width */
+    }
+    .list-item-actions {
+        width: 100%; /* Take full width */
+        justify-content: flex-end; /* Push to right */
+        margin-top: 0.5rem;
+        opacity: 1; /* Always visible on small screens for better UX */
+    }
+    .case-study-card .case-study-actions {
+        opacity: 1; /* Always visible on small screens for better UX */
+    }
+    .url-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .case-study-title, .list-item-title {
+        font-size: 1rem;
+    }
+    .case-study-meta, .list-item-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+    }
+    .case-study-preview, .list-item-preview {
+        font-size: 0.85rem;
+    }
+}

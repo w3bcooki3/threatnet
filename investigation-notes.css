@@ -506,33 +506,36 @@
 /* Note Detail Header within Modal */
 .note-detail-header {
     display: flex;
-    flex-direction: column; /* Stack elements within the header */
-    padding: 1.5rem 2rem 1rem;
+    justify-content: space-between; /* Space out title/caseId block and actions */
+    align-items: flex-start; /* Align items to the top */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    padding: 1.5rem 2rem 1rem; /* Consistent padding */
     border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Only one bottom border for the header area */
+    gap: 1rem; /* Gap between header elements, especially when wrapping */
 }
 
-/* New: Container for Title and Actions */
-.note-detail-header-main-row {
+/* NEW: Container for Title and Case ID */
+.note-detail-title-block {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+    flex-direction: column; /* Stack title and case ID */
+    flex-grow: 1; /* Allow it to take available space */
 }
 
-.note-detail-header h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
+.note-detail-header h3#note-detail-title { /* Added ID for stronger specificity */
+    font-size: 2.2rem; /* Larger title font size */
+    font-weight: 800;
     color: #ffffff;
     margin: 0; /* Remove default margins */
+    line-height: 1.2; /* Tighter line height for large title */
 }
 
 /* Case ID under title (new structure) */
 .note-detail-case-id-display {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem; /* Slightly smaller for tagline effect */
+    color: rgba(255, 255, 255, 0.5); /* More faded for tagline effect */
     font-weight: 500;
-    margin-top: 0.5rem; /* Space below title */
-    margin-bottom: 0.5rem; /* Space before category/priority row */
+    margin-top: 0.25rem; /* Closer to the title */
+    margin-bottom: 0; /* No bottom margin as it's part of the block */
 }
 
 .note-detail-header-actions { /* These are the Edit and Close buttons */
@@ -587,11 +590,14 @@
 
 /* Category and Priority row directly under Case ID */
 .note-detail-category-priority-row { /* New class for this row */
+    width: 100%; /* Make it take full width below header content */
     display: flex;
     gap: 1.5rem; /* Space between items */
     align-items: center;
-    margin-top: 0.5rem; /* Space from Case ID above */
+    margin-top: 1rem; /* Space from the elements above it (title/actions) */
     margin-bottom: 0.5rem; /* Space before content area starts */
+    padding-top: 1rem; /* Add some padding if a line is needed above it later */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Visual separator */
 }
 
 /* New: Simple text style for Category and Priority in detail modal */
@@ -606,6 +612,11 @@
     display: flex; /* Make it a flex item to align with icon if needed later */
     align-items: center;
     gap: 0.25rem; /* Small gap for potential icon */
+}
+.note-detail-badge-text strong {
+    font-weight: bold;
+    color: #ffffff; /* Make the strong text white */
+    margin-right: 0.25rem; /* Small space between title and value */
 }
 
 /* Re-apply colors for clarity */

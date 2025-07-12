@@ -178,10 +178,11 @@ class InvestigationNotes {
         const categoryBadge = document.getElementById('note-detail-category');
         const priorityBadge = document.getElementById('note-detail-priority');
 
-        categoryBadge.textContent = note.category.replace('-', ' ');
+        // Add 'Category:' and 'Priority:' labels
+        categoryBadge.innerHTML = `<strong>Category:</strong> ${note.category.replace('-', ' ')}`;
         categoryBadge.className = `note-detail-badge-text ${note.category}`; // Apply the new class
         
-        priorityBadge.textContent = note.priority;
+        priorityBadge.innerHTML = `<strong>Priority:</strong> ${note.priority}`;
         priorityBadge.className = `note-detail-badge-text ${note.priority}`; // Apply the new class
 
         // Content
