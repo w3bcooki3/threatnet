@@ -13,6 +13,131 @@
     --danger-color: #dc3545; /* Danger red */
 }
 
+/* Case Studies Controls Section */
+.case-studies-controls {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    gap: 1rem; /* Spacing between control elements */
+    margin-bottom: 1.5rem; /* Space below controls */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 1rem;
+}
+
+.case-studies-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem; /* Space between category buttons */
+    flex: 1 1 100%; /* Take full width on a new line */
+    margin-bottom: 0.5rem;
+}
+
+.case-studies-filter-tabs .filter-tab {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.case-studies-filter-tabs .filter-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.case-studies-filter-tabs .filter-tab.active {
+    background: linear-gradient(135deg, #ff4757, #ff6b7a);
+    border-color: #ff4757;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+}
+
+.case-studies-filter-tabs .filter-tab i {
+    font-size: 0.8em; /* Smaller icon for "Other" */
+}
+
+.case-studies-search-filter {
+    flex: 2 1 60%; /* Take more space, adjust as needed */
+    display: flex;
+    align-items: center;
+}
+
+#case-studies-search {
+    flex-grow: 1; /* Make search input take full available width */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#case-studies-search::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#case-studies-search:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+}
+
+.case-studies-dropdowns {
+    display: flex;
+    gap: 1rem;
+    flex: 1 1 30%; /* Take remaining space */
+    justify-content: flex-end; /* Push to the right */
+}
+
+.case-studies-dropdowns select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none; /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2C197.935L146.2%2C57.135L5.4%2C197.935L0%2C192.535L146.2%2C46.335L292.4%2C192.535L287%2C197.935z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.8em auto;
+}
+
+.case-studies-dropdowns select option {
+    background-color: #1a1a2e; /* Darker background for options */
+    color: #ffffff;
+}
+
+.case-studies-stats-row {
+    flex: 1 1 100%; /* Take full width on a new line */
+    display: flex;
+    justify-content: flex-start; /* Align to start */
+    gap: 1.5rem; /* Space between stats */
+    padding-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    align-items: center;
+}
+
+.case-studies-stats-row strong {
+    color: var(--text-primary);
+    font-size: 1.1em; /* Slightly larger numbers */
+    margin-left: 0.25rem;
+}
+
+
 /* Case Studies Styles - REFINED */
 .case-studies-container {
     padding: 20px 0; /* Consistent with other content */
@@ -20,17 +145,17 @@
 
 .case-studies-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem; /* Consistent gap with other grids */
-    margin-top: 1rem; /* Adjust top margin for spacing */
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* Increased min-width for wider cards */
+    gap: 2.25rem; /* Increased gap for more space between cards */
+    margin-top: 1.25rem; /* Adjust top margin for spacing */
 }
 
 .case-study-card {
     background: var(--card-bg); /* Dark theme background */
     border: 1px solid var(--border-color); /* Dark theme border */
-    border-radius: 16px; /* Consistent border-radius */
-    padding: 1.5rem; /* Consistent padding */
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15); /* Subtle shadow */
+    border-radius: 18px; /* Slightly more rounded */
+    padding: 2rem; /* Increased padding */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2); /* More prominent shadow */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
@@ -40,8 +165,8 @@
 }
 
 .case-study-card:hover {
-    transform: translateY(-4px); /* Lift on hover */
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25); /* More prominent shadow */
+    transform: translateY(-6px); /* Lift more on hover */
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35); /* Even more prominent shadow */
     border-color: var(--primary-color); /* Accent border on hover */
 }
 
@@ -90,6 +215,16 @@
     gap: 0.25em;
 }
 
+.badge-preadded { /* New badge for pre-added items */
+    background: rgba(60, 179, 113, 0.15); /* A subtle green */
+    color: #3CB371; /* Medium Sea Green */
+}
+
+.badge-user-added {
+    background: rgba(66, 153, 225, 0.15); /* A subtle blue */
+    color: #4299E1; /* Tailwind CSS blue-500 */
+}
+
 .badge-pinned {
     background: rgba(255, 193, 7, 0.15);
     color: var(--warning-color);
@@ -106,6 +241,12 @@
     opacity: 0; /* Hidden by default */
     transition: opacity 0.3s ease;
     flex-shrink: 0; /* Prevent actions from shrinking */
+}
+
+/* Ensure action buttons are always visible, overriding the default hidden state */
+.case-study-card .case-study-actions.visible-actions,
+.case-study-list-item .list-item-actions.visible-actions {
+    opacity: 1;
 }
 
 .case-study-card:hover .case-study-actions,
@@ -142,12 +283,12 @@
 }
 
 /* Specific colors for active pin/star */
-.case-study-action-btn.pinned.active {
+.case-study-action-btn.pinned-active { /* Changed from .case-study-action-btn.active for clarity */
     color: var(--warning-color);
     background: rgba(255, 193, 7, 0.15);
 }
-.case-study-action-btn.starred.active {
-    color: var(--primary-color);
+.case-study-action-btn.starred-active { /* Changed from .case-study-action-btn.active for clarity */
+    color: var(--primary-color); /* Keeping red for consistency with mock */
     background: rgba(255, 71, 87, 0.15);
 }
 /* Ensure danger button stands out */
@@ -166,20 +307,21 @@
     flex-direction: column;
 }
 
-.case-study-category {
-    padding: 0.4rem 0.8rem; /* Adjusted padding for better fit */
-    border-radius: 12px; /* Rounded pill shape */
-    font-size: 0.75rem; /* Smaller font for categories */
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: inline-block; /* Only take content width */
-    margin-bottom: 0.75rem; /* Spacing below category */
-    color: #ffffff; /* Ensure text is white for contrast */
+.case-study-source-link { /* New element for source and external link */
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.case-study-source-link i {
+    font-size: 0.7em;
 }
 
+
 .case-study-title {
-    font-size: 1.15rem; /* Slightly larger title */
+    font-size: 1.25rem; /* Slightly larger title */
     font-weight: 700; /* Bolder title */
     color: var(--text-primary); /* White title */
     margin: 0 0 0.75rem 0; /* Adjusted margins */
@@ -190,9 +332,15 @@
     display: flex;
     flex-wrap: wrap; /* Allow wrapping */
     gap: 0.75rem; /* Spacing between meta items */
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* Original margin, to be refined below */
     font-size: 0.85rem;
     color: var(--text-secondary); /* Lighter text for meta */
+}
+
+/* Specific margins for .case-study-meta within a card for better layout */
+.case-study-card .case-study-meta {
+    margin-bottom: 0.75rem; /* Reduced margin for tighter layout below title */
+    margin-top: 0.5rem; /* Space between title and meta */
 }
 
 .meta-item {
@@ -203,16 +351,28 @@
     padding: 0.3rem 0.6rem;
     border-radius: 8px; /* Rounded corners */
     border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.8rem; /* Slightly smaller for meta items to differentiate */
+    color: var(--text-secondary); /* Consistent secondary text color */
 }
 .meta-item i {
     color: var(--primary-color); /* Accent color for icons */
+    font-size: 0.9em; /* Adjust icon size slightly */
 }
+
+/* Specific styling for the category meta-item to use its own color */
+.meta-item.tag-category {
+    color: #ffffff; /* White text on colored background */
+    font-weight: 600; /* Bolder text for category */
+    border: none; /* No border for the category tag itself, just background color */
+    padding: 0.4rem 0.8rem; /* Slightly more padding for better visibility */
+}
+
 
 .case-study-preview {
     color: var(--text-secondary); /* Lighter text for preview */
     font-size: 0.95rem; /* Consistent font size */
     line-height: 1.6;
-    margin-bottom: 1.5rem; /* Spacing below preview */
+    margin-bottom: 1.25rem; /* Spacing below preview - adjusted */
     flex-grow: 1; /* Allow to take remaining space */
     display: -webkit-box;
     -webkit-line-clamp: 4; /* Limit to 4 lines for more content */
@@ -224,7 +384,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem; /* Smaller gap for tags */
-    margin-bottom: 1rem; /* Spacing below tags */
+    margin-top: auto; /* Push tags to the bottom, above notes */
 }
 
 .tag { /* Reusing .tool-tag style but for case studies. Renamed from .case-study-tag for clarity */
@@ -245,31 +405,17 @@
     padding: 0.25rem 0.75rem;
 }
 
-
-.case-study-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.case-study-notes-preview { /* New element for notes preview */
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6); /* Faded footer text */
-    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Consistent border */
-    padding-top: 1rem; /* Padding above border */
-    margin-top: auto; /* Pushes footer to bottom */
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.75rem;
+    line-height: 1.4;
+    font-style: italic;
+    white-space: nowrap; /* Prevent line breaks */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis if content overflows */
 }
 
-.date-added, .external-link {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-.external-link {
-    color: var(--primary-color); /* Accent color for link */
-    cursor: pointer;
-    font-weight: 600;
-}
-.external-link:hover {
-    text-decoration: underline;
-}
 
 /* List View for Case Studies - REFINED */
 .case-studies-list {
@@ -393,23 +539,44 @@
     margin-top: 0.5rem;
 }
 
+.list-item-notes-preview { /* New element for list item notes preview */
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 /* Category Colors for Case Studies (Updated to blend with dark theme) */
 /* The colors themselves are fine, but ensure the text is white against them */
-.case-study-category.crypto, .tag.crypto { background: #f39c12; color: #ffffff; }
-.case-study-category.blockchain, .tag.blockchain { background: #3498db; color: #ffffff; } /* Changed for better contrast */
-.case-study-category.socmint, .tag.socmint { background: #2ecc71; color: #ffffff; }
-.case-study-category.threat-hunting, .tag.threat-hunting { background: #e74c3c; color: #ffffff; }
-.case-study-category.malware-analysis, .tag.malware-analysis { background: #9b59b6; color: #ffffff; } /* Changed for better contrast */
-.case-study-category.incident-response, .tag.incident-response { background: #ff6b7a; color: #ffffff; } /* Consistent with primary accent */
-.case-study-category.forensics, .tag.forensics { background: #007bff; color: #ffffff; } /* Blue for forensics */
-.case-study-category.osint, .tag.osint { background: #00acee; color: #ffffff; } /* Light blue for OSINT */
-.case-study-category.apt, .tag.apt { background: #7877c6; color: #ffffff; } /* Purple for APT */
-.case-study-category.vulnerability, .tag.vulnerability { background: #f59e0b; color: #ffffff; } /* Orange for vulnerability */
-.case-study-category.other, .tag.other { background: #6c757d; color: #ffffff; } /* Gray for other */
+.case-study-category.crypto, .tag.crypto { background: #f39c12; color: #ffffff; } /* */
+.case-study-category.blockchain, .tag.blockchain { background: #3498db; color: #ffffff; } /* Changed for better contrast */ /* */
+.case-study-category.socmint, .tag.socmint { background: #2ecc71; color: #ffffff; } /* */
+.case-study-category.threat-hunting, .tag.threat-hunting { background: #e74c3c; color: #ffffff; } /* */
+.case-study-category.malware-analysis, .tag.malware-analysis { background: #9b59b6; color: #ffffff; } /* Changed for better contrast */ /* */
+.case-study-category.incident-response, .tag.incident-response { background: #ff6b7a; color: #ffffff; } /* Consistent with primary accent */ /* */
+.case-study-category.forensics, .tag.forensics { background: #007bff; color: #ffffff; } /* Blue for forensics */ /* */
+.case-study-category.osint, .tag.osint { background: #00acee; color: #ffffff; } /* Light blue for OSINT */ /* */
+.case-study-category.apt, .tag.apt { background: #7877c6; color: #ffffff; } /* Purple for APT */ /* */
+.case-study-category.vulnerability, .tag.vulnerability { background: #f59e0b; color: #ffffff; } /* Orange for vulnerability */ /* */
+.case-study-category.other, .tag.other { background: #6c757d; color: #ffffff; } /* Gray for other */ /* */
+
+/* New Categories (from filter tabs) */
+.tag.breach-analysis { background: #5A67D8; color: #ffffff; } /* Indigo */ /* */
+.tag.financial-osint { background: #D69E2E; color: #ffffff; } /* Amber */ /* */
+.tag.legal-ethical-osint { background: #38B2AC; color: #ffffff; } /* Teal */ /* */
+.tag.reconnaissance { background: #C05621; color: #ffffff; } /* Burnt Orange */ /* */
+.tag.social-engineering { background: #805AD5; color: #ffffff; } /* Amethyst */ /* */
+.tag.threat-intelligence { background: #E53E3E; color: #ffffff; } /* Red-orange */ /* */
+.tag.vulnerability-research { background: #ED8936; color: #ffffff; } /* Orange */ /* */
 
 
 /* Modal Styles for Case Study Forms */
-#addCaseStudyModal .modal-content,
+#addCaseStudyModal.modal .modal-content, /* Specificity for the modal */
 #caseStudyPreviewModal .modal-content {
     background: rgba(15, 15, 25, 0.95); /* Consistent with other modals */
     backdrop-filter: blur(20px);
@@ -459,6 +626,15 @@
 }
 
 /* URL Auto-fetch button */
+.url-input-group {
+    display: flex;
+    gap: 10px; /* Space between input and button */
+}
+
+.url-input-group input[type="url"] {
+    flex-grow: 1; /* Allow input to take available space */
+}
+
 .url-input-group .btn-secondary { /* Target the button specifically to override wider buttons */
     padding: 0.75rem 1rem; /* Adjust padding to look compact */
     font-size: 0.95rem;
@@ -476,56 +652,51 @@
     padding-bottom: 1rem; /* Add padding at bottom for scroll content */
 }
 
-.preview-meta {
-    background: rgba(255, 255, 255, 0.05); /* Dark background for meta block */
-    padding: 1.25rem;
-    border-radius: 12px;
+.case-study-preview-header { /* New wrapper for title and meta */
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.preview-meta h4 {
-    margin: 0 0 0.75rem 0;
+.case-study-preview-header h3 {
+    font-size: 1.5rem;
     color: var(--text-primary);
-    font-size: 1.1rem;
-    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
 }
 
-.preview-meta-item {
+.case-study-preview-body { /* New wrapper for body content */
+    padding-top: 0.5rem;
+}
+
+.preview-meta { /* Removed, now directly styled in .case-study-meta within preview header */
     display: flex;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
+    flex-wrap: wrap;
+    gap: 1rem; /* Adjust spacing as needed */
+    font-size: 0.9rem;
     color: var(--text-secondary);
 }
-.preview-meta-item:last-child {
-    margin-bottom: 0;
+
+.preview-meta .meta-item { /* Reuse existing .meta-item styles */
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-.preview-meta-label {
-    font-weight: 600;
-    min-width: 80px; /* Align labels */
-    color: var(--text-primary);
-}
-
-.preview-meta-value {
-    flex: 1;
-    color: var(--text-secondary);
-    word-break: break-word; /* Ensure long URLs/text break */
-}
-.preview-meta-value a {
+.preview-meta .meta-item i {
     color: var(--primary-color);
-    text-decoration: none;
-}
-.preview-meta-value a:hover {
-    text-decoration: underline;
 }
 
-.preview-content {
+.preview-section {
     line-height: 1.7;
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
 }
-.preview-content h4 {
+.preview-section h4 {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
@@ -533,7 +704,7 @@
     padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.preview-content p {
+.preview-section p {
     margin-bottom: 1em;
 }
 
@@ -563,6 +734,9 @@
     align-items: center;
     justify-content: center;
     flex-grow: 1;
+    /* Add for centering within its flex container (case-studies-container) */
+    width: 100%;
+    height: 100%; /* Take full height of parent if parent is flex */
 }
 
 .case-studies-section .empty-state .empty-icon {
@@ -590,6 +764,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     overflow: hidden;
+    margin-left: 1rem; /* Space from the Add button */
 }
 
 .section-header .view-toggle .view-btn {
@@ -603,6 +778,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem; /* Space between icon and text */
 }
 
 .section-header .view-toggle .view-btn:hover {
@@ -615,10 +791,80 @@
     color: #ff4757;
 }
 
+/* Modal footer button alignment */
+#caseStudyPreviewModal .modal-footer,
+#addCaseStudyModal .modal-footer {
+    display: flex;
+    justify-content: flex-end; /* Aligns items to the end (right) */
+    align-items: center; /* Centers items vertically */
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 2rem;
+}
+
+/* Close button base style */
+.modal .close {
+    display: flex; /* Use flexbox to center content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    width: 45px;   /* Set a fixed width */
+    height: 35px;  /* Set a fixed height, equal to width for a perfect square */
+    background: none; /* Ensure no default background */
+    border: none; /* Ensure no default border */
+    font-size: 1.2rem; /* Adjust icon size as needed */
+    color: rgba(255, 255, 255, 0.7); /* Default color */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
+    border-radius: 4px; /* A small border-radius for slightly rounded corners normally */
+}
+
+/* Close button hover style */
+.modal .close:hover {
+    color: var(--primary-color); /* Change color on hover */
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle background change */
+    border-radius: 8px; /* Slightly larger border-radius for the "little circle corner" effect on hover */
+}
+/* URL Link styling in preview modal */
+.case-study-preview-body .url-link {
+    display: block; /* Occupy full width */
+    background: rgba(255, 255, 255, 0.05); /* Light background */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: var(--primary-color); /* Accent color for the link */
+    text-decoration: none; /* Remove underline by default */
+    word-break: break-all; /* Break long URLs */
+    transition: all 0.2s ease-in-out;
+}
+
+.case-study-preview-body .url-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    text-decoration: underline; /* Underline on hover */
+}
+
+
 /* Media Queries specific to case studies (adjusted from styles.css) */
+@media (max-width: 1024px) {
+    .case-studies-filter-tabs {
+        flex: 1 1 100%; /* Tabs take full width */
+    }
+    .case-studies-search-filter {
+        flex: 1 1 100%; /* Search takes full width */
+    }
+    .case-studies-dropdowns {
+        flex: 1 1 100%; /* Dropdowns take full width */
+        justify-content: flex-start; /* Align to start */
+    }
+    .case-studies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Adjusted for smaller screens but still more spacing */
+        gap: 1.5rem; /* Maintain better gap */
+    }
+}
+
 @media (max-width: 768px) {
     .case-studies-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Allow smaller cards on small screens */
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Allow smaller cards on small screens */
         gap: 1rem;
     }
     .case-study-card {
@@ -646,6 +892,17 @@
         flex-direction: column;
         align-items: stretch;
     }
+    .section-header .header-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .section-header .view-toggle {
+        margin-left: 0;
+        width: 100%;
+    }
+    .section-header .btn-primary {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -659,5 +916,10 @@
     }
     .case-study-preview, .list-item-preview {
         font-size: 0.85rem;
+    }
+    .case-studies-stats-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 }
