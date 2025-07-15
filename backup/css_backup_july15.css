@@ -752,17 +752,13 @@ body {
 }
 
 .tool-card {
-    background: linear-gradient(145deg, #1e1e2d, #1a1a25); /* Darker, more gradient background */
-    border: 1px solid rgba(255, 255, 255, 0.12); /* Slightly more prominent border */
-    border-radius: 16px; /* Slightly less rounded corners */
-    padding: 2.2rem 1.8rem 1.8rem 1.8rem; /* Adjusted padding: top, right, bottom, left */
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother, more pronounced transition */
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    display: flex; /* Use flexbox for internal layout */
-    flex-direction: column;
-    justify-content: space-between; /* Distribute space vertically */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Subtle initial shadow */
 }
 
 .tool-card::before {
@@ -771,63 +767,52 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 5px; /* Thicker top accent */
-    background: linear-gradient(90deg, #ff4757, #6a0572, #3c009d); /* More vibrant, multi-color gradient */
+    height: 4px;
+    background: linear-gradient(90deg, #ff4757, #ff6b7a);
     opacity: 0;
-    transition: all 0.5s ease-out; /* Slower, fading transition */
-    transform: scaleX(0); /* Start hidden, scale out on hover */
-    transform-origin: left;
+    transition: opacity 0.3s ease;
 }
 
 .tool-card:hover {
-    transform: translateY(-8px) scale(1.02); /* Lift and slightly enlarge on hover */
-    border-color: rgba(255, 71, 87, 0.5); /* Accent border on hover */
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 71, 87, 0.3); /* More prominent shadow with glow */
-    z-index: 1; /* Bring to front on hover */
+    transform: translateY(-4px);
+    border-color: rgba(255, 71, 87, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .tool-card:hover::before {
     opacity: 1;
-    transform: scaleX(1); /* Reveal top accent on hover */
 }
 
 .tool-card.selected {
-    border-color: #007bff; /* Different border for selected state */
-    background: linear-gradient(145deg, #2a2a40, #25253a); /* Slightly different background for selected */
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Blue glow for selected */
+    border-color: rgba(255, 71, 87, 0.5);
+    background: rgba(255, 71, 87, 0.05);
 }
 
 .tool-item {
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    padding: 1rem 1.5rem; /* Adjusted padding for list item */
-    background: linear-gradient(90deg, #1e1e2d, #1a1a25); /* Gradient background for list item */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px; /* Slightly less rounded */
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
 }
 
 .tool-item:hover {
-    background: linear-gradient(90deg, #2a2a40, #25253a); /* Darker gradient on hover */
-    border-color: rgba(255, 71, 87, 0.3);
-    transform: translateX(5px); /* Slide slightly on hover */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .tool-item.selected {
-    border-color: #007bff;
-    background: linear-gradient(90deg, #2a2a40, #25253a);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.4);
+    border-color: rgba(255, 71, 87, 0.5);
+    background: rgba(255, 71, 87, 0.05);
 }
 
-/* Adjust checkbox position for grid view */
 .tool-checkbox {
     position: absolute;
-    top: 1.2rem; /* Align with tool-status roughly */
-    left: 1.8rem; /* Place on the left side */
+    top: 1rem;
+    left: 1rem;
     z-index: 10;
 }
 
@@ -837,50 +822,26 @@ body {
 }
 
 .tool-checkbox input[type="checkbox"] {
-    appearance: none; /* Hide default checkbox */
-    -webkit-appearance: none;
-    width: 22px; /* Larger checkbox */
-    height: 22px;
-    border: 2px solid rgba(255, 255, 255, 0.4); /* More visible border */
-    border-radius: 6px; /* Slightly rounded */
-    background-color: rgba(0, 0, 0, 0.3); /* Darker background */
+    width: 18px;
+    height: 18px;
+    accent-color: #ff4757;
     cursor: pointer;
+}
+
+.tool-header {
+    margin-bottom: 1.5rem;
     position: relative;
-    transition: all 0.2s ease;
+    z-index: 2;
 }
 
-.tool-checkbox input[type="checkbox"]:checked {
-    background-color: #ff4757; /* Accent color when checked */
-    border-color: #ff4757;
-}
-
-.tool-checkbox input[type="checkbox"]:checked::after {
-    content: '\f00c'; /* Font Awesome check icon */
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    color: white;
-    font-size: 14px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.tool-item .tool-header {
+    margin-bottom: 0.5rem;
 }
 
 .tool-status {
-    position: absolute; /* Position absolutely within the card */
-    top: 1.2rem; /* Align with checkbox roughly */
-    right: 1.8rem; /* Place on the right side */
     display: flex;
-    gap: 0.6rem;
-    align-items: center;
-    z-index: 5; /* Ensure it's above other elements if needed */
-}
-
-.tool-status .pinned,
-.tool-status .starred {
-    font-size: 0.9em;
-    color: #ffc107; /* Example color for pinned/starred */
-    /* Add any other styling for icons here */
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .tool-status .pinned {
@@ -891,130 +852,91 @@ body {
     color: #ff4757;
 }
 
-/* Adjust position of tool status within the list item */
-.tool-item .tool-status {
-    position: static; /* Remove absolute positioning for list items */
-    margin-left: auto; /* Push to the right */
-    flex-shrink: 0; /* Prevent shrinking */
-    padding-left: 1rem; /* Add some space from content */
+.tool-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
 }
 
-.tool-name {
-    font-size: 1.4rem; /* Slightly larger font size */
-    font-weight: 700;
-    color: #e0e0e0; /* Lighter text for name */
-    margin-bottom: 0.6rem; /* Adjusted margin */
-    margin-top: 1rem;
-    line-height: 1.2;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Subtle text shadow */
+.tool-item .tool-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
 }
 
 .tool-url {
-    margin-bottom: 1.2rem; /* Increased margin */
+    margin-bottom: 1rem;
+}
+
+.tool-item .tool-url {
+    margin-bottom: 0;
 }
 
 .tool-url a {
-    color: #8be9fd; /* A vibrant blue for links */
+    color: #ff4757;
     text-decoration: none;
-    font-size: 0.95rem; /* Slightly larger link font */
+    font-size: 0.9rem;
     font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    transition: color 0.3s ease, text-decoration 0.3s ease;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 .tool-url a:hover {
-    color: #50fa7b; /* Green on hover */
+    color: #ff6b7a;
     text-decoration: underline;
 }
 
 .tool-description {
-    color: rgba(255, 255, 255, 0.75); /* Slightly lighter description text */
-    font-size: 0.9rem; /* Slightly smaller description text */
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
     line-height: 1.6;
-    margin-bottom: 1.8rem; /* Increased margin for better separation */
-    min-height: 60px; /* Ensure consistent height for descriptions */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* Limit to 3 lines */
-    -webkit-box-orient: vertical;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
 }
-
-.tool-item .tool-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.tool-item .tool-name {
-    font-size: 1.15rem; /* Adjusted font size for list view */
-    margin-bottom: 0.2rem;
-    color: #f0f0f0; /* Lighter text for list name */
-}
-
 
 .tool-item .tool-description {
-    font-size: 0.85rem; /* Adjusted font size for list view */
-    margin-bottom: 0.6rem;
-    color: rgba(255, 255, 255, 0.7);
-    white-space: nowrap; /* Keep description on one line */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: unset; /* Remove fixed height for list view */
-    -webkit-line-clamp: 1; /* Limit to 1 line */
+    margin-bottom: 0.75rem;
 }
 
 .tool-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem; /* Slightly increased tag gap */
-    margin-bottom: 1.8rem; /* Increased margin */
-    min-height: 30px; /* Ensure tags take up some space */
-}
-
-.tool-item .tool-url {
-    font-size: 0.85rem;
-    margin-bottom: 0.6rem;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
 }
 
 .tool-item .tool-tags {
     margin-bottom: 0;
-    min-height: unset; /* Remove fixed height for list view */
-}
-
-.tool-item .tool-action-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 0.85rem;
 }
 
 .tool-tag {
-    padding: 0.3em 0.8em; /* Adjusted padding */
-    background: rgba(255, 255, 255, 0.1); /* Lighter background for tags */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* More visible border */
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    font-size: 0.7rem; /* Smaller font for tags */
-    color: #a0a0a0; /* Grayish color for tags */
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
     font-weight: 500;
     transition: all 0.3s ease;
-    text-transform: uppercase; /* Uppercase tags */
-    letter-spacing: 0.5px;
 }
 
 .tool-card:hover .tool-tag {
-    background: rgba(255, 71, 87, 0.2); /* Accent background on hover */
-    border-color: rgba(255, 71, 87, 0.4);
-    color: #ffc2c2; /* Lighter text on hover */
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .tool-actions {
     display: flex;
-    gap: 0.4rem; /* Slightly smaller gap between action buttons */
+    gap: 0.5rem;
     justify-content: flex-end;
-    padding-top: 1rem; /* Padding at the top of actions */
-    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Separator line */
+    position: relative;
+    z-index: 2;
 }
 
 .tool-item .tool-actions {
@@ -1022,48 +944,42 @@ body {
 }
 
 .tool-action-btn {
-    background: rgba(255, 255, 255, 0.08); /* Darker background for buttons */
-    border: 1px solid rgba(255, 255, 255, 0.15); /* More defined border */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.7);
-    padding: 0.6rem; /* Adjusted padding */
-    border-radius: 10px; /* Slightly less rounded */
+    padding: 0.75rem;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 0.95rem; /* Slightly smaller icon size */
-    width: 38px; /* Fixed width */
-    height: 38px; /* Fixed height */
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle button shadow */
 }
 
 .tool-action-btn:hover {
-    background: rgba(255, 71, 87, 0.2); /* Accent background on hover */
-    border-color: #ff4757;
-    color: #ff6b7a; /* Lighter accent color */
-    transform: translateY(-2px) scale(1.05); /* Lift and slightly enlarge */
-    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3); /* More prominent shadow */
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    transform: translateY(-2px);
 }
 
 .tool-action-btn.active {
-    background: linear-gradient(135deg, #ff4757, #6a0572); /* Gradient for active state */
-    border-color: #ff4757;
-    color: white;
-    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+    background: rgba(255, 71, 87, 0.15);
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
 }
 
 .tool-action-btn.danger {
-    background: rgba(220, 53, 69, 0.15); /* Slightly more opaque red */
-    border-color: rgba(220, 53, 69, 0.4);
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
     color: #dc3545;
 }
 
 .tool-action-btn.danger:hover {
-    background: rgba(220, 53, 69, 0.25);
-    border-color: #dc3545;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    background: rgba(220, 53, 69, 0.15);
+    transform: translateY(-2px);
 }
 
 .tool-info {
