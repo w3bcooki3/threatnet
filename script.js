@@ -1640,11 +1640,32 @@ function bulkPin() {
     clearSelection();
     applyVaultFilters();
 }
+function bulkUnPin() {
+    selectedTools.forEach(toolId => {
+        const tool = intelligenceTools.find(t => t.id === toolId);
+        if (tool) tool.isPinned = false;
+    });
+    
+    showNotification(`${selectedTools.size} tools pinned!`, 'success');
+    clearSelection();
+    applyVaultFilters();
+}
 
 function bulkStar() {
     selectedTools.forEach(toolId => {
         const tool = intelligenceTools.find(t => t.id === toolId);
         if (tool) tool.isStarred = true;
+    });
+    
+    showNotification(`${selectedTools.size} tools starred!`, 'success');
+    clearSelection();
+    applyVaultFilters();
+}
+
+function bulkUnStar() {
+    selectedTools.forEach(toolId => {
+        const tool = intelligenceTools.find(t => t.id === toolId);
+        if (tool) tool.isStarred = false;
     });
     
     showNotification(`${selectedTools.size} tools starred!`, 'success');

@@ -75,10 +75,7 @@ class CaseStudiesManager {
             caseStudyForm.onsubmit = (event) => this.saveCaseStudy(event);
         }
 
-        const autoFetchBtn = document.getElementById('auto-fetch-btn');
-        if (autoFetchBtn) {
-            autoFetchBtn.onclick = (event) => this.autoFetchCaseStudyInfo(event);
-        }
+        // Removed autoFetchBtn event listener
 
         const closeAddModalBtn = document.querySelector('#addCaseStudyModal .close');
         if (closeAddModalBtn) {
@@ -143,58 +140,7 @@ class CaseStudiesManager {
         document.getElementById('case-study-form').reset(); // Ensure form is reset on close
     }
 
-    async autoFetchCaseStudyInfo(event) {
-        // This function cannot fetch real data from external URLs due to browser's Same-Origin Policy.
-        // It's designed to simulate fetching for demonstration purposes in a client-side only environment.
-        // For actual fetching, a backend proxy would be required.
-
-        const urlInput = document.getElementById('case-study-url');
-        const url = urlInput.value.trim();
-
-        if (!url) {
-            this.showNotification('Please enter a URL first', 'error');
-            return;
-        }
-
-        const fetchBtn = event.target;
-        const originalText = fetchBtn.innerHTML;
-        fetchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
-        fetchBtn.disabled = true;
-
-        try {
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
-
-            const simulatedData = {
-                title: "Simulated Case Study Title for: " + url.substring(0, 30) + "...",
-                author: "Simulated Author",
-                source: "Simulated Source",
-                preview: `This is a simulated preview content for the case study linked to "${url}". In a real application, this content would be scraped from the provided URL, summarizing the article's main points. Due to browser security policies (Same-Origin Policy), direct scraping from client-side JavaScript is not possible. A server-side proxy is required for real-time fetching.`,
-                category: "osint" // Default category
-            };
-
-            // Extract domain for source if applicable (can be enhanced with real parsing)
-            try {
-                const domain = new URL(url).hostname.replace('www.', '');
-                simulatedData.source = domain.charAt(0).toUpperCase() + domain.slice(1);
-            } catch (e) {
-                // Invalid URL, keep default simulated source
-            }
-
-            document.getElementById('case-study-title').value = simulatedData.title;
-            document.getElementById('case-study-author').value = simulatedData.author;
-            document.getElementById('case-study-source').value = simulatedData.source;
-            document.getElementById('case-study-preview').value = simulatedData.preview;
-            document.getElementById('case-study-category').value = simulatedData.category;
-
-            this.showNotification('Information fetched (simulated) successfully!', 'success');
-        } catch (error) {
-            console.error('Auto-fetch simulation error:', error);
-            this.showNotification('Could not auto-fetch (simulated). Please fill manually.', 'warning');
-        } finally {
-            fetchBtn.innerHTML = originalText;
-            fetchBtn.disabled = false;
-        }
-    }
+    // Removed async autoFetchCaseStudyInfo(event) function
 
     saveCaseStudy(event) {
         event.preventDefault();
