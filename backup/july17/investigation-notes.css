@@ -1,0 +1,961 @@
+/* investigation-notes.css */
+
+/* Overall container for the investigation notes section */
+.investigation-notes-section {
+    padding: 2rem; /* Consistent with other content sections */
+    flex: 1;
+    display: block; /* Ensures it is visible when active */
+    background: #0a0a0f; /* Inherit main app background */
+    color: #ffffff; /* Inherit main app text color */
+}
+
+/* Ensure the main container within the section has proper padding and max-width */
+.investigation-notes-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header for the notes section, consistent with app's section headers */
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align to top for better multi-line headers */
+    margin-bottom: 2.5rem; /* Consistent with .section-header margin-bottom */
+    padding-bottom: 1.5rem; /* Consistent with .section-header padding-bottom */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Consistent with .section-header border */
+}
+
+.notes-header-left h2 {
+    margin: 0 0 0.5rem 0; /* Consistent with .section-header h1 */
+    color: #ffffff; /* White color for main titles */
+    font-size: 2.5rem; /* Consistent with .section-header h1 font-size */
+    font-weight: 800; /* Consistent with .section-header h1 font-weight */
+    background: linear-gradient(135deg, #ffffff, #ff4757); /* Red accent gradient */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+}
+
+.notes-header-left p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.6); /* Lighter color for subtitles */
+    font-size: 1.1rem; /* Consistent with .header-subtitle */
+    font-weight: 500;
+}
+
+/* Controls (Add, View, Search, Filter, Sort) */
+.notes-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem; /* Consistent spacing */
+    gap: 1rem; /* Consistent with .vault-controls */
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.03); /* Card background for controls */
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Card border */
+    border-radius: 16px; /* Consistent border-radius */
+    padding: 1.5rem; /* Consistent padding */
+}
+
+.notes-controls-left {
+    display: flex;
+    gap: 1rem; /* Consistent spacing */
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.notes-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Consistent spacing */
+    flex-wrap: wrap;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+    min-width: 300px;
+    flex: 1; /* Allow it to grow */
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5); /* Lighter icon color */
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.875rem 1.25rem 0.875rem 2.5rem; /* Adjusted padding for icon */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Lighter border */
+    background: rgba(255, 255, 255, 0.05); /* Dark theme background */
+    border-radius: 12px; /* More rounded corners */
+    font-size: 0.95rem; /* Consistent font size */
+    color: #ffffff; /* White text */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none; /* Remove default outline */
+}
+
+.search-box input:focus {
+    border-color: #ff4757; /* Accent color on focus */
+    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1); /* Soft glow on focus */
+    background: rgba(255, 255, 255, 0.08); /* Slightly lighter background on focus */
+}
+
+/* Select dropdowns */
+.notes-controls select {
+    padding: 0.75rem 1rem; /* Consistent padding */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Consistent border */
+    background: rgba(255, 255, 255, 0.05); /* Dark theme background */
+    color: #ffffff; /* White text */
+    border-radius: 12px; /* Consistent border-radius */
+    outline: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    appearance: none; /* Remove default select arrow */
+    /* Custom arrow for select dropdowns - now correctly rendered against dark background */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.4%20292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.6-6.4H18.9c-5%200-9.6%202-13.6%206.4-4%204-6.4%209.1-6.4%2014.1s2.4%2010.2%206.4%2014.1l127.9%20127.9c4%204%209.1%206.4%2014.1%206.4s10.2-2.4%2014.1-6.4L287%2097.6c4-4%206.4-9.1%206.4-14.1S291%2073.4%20287%2069.4z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 0.7rem top 50%;
+    background-size: 0.6em auto;
+}
+
+.notes-controls select:hover,
+.notes-controls select:focus {
+    border-color: #ff4757; /* Accent color on hover/focus */
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.notes-controls select option {
+    background: #1a1a2e; /* Dark background for options */
+    color: #ffffff;
+}
+
+/* View Toggle (Grid/List) */
+.view-toggle {
+    display: flex;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Consistent border */
+    border-radius: 12px; /* Consistent border-radius */
+    overflow: hidden;
+}
+
+.view-btn {
+    padding: 0.75rem 1rem; /* Consistent padding */
+    border: none;
+    background: none; /* No background by default */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.7); /* Lighter icon color */
+    font-size: 1rem;
+    display: flex; /* For icon alignment */
+    align-items: center;
+    justify-content: center;
+}
+
+.view-btn:hover {
+    background: rgba(255, 255, 255, 0.08); /* Subtle hover background */
+    color: #ffffff; /* White icon on hover */
+}
+
+.view-btn.active {
+    background: rgba(255, 71, 87, 0.15); /* Red accent active background */
+    color: #ff4757; /* Red accent icon */
+}
+
+/* Bulk Actions Bar */
+.bulk-actions {
+    display: flex; /* Controlled by JS */
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 71, 87, 0.1); /* Light red accent background */
+    padding: 1rem 1.5rem; /* Consistent padding */
+    border-radius: 12px; /* Consistent border-radius */
+    margin-bottom: 1.5rem; /* Spacing below bulk actions */
+    border: 1px solid rgba(255, 71, 87, 0.3); /* Red accent border */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 1rem; /* Spacing between items */
+}
+
+.bulk-actions-left {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8); /* Lighter text color */
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bulk-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Spacing between bulk action buttons */
+    flex-wrap: wrap;
+}
+
+/* Bulk Action Buttons (reusing .btn-secondary from styles.css where applicable) */
+.bulk-actions button {
+    /* Inherit base button styles, then customize */
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.08); /* Secondary button style for dark theme */
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.bulk-actions button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.bulk-actions .btn-danger {
+    background: rgba(220, 53, 69, 0.15); /* Red accent transparent */
+    color: #DC3545; /* Red accent text */
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+.bulk-actions .btn-danger:hover {
+    background: rgba(220, 53, 69, 0.25);
+    color: white; /* White text on hover for contrast */
+    transform: translateY(-1px);
+}
+
+/* Notes Grid (Card View) */
+.notes-container { /* Renamed from notes-grid to match HTML */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem; /* Consistent gap */
+    margin-bottom: 2.5rem; /* Spacing at the bottom */
+}
+
+/* Notes List View */
+.notes-container.list-view { /* Renamed from notes-grid to match HTML */
+    grid-template-columns: 1fr;
+    display: flex; /* Use flexbox for list layout */
+    flex-direction: column;
+    gap: 1rem; /* Smaller gap for list items */
+}
+
+/* Individual Note Card */
+.note-card {
+    background: rgba(255, 255, 255, 0.03); /* Dark theme card background */
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Dark theme card border */
+    border-radius: 16px; /* Consistent border-radius */
+    padding: 1.5rem; /* Consistent padding */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15); /* Subtle shadow */
+    display: flex; /* Ensure inner content is flexed */
+    flex-direction: column;
+    min-height: 220px; /* Minimum height for cards */
+}
+
+.note-card:hover {
+    border-color: rgba(255, 71, 87, 0.3); /* Red accent on hover */
+    transform: translateY(-4px); /* Lift on hover */
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25); /* More prominent shadow on hover */
+    background: rgba(255, 255, 255, 0.05); /* Slightly lighter background on hover */
+}
+
+.note-card.selected {
+    border-color: #ff4757; /* Red accent for selected */
+    background: rgba(255, 71, 87, 0.1); /* Lighter background for selected */
+}
+
+.note-card.pinned {
+    border-left: 4px solid #ffc107; /* Yellow accent for pinned */
+}
+
+.note-card.starred {
+    border-right: 4px solid #007bff; /* Blue accent for starred (changed from red in original styles) */
+}
+
+/* Checkbox for selection */
+.note-checkbox {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 20px; /* Larger checkbox */
+    height: 20px;
+    cursor: pointer;
+    z-index: 10; /* Ensure it's clickable */
+    accent-color: #ff4757; /* Red accent for checkbox fill */
+}
+
+/* Note Header (Title and Actions) */
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem; /* Adjusted margin */
+    margin-left: 0; /* Remove left margin caused by checkbox */
+    padding-left: 30px; /* Space for checkbox */
+}
+
+.note-card.list-view .note-header {
+    padding-left: 0; /* No extra padding in list view, as checkbox is outside */
+}
+
+.note-title {
+    margin: 0;
+    font-size: 1.15rem; /* Slightly larger title */
+    font-weight: 700; /* Bolder title */
+    color: #ffffff; /* White title */
+    line-height: 1.3;
+    flex: 1; /* Allow title to take available space */
+    margin-right: 10px; /* Space between title and actions */
+}
+
+.note-actions {
+    display: flex;
+    gap: 0.5rem; /* Smaller gap for action buttons */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease;
+    flex-shrink: 0; /* Prevent actions from shrinking */
+}
+
+.note-card:hover .note-actions,
+.note-card.selected .note-actions { /* Always show actions when selected */
+    opacity: 1;
+}
+
+/* Individual Note Action Buttons */
+.note-action-btn {
+    padding: 0.5rem; /* Smaller padding for icons */
+    border: none;
+    background: rgba(255, 255, 255, 0.08); /* Darker background */
+    cursor: pointer;
+    border-radius: 8px; /* More rounded */
+    color: rgba(255, 255, 255, 0.6); /* Lighter icon color */
+    transition: all 0.3s ease;
+    font-size: 0.9rem; /* Smaller icon size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; /* Fixed size for circular appearance */
+    height: 32px;
+}
+
+.note-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15); /* Lighter hover background */
+    color: #ffffff; /* White icon on hover */
+    transform: translateY(-1px); /* Slight lift */
+}
+
+.note-action-btn.active {
+    color: #ff4757; /* Red accent for active actions */
+    background: rgba(255, 71, 87, 0.15); /* Light red background for active */
+}
+
+.note-action-btn.pin.active {
+    color: #ffc107; /* Yellow for active pin */
+    background: rgba(255, 193, 7, 0.15);
+}
+
+.note-action-btn.star.active {
+    color: #007bff; /* Blue for active star */
+    background: rgba(0, 123, 255, 0.15);
+}
+
+/* Note Metadata (Badges) */
+.note-meta {
+    display: flex;
+    gap: 0.75rem; /* Consistent gap for badges */
+    margin-bottom: 1rem; /* Spacing below meta */
+    flex-wrap: wrap;
+}
+
+.category-badge, .priority-badge {
+    padding: 0.4rem 0.8rem; /* Consistent padding */
+    border-radius: 12px; /* More rounded like pill badges */
+    font-size: 0.75rem; /* Smaller font size */
+    font-weight: 600; /* Bolder text */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+/* Category Badge Colors (Harmonized with dark theme and red/blue/yellow accents) */
+.category-badge.investigation { background: rgba(0, 123, 255, 0.15); color: #007bff; } /* Blue */
+.category-badge.threat-analysis { background: rgba(255, 71, 87, 0.15); color: #ff4757; } /* Red */
+.category-badge.incident-response { background: rgba(255, 193, 7, 0.15); color: #ffc107; } /* Yellow */
+.category-badge.malware-analysis { background: rgba(120, 119, 198, 0.15); color: #7877c6; } /* Purple */
+.category-badge.digital-forensics { background: rgba(40, 167, 69, 0.15); color: #28a745; } /* Green */
+.category-badge.osint { background: rgba(0, 172, 238, 0.15); color: #00acee; } /* Light Blue */
+.category-badge.vulnerability-research { background: rgba(255, 128, 0, 0.15); color: #ff8000; } /* Orange */
+.category-badge.case-notes { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); } /* Light Gray */
+.category-badge.research { background: rgba(108, 117, 125, 0.15); color: #6c757d; } /* Gray */
+.category-badge.other { background: rgba(52, 58, 64, 0.15); color: #343a40; } /* Dark Gray */
+
+/* Priority Badge Colors */
+.priority-badge.low { background: rgba(40, 167, 69, 0.15); color: #28a745; }
+.priority-badge.medium { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.priority-badge.high { background: rgba(255, 71, 87, 0.15); color: #ff4757; }
+.priority-badge.critical { background: rgba(220, 53, 69, 0.25); color: #dc3545; }
+
+/* Note Content Preview */
+.note-content {
+    color: rgba(255, 255, 255, 0.7); /* Lighter text color for content */
+    line-height: 1.6;
+    margin-bottom: 1.5rem; /* Spacing below content */
+    font-size: 0.95rem; /* Consistent font size */
+    flex-grow: 1; /* Allow content to take remaining space in flex column */
+    overflow: hidden; /* Hide overflow for truncation */
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Limit to 4 lines */
+    -webkit-box-orient: vertical;
+}
+
+/* Note Footer (Tags and Date) */
+.note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* Push to bottom if content is short */
+    padding-top: 1rem; /* Padding above border */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Consistent border */
+}
+
+.note-tags {
+    display: flex;
+    gap: 0.5rem; /* Smaller gap for tags */
+    flex-wrap: wrap;
+}
+
+.note-tag {
+    background: rgba(255, 255, 255, 0.08); /* Dark theme tag background */
+    color: rgba(255, 255, 255, 0.7); /* Lighter tag text */
+    padding: 0.25rem 0.75rem; /* Smaller padding */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 0.75rem; /* Smaller font size */
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Subtle border */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.note-date {
+    color: rgba(255, 255, 255, 0.5); /* Faded date color */
+    font-size: 0.8rem; /* Smaller font size */
+    white-space: nowrap;
+}
+
+/* Empty State Message */
+.notes-empty-state, .no-results {
+    text-align: center;
+    padding: 6rem 2rem; /* Consistent padding */
+    color: rgba(255, 255, 255, 0.5); /* Faded text color */
+    display: flex; /* Use flex for centering content */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1; /* Take full height */
+}
+
+.notes-empty-state i, .no-results i {
+    font-size: 4rem; /* Larger icon */
+    color: rgba(255, 255, 255, 0.3); /* Even more faded icon */
+    margin-bottom: 1.5rem; /* Spacing below icon */
+}
+
+.notes-empty-state h3, .no-results h3 {
+    margin: 0 0 1rem 0; /* Spacing below title */
+    color: rgba(255, 255, 255, 0.8); /* Lighter title */
+    font-size: 1.5rem; /* Consistent font size */
+    font-weight: 700;
+}
+
+.notes-empty-state p, .no-results p {
+    margin: 0 0 2rem 0; /* Spacing below paragraph */
+    font-size: 1rem; /* Consistent font size */
+    max-width: 400px;
+}
+
+/* Note Modal (Add/Edit Note) */
+.note-modal-content {
+    max-width: 600px; /* Default width for add/edit note modal */
+    max-height: 90vh;
+    overflow-y: auto; /* Keep this for scrolling long content */
+    background: rgba(15, 15, 25, 0.95); /* Consistent with other modals */
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    color: #ffffff; /* Ensure text is visible in dark modal */
+}
+
+/* Note Detail Modal */
+.note-detail-modal-content {
+    max-width: 900px; /* Wider for detail view */
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(15, 15, 25, 0.95); /* Consistent with other modals */
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    color: #ffffff; /* Ensure text is visible in dark modal */
+}
+
+/* Note Detail Header within Modal */
+.note-detail-header {
+    display: flex;
+    justify-content: space-between; /* Space out title/caseId block and actions */
+    align-items: flex-start; /* Align items to the top */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    padding: 1.5rem 2rem 1rem; /* Consistent padding */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Only one bottom border for the header area */
+    gap: 1rem; /* Gap between header elements, especially when wrapping */
+}
+
+/* NEW: Container for Title and Case ID */
+.note-detail-title-block {
+    display: flex;
+    flex-direction: column; /* Stack title and case ID */
+    flex-grow: 1; /* Allow it to take available space */
+}
+
+.note-detail-header h3#note-detail-title { /* Added ID for stronger specificity */
+    font-size: 2.2rem; /* Larger title font size */
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0; /* Remove default margins */
+    line-height: 1.2; /* Tighter line height for large title */
+}
+
+/* Case ID under title (new structure) */
+.note-detail-case-id-display {
+    font-size: 0.95rem; /* Slightly smaller for tagline effect */
+    color: rgba(255, 255, 255, 0.5); /* More faded for tagline effect */
+    font-weight: 500;
+    margin-top: 0.25rem; /* Closer to the title */
+    margin-bottom: 0; /* No bottom margin as it's part of the block */
+}
+
+.note-detail-header-actions { /* These are the Edit and Close buttons */
+    display: flex;
+    gap: 1rem;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Edit button within detail modal */
+.note-detail-header-actions .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.95rem;
+}
+
+.note-detail-header-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Close button within detail modal */
+.note-detail-header-actions .close {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.note-detail-header-actions .close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+/* Category and Priority row directly under Case ID */
+.note-detail-category-priority-row { /* New class for this row */
+    width: 100%; /* Make it take full width below header content */
+    display: flex;
+    gap: 1.5rem; /* Space between items */
+    align-items: center;
+    margin-top: 1rem; /* Space from the elements above it (title/actions) */
+    margin-bottom: 0.5rem; /* Space before content area starts */
+    padding-top: 1rem; /* Add some padding if a line is needed above it later */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Visual separator */
+}
+
+/* New: Simple text style for Category and Priority in detail modal */
+.note-detail-badge-text {
+    background: none !important; /* Override any background */
+    border: none !important; /* Override any border */
+    text-transform: capitalize !important; /* Ensure first letter is capitalized */
+    letter-spacing: normal !important; /* Reset letter spacing */
+    font-weight: 600; /* Keep bold */
+    padding: 0 !important; /* Remove padding */
+    border-radius: 0 !important; /* Remove border-radius */
+    display: flex; /* Make it a flex item to align with icon if needed later */
+    align-items: center;
+    gap: 0.25rem; /* Small gap for potential icon */
+}
+.note-detail-badge-text strong {
+    font-weight: bold;
+    color: #ffffff; /* Make the strong text white */
+    margin-right: 0.25rem; /* Small space between title and value */
+}
+
+/* Re-apply colors for clarity */
+.note-detail-badge-text.investigation { color: #007bff; }
+.note-detail-badge-text.threat-analysis { color: #ff4757; }
+.note-detail-badge-text.incident-response { color: #ffc107; }
+.note-detail-badge-text.malware-analysis { color: #7877c6; }
+.note-detail-badge-text.digital-forensics { color: #28a745; }
+.note-detail-badge-text.osint { color: #00acee; }
+.note-detail-badge-text.vulnerability-research { color: #ff8000; }
+.note-detail-badge-text.case-notes { color: rgba(255, 255, 255, 0.7); }
+.note-detail-badge-text.research { color: #6c757d; }
+.note-detail-badge-text.other { color: #343a40; }
+
+.note-detail-badge-text.low { color: #28a745; }
+.note-detail-badge-text.medium { color: #ffc107; }
+.note-detail-badge-text.high { color: #ff4757; }
+.note-detail-badge-text.critical { color: #dc3545; }
+
+/* Note Detail Body */
+.note-detail-body {
+    padding: 2rem;
+    /* Remove padding-top here as the header now controls all top spacing */
+}
+
+/* Wrapper for content, tags, attachments sections */
+.note-detail-section {
+    margin-bottom: 2rem; /* Spacing between major sections */
+}
+
+.note-detail-section h4 {
+    margin: 0 0 1rem 0; /* Consistent spacing */
+    color: #ffffff; /* White section titles */
+    font-size: 1.3rem; /* Larger section titles */
+    font-weight: 700;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Subtle separator */
+}
+
+.note-detail-content-body {
+    background: rgba(255, 255, 255, 0.05); /* Consistent with info box */
+    padding: 1.5rem;
+    border-radius: 12px; /* Consistent border-radius */
+    white-space: pre-wrap; /* Preserve whitespace and newlines */
+    word-break: break-word; /* Ensure long words break */
+    line-height: 1.7;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Consistent border */
+}
+
+/* Footer Meta Block: Timestamps and Tags */
+.note-detail-footer-meta {
+    display: flex;
+    flex-direction: column; /* Stack timestamps and tags vertically */
+    gap: 1.5rem; /* Space between timestamps and tags */
+    padding-top: 1.5rem; /* Space above the top border */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Separator line above this block */
+    margin-top: 2rem; /* Ensure proper spacing from content above */
+}
+
+.note-detail-timestamps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 0.5rem; /* Space between created/updated if they wrap */
+}
+
+.note-detail-timestamps span strong {
+    color: #ffffff;
+    margin-right: 0.5rem;
+}
+
+/* Note Detail Tags (now within the footer-meta block) */
+.note-detail-tags-container { /* Wrapper for tags section (now only contains h4 and div.note-detail-tags) */
+    margin-bottom: 0; /* No margin-bottom, as it's part of the footer-meta now */
+}
+
+.note-detail-tags-container h4 { /* Keep the h4 for Tags title */
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Subtle separator for Tags title */
+    padding-bottom: 0.5rem;
+}
+
+.note-detail-tags { /* The actual div holding the tags */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem; /* Space between tags */
+    /* Removed background/border from this div as tags will just float in the footer */
+}
+
+.note-detail-tags .note-tag {
+    background: rgba(0, 123, 255, 0.15); /* Blue accent for tags in detail */
+    color: #007bff;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    display: inline-flex; /* Use inline-flex for better alignment with icon */
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid rgba(0, 123, 255, 0.3);
+}
+
+/* Note Detail Attachments */
+.note-detail-attachments-container { /* Wrapper for attachments section */
+    margin-bottom: 0; /* No margin-bottom if it's the last section */
+}
+
+.note-detail-attachments-content {
+    background: rgba(255, 255, 255, 0.05); /* Consistent with info box */
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #007bff; /* Blue accent border */
+    white-space: pre-wrap;
+    word-break: break-word; /* Ensure long words break */
+    font-family: 'JetBrains Mono', monospace; /* Monospace for code/paths */
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Consistent border */
+}
+
+/* Form Styles for Notes (within modals) */
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8); /* Changed to dark theme color for labels */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Dark theme border */
+    background: rgba(255, 255, 255, 0.05); /* Dark theme background */
+    color: #ffffff; /* Dark theme text */
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    font-family: inherit;
+    outline: none; /* Remove default outline */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ff4757; /* Accent border on focus */
+    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1); /* Soft glow on focus */
+    background: rgba(255, 255, 255, 0.08); /* Slightly lighter background on focus */
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form action buttons within modals */
+.note-modal .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1.5rem 2rem 1.5rem; /* Consistent padding with modal body */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Consistent border */
+    margin-top: 2rem; /* Consistent margin */
+}
+
+/* Responsive Design for Notes */
+@media (max-width: 768px) {
+    .note-modal-content,
+    .note-detail-modal-content {
+        width: 95%; /* Make it narrower on small screens */
+        padding: 15px; /* Reduce padding */
+        /* The centering (position/top/left/transform) will already handle responsiveness */
+    }
+    .note-modal-content,
+    .note-detail-modal-content {
+        width: 95%; /* Make it narrower on small screens */
+        padding: 15px; /* Reduce padding */
+        /* The centering (position/top/left/transform) will already handle responsiveness */
+    }
+    .notes-controls {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem; /* Smaller padding */
+        gap: 1rem; /* Consistent spacing when stacked */
+    }
+    
+    .notes-controls-left,
+    .notes-controls-right {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%; /* Take full width */
+        gap: 0.75rem; /* Smaller gaps */
+    }
+    
+    .notes-controls select,
+    .search-box input {
+        width: 100%; /* Ensure full width */
+        max-width: none; /* Override max-width */
+    }
+    
+    .search-box {
+        min-width: auto; /* Allow shrinking */
+        width: 100%;
+    }
+    
+    .view-toggle {
+        width: 100%; /* Full width for view toggle */
+        justify-content: center; /* Center buttons */
+    }
+    
+    .bulk-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch; /* Stretch items in column */
+        padding: 1rem;
+    }
+    
+    .bulk-actions-left,
+    .bulk-actions-right {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem; /* Smaller gap for buttons */
+    }
+    
+    .notes-container { /* Changed from notes-grid */
+        grid-template-columns: 1fr; /* Single column on small screens */
+        gap: 1rem; /* Smaller gap */
+    }
+    
+    .note-card {
+        padding: 1rem; /* Smaller card padding */
+        min-height: auto; /* Allow height to adjust */
+    }
+    
+    .note-checkbox {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .note-header {
+        padding-left: 25px; /* Adjust for smaller checkbox */
+    }
+    
+    .note-card.list-view {
+        flex-direction: column; /* Stack content in list view for small screens */
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .note-detail-header-main-row { /* New class for this row */
+        flex-direction: column; /* Stack title and actions */
+        align-items: flex-start;
+    }
+
+    .note-detail-header-actions {
+        width: 100%; /* Take full width */
+        justify-content: flex-end; /* Align actions to the right */
+        margin-top: 1rem; /* Space between title and actions when stacked */
+        position: static; /* Ensure it flows naturally */
+    }
+    
+    .note-detail-content-body,
+    .note-detail-attachments-content {
+        padding: 1rem; /* Smaller padding in detail content */
+    }
+
+    .note-detail-timestamps {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .notes-header-left h2 {
+        font-size: 2rem; /* Even smaller header title */
+    }
+    .notes-header-left p {
+        font-size: 1rem;
+    }
+
+    .note-card .note-actions {
+        opacity: 1; /* Always show actions on very small screens */
+    }
+
+    .note-detail-meta, .note-detail-info {
+        gap: 0.5rem;
+    }
+
+    .note-detail-metadata-block {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .note-detail-timestamps {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+.modal-content {
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    padding: 20px;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+}
+
+
+.note-detail-modal-content {
+    max-width: 900px;
+}

@@ -1,0 +1,853 @@
+/* blueteam-playbook.css */
+
+/* General App Container for Playbook */
+.playbook-app {
+    display: flex;
+    min-height: 80vh; /* Consistent with Cyber Notebook for reading experience */
+    background: rgba(15, 15, 25, 0.9); /* Dark background for book feel */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Playbook Sidebar (Table of Contents) */
+.playbook-sidebar {
+    width: 350px; /* Wider sidebar for more detailed TOC */
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 15px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    position: relative;
+}
+
+.playbook-sidebar .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.playbook-sidebar .sidebar-header h3 {
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.playbook-sidebar .sidebar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Small buttons used in playbook */
+/* Re-using .btn-primary, .btn-secondary, .btn-danger classes from styles.css */
+/* but overriding padding and font-size for small versions. */
+/* This ensures consistent base look and hover effects. */
+
+.playbook-app button {
+    /* Reset some default button styles to ensure consistency from styles.css */
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; /* Ensure icon and text alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Space between icon and text */
+    text-decoration: none; /* For elements used as links */
+    box-sizing: border-box; /* Crucial for consistent sizing */
+}
+
+/* Common small button sizing and base styles */
+.playbook-app .btn-primary-small,
+.playbook-app .btn-secondary-small,
+.playbook-app .btn-danger-small {
+    padding: 0.6rem 1rem; /* Smaller padding for compact buttons */
+    font-size: 0.85rem; /* Smaller font size */
+    border-radius: 8px; /* Consistent rounded corners */
+    line-height: 1; /* Keep text compact */
+}
+
+/* Primary button style (Blue Team accent) */
+.playbook-app .btn-primary-small {
+    background: linear-gradient(135deg, #007bff, #66b3ff); /* Blue accent gradient */
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+.playbook-app .btn-primary-small:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    opacity: 0.9; /* Slight darkening on hover */
+}
+
+/* Secondary button style */
+.playbook-app .btn-secondary-small {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.playbook-app .btn-secondary-small:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Danger button style */
+.playbook-app .btn-danger-small {
+    background: rgba(220, 53, 69, 0.15); /* Red accent transparent */
+    color: #DC3545; /* Red accent text */
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+.playbook-app .btn-danger-small:hover {
+    background: rgba(220, 53, 69, 0.25);
+    color: white; /* White text on hover for contrast */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+
+/* Search bar in sidebar */
+.playbook-sidebar .sidebar-search {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.playbook-sidebar .sidebar-search input {
+    width: 100%;
+    padding: 10px 12px 10px 35px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #ffffff;
+    transition: border-color 0.3s;
+}
+.playbook-sidebar .sidebar-search input:focus {
+    outline: none;
+    border-color: #007bff; /* Accent color for search focus */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.playbook-sidebar .sidebar-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Chapter, Section, Entry List in Sidebar (TOC Structure) */
+.playbook-chapter-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 5px; /* Space for scrollbar */
+    padding-bottom: 20px;
+}
+
+.playbook-chapter-list::-webkit-scrollbar,
+.playbook-main-content::-webkit-scrollbar {
+    width: 8px;
+}
+.playbook-chapter-list::-webkit-scrollbar-track,
+.playbook-main-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+.playbook-chapter-list::-webkit-scrollbar-thumb,
+.playbook-main-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 123, 255, 0.3); /* Blue team accent color */
+    border-radius: 4px;
+}
+.playbook-chapter-list::-webkit-scrollbar-thumb:hover,
+.playbook-main-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 123, 255, 0.5);
+}
+
+
+/* Individual Chapter Item in TOC - REVISED */
+.chapter-item-sidebar {
+    background: rgba(255, 255, 255, 0.03); /* Subtle background for card-like feel */
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Soft border */
+    border-radius: 8px; /* Slightly more rounded corners */
+    margin-bottom: 8px; /* More spacing between chapters */
+    padding: 12px 10px; /* Increased padding */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    font-size: 1.05rem;
+    position: relative;
+    border-left: 5px solid transparent; /* Wider highlight for active/hover */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+}
+
+.chapter-item-sidebar:hover {
+    background: rgba(255, 255, 255, 0.06); /* Darker on hover */
+    border-color: rgba(0, 123, 255, 0.15); /* More visible border on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Enhanced shadow on hover */
+}
+
+.chapter-item-sidebar.active {
+    background: rgba(0, 123, 255, 0.15); /* Active accent */
+    border-left-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.3); /* More prominent active shadow */
+    transform: translateY(-1px); /* Slight lift for active */
+}
+/* Styles for when a chapter/section/entry matches the search filter */
+.chapter-item-sidebar.filtered-match,
+.section-item-sidebar.filtered-match,
+.entry-item-sidebar.filtered-match {
+    background: rgba(255, 193, 7, 0.08); /* A subtle highlight color, e.g., amber */
+    border-left-color: #FFC107; /* Corresponding border color */
+}
+
+
+.chapter-item-sidebar .title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 5px;
+}
+
+.chapter-item-sidebar .title i {
+    margin-right: 8px;
+    color: rgba(255, 255, 255, 0.6);
+}
+.chapter-item-sidebar.active .title i {
+    color: #007bff;
+}
+
+.chapter-item-sidebar .actions {
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.chapter-item-sidebar:hover .actions,
+.chapter-item-sidebar.active .actions {
+    opacity: 1;
+}
+
+/* Individual sidebar action buttons (pencil, trash) */
+.playbook-sidebar .chapter-item-sidebar .actions button,
+.playbook-sidebar .section-item-sidebar .actions button,
+.playbook-sidebar .entry-item-sidebar .actions button {
+    background: none; /* No background unless hovered/active */
+    border: none;
+    color: rgba(255, 255, 255, 0.5); /* Default icon color */
+    cursor: pointer;
+    font-size: 0.85rem; /* Adjust icon size if needed */
+    padding: 4px; /* Small padding for icons */
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.playbook-sidebar .chapter-item-sidebar .actions button:hover,
+.playbook-sidebar .section-item-sidebar .actions button:hover,
+.playbook-sidebar .entry-item-sidebar .actions button:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+
+/* Section List within Chapter (TOC) - REVISED */
+.section-list-sidebar {
+    margin-top: 5px;
+    padding-left: 20px; /* Slightly less indent than previous, but consistent */
+    border-left: 1px dotted rgba(255, 255, 255, 0.08);
+    padding-bottom: 5px;
+}
+
+.section-item-sidebar {
+    background: transparent; /* No background by default */
+    border: none;
+    border-radius: 4px;
+    margin-top: 5px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.section-item-sidebar:hover {
+    background: rgba(255, 255, 255, 0.05); /* Subtle background on hover */
+    border-color: rgba(0, 123, 255, 0.1);
+}
+.section-item-sidebar.active {
+    background: rgba(0, 123, 255, 0.1); /* Active accent */
+    border-left-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.section-item-sidebar .title {
+    display: flex;
+    align-items: center;
+}
+.section-item-sidebar .title i {
+    margin-right: 6px;
+    color: rgba(255, 255, 255, 0.5);
+}
+.section-item-sidebar.active .title i {
+    color: #007bff;
+}
+
+.section-item-sidebar .actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.section-item-sidebar:hover .actions,
+.section-item-sidebar.active .actions {
+    opacity: 1;
+}
+
+/* Entry List within Section (TOC) */
+.entry-list-sidebar {
+    margin-top: 5px;
+    padding-left: 20px; /* Indent entries */
+    border-left: 1px dotted rgba(255, 255, 255, 0.05);
+    padding-bottom: 5px;
+}
+
+.entry-item-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    margin-top: 3px;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    font-weight: 500;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.entry-item-sidebar:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(0, 123, 255, 0.05);
+}
+.entry-item-sidebar.active {
+    background: rgba(0, 123, 255, 0.08);
+    border-left-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.entry-item-sidebar .title {
+    display: flex;
+    align-items: center;
+}
+.entry-item-sidebar .title i {
+    margin-right: 5px;
+    color: rgba(255, 255, 255, 0.4);
+}
+.entry-item-sidebar.active .title i {
+    color: #007bff;
+}
+
+.entry-item-sidebar .actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.entry-item-sidebar:hover .actions,
+.entry-item-sidebar.active .actions {
+    opacity: 1;
+}
+
+
+/* Main Content Area - The "Playbook Pages" */
+.playbook-main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 25px 40px;
+    background: rgba(15, 15, 25, 0.98);
+    position: relative;
+}
+
+.main-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Blue Team Playbook Title */
+/* This targets the main playbook icon in the section header */
+.section-header h2 i.fa-shield-alt,
+/* This targets the main content header title in the playbook */
+.playbook-main-content .main-content-header h3 {
+    background: linear-gradient(135deg, #ffffff, #007bff); /* Adjusted to blend white and blue accent */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+
+.main-content-header h3 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -1px;
+}
+
+.main-content-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Dynamic Content Display Area */
+.playbook-content-display {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Chapter Overview View (Main Content) */
+#playbook-chapter-overview-view {
+    display: none; /* Controlled by JS */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#playbook-chapter-overview-view h4 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+#playbook-chapter-overview-view p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chapter-overview-sections-list {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chapter-overview-section-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 5px solid transparent;
+}
+
+.chapter-overview-section-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 123, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+.chapter-overview-section-item:hover .section-title {
+    color: #007bff;
+}
+
+
+.chapter-overview-section-item .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chapter-overview-section-item .section-title i {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.chapter-overview-section-item .section-description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.chapter-overview-entry-item {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 25px; /* Indent entries under sections */
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.chapter-overview-entry-item:hover {
+    color: #007bff;
+}
+
+/* Section Entries List View (Main Content) */
+#playbook-section-entries-view {
+    display: none; /* Controlled by JS */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#section-entries-list-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section-entries-list {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.section-entry-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid transparent;
+}
+
+.section-entry-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 123, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.section-entry-item .title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    flex-grow: 1;
+}
+.section-entry-item .date {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0;
+}
+
+/* Entry Detail View (Main Content - The actual playbook content page) */
+#playbook-entry-detail-view {
+    display: none; /* Controlled by JS */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.entry-detail-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 25px;
+    flex-grow: 1;
+    overflow-y: auto; /* Allow content to scroll */
+    line-height: 1.7;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Styles for content within entry-detail-content */
+.entry-detail-content h1, .entry-detail-content h2, .entry-detail-content h3, .entry-detail-content h4 {
+    color: #ffffff;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    font-weight: 700;
+}
+.entry-detail-content h1 { font-size: 2em; }
+.entry-detail-content h2 { font-size: 1.7em; }
+.entry-detail-content h3 { font-size: 1.4em; }
+.entry-detail-content h4 { font-size: 1.2em; }
+
+.entry-detail-content p {
+    margin-bottom: 1em;
+}
+.entry-detail-content ul, .entry-detail-content ol {
+    margin-left: 1.8em;
+    margin-bottom: 1em;
+    list-style-type: disc;
+}
+.entry-detail-content ol {
+    list-style-type: decimal;
+}
+.entry-detail-content li {
+    margin-bottom: 0.5em;
+    color: rgba(255, 255, 255, 0.8);
+}
+.entry-detail-content strong {
+    color: #ffffff;
+}
+
+.entry-detail-content pre {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.95em;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+.entry-detail-content code {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    background-color: rgba(0, 123, 255, 0.1); /* Blue team accent */
+    color: #007bff;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.entry-detail-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 15px auto;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.entry-detail-content a {
+    color: #007bff; /* Blue team accent for links */
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.entry-detail-content a:hover {
+    text-decoration: underline;
+    color: #66b3ff;
+}
+
+/* Empty messages in main content */
+.empty-message-main {
+    text-align: center;
+    padding: 50px 20px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.empty-message-main i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+/* Modals (inherited from styles.css) */
+#playbook-chapter-modal .modal-content,
+#playbook-section-modal .modal-content,
+#playbook-entry-modal .modal-content {
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff; /* Ensure modal text is visible */
+}
+
+/* Common Modal Body/Content Padding */
+#playbook-chapter-modal .modal-body,
+#playbook-section-modal .modal-body,
+#playbook-entry-modal .modal-body {
+    padding: 2rem; /* Consistent padding */
+}
+
+/* Modal header title color */
+#playbook-chapter-modal .modal-header h3,
+#playbook-section-modal .modal-header h3,
+#playbook-entry-modal .modal-header h3 {
+    color: #ffffff;
+}
+
+/* REVISED CLOSE ICON STYLES IN MODALS */
+#playbook-chapter-modal .close,
+#playbook-section-modal .close,
+#playbook-entry-modal .close,
+#playbook-delete-confirm-modal .close { /* Ensure delete confirm modal close icon is styled */
+    background: rgba(255, 255, 255, 0.05); /* Soft background */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+    color: rgba(255, 255, 255, 0.7); /* Light gray 'x' */
+    width: 32px; /* Fixed size */
+    height: 32px; /* Fixed size */
+    border-radius: 8px; /* Slightly rounded corners */
+    display: flex; /* Use flex to center the 'x' */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem; /* Size of the 'x' */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* Position for the 'x' button inside the modal header */
+    position: absolute; /* Needed for positioning */
+    top: 15px; /* Adjust as needed for padding from top */
+    right: 15px; /* Adjust as needed for padding from right */
+    z-index: 10; /* Ensure it's above other elements if any overlap */
+}
+
+#playbook-chapter-modal .close:hover,
+#playbook-section-modal .close:hover,
+#playbook-entry-modal .close:hover,
+#playbook-delete-confirm-modal .close:hover {
+    background: rgba(255, 71, 87, 0.15); /* Reddish hover background */
+    border-color: rgba(255, 71, 87, 0.3); /* Reddish hover border */
+    color: #ff4757; /* Reddish 'x' on hover */
+    transform: rotate(90deg); /* Subtle rotation effect */
+}
+
+/* MODAL HEADER ADJUSTMENT (Crucial for relative positioning of 'x' button) */
+/* The parent .modal-header needs position: relative for absolute positioning of the close button */
+#playbook-chapter-modal .modal-header,
+#playbook-section-modal .modal-header,
+#playbook-entry-modal .modal-header,
+#playbook-delete-confirm-modal .modal-header { /* Ensure delete confirm modal header is positioned */
+    position: relative; /* Make it a positioning context for the absolute 'x' button */
+    /* Other existing header styles should remain */
+}
+
+
+/* Button styles for modals (blue theme) */
+#playbook-chapter-modal .btn-primary,
+#playbook-section-modal .btn-primary,
+#playbook-entry-modal .btn-primary {
+    background: linear-gradient(135deg, #007bff, #66b3ff);
+    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+}
+#playbook-chapter-modal .btn-primary:hover,
+#playbook-section-modal .btn-primary:hover,
+#playbook-entry-modal .btn-primary:hover {
+    box-shadow: 0 8px 32px rgba(0, 123, 255, 0.4);
+}
+
+/* REVISED CANCEL BUTTON STYLES IN MODALS */
+/* Ensure these target the specific buttons */
+#playbook-chapter-modal .form-actions .btn-secondary,
+#playbook-section-modal .form-actions .btn-secondary,
+#playbook-entry-modal .form-actions .btn-secondary,
+#playbook-delete-confirm-modal .form-actions .btn-secondary { /* Ensure delete confirm modal Cancel button is styled */
+    background: rgba(255, 255, 255, 0.05); /* Standard secondary button background for dark theme */
+    color: rgba(255, 255, 255, 0.8); /* Standard secondary button text color */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Standard secondary button border */
+    padding: 0.875rem 1.5rem; /* Standard app button padding */
+    border-radius: 12px; /* Standard app button border-radius */
+    font-weight: 600;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    /* Explicitly setting these to ensure no leftover styles from generic buttons */
+    margin-right: 0; 
+    margin-left: 0;
+    min-width: unset;
+    height: auto;
+}
+
+#playbook-chapter-modal .form-actions .btn-secondary:hover,
+#playbook-section-modal .form-actions .btn-secondary:hover,
+#playbook-entry-modal .form-actions .btn-secondary:hover,
+#playbook-delete-confirm-modal .form-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08); /* Darker on hover */
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .playbook-app {
+        flex-direction: column;
+    }
+    .playbook-sidebar {
+        width: 100%;
+        max-height: 350px; /* Limit height when stacked */
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .playbook-main-content {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .main-content-actions {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+    }
+    .main-content-actions button {
+        flex-grow: 1;
+    }
+    .chapter-overview-section-item {
+        padding: 10px 15px; /* Reduce padding for smaller screens */
+    }
+    .section-entries-list {
+        padding: 0; /* Remove horizontal padding */
+    }
+    .section-entry-item {
+        padding: 10px 15px;
+    }
+    .entry-detail-content {
+        padding: 15px;
+    }
+    /* Ensure modal content fits smaller screens */
+    #playbook-entry-modal .modal-content {
+        max-height: 95vh;
+        width: 95%;
+        margin: 2.5vh auto;
+    }
+}

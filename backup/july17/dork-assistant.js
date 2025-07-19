@@ -5,10 +5,6 @@ class DorkAssistant {
         this.templates = this.loadTemplates();
         this.savedQueries = this.loadSavedQueries();
         this.currentTemplateCategory = 'all'; // Initialize current category filter
-        this.itemToDelete = null; // Stores the ID of the item to be deleted
-        this.itemTypeToDelete = null; // Stores the type of item ('template' or 'savedQuery')
-
-
         this.searchEngines = {
             google: {
                 name: 'Google',
@@ -740,7 +736,7 @@ class DorkAssistant {
             engine: this.currentEngine
         };
 
-        document.getElementById('save-query-modal').style.display = 'flex';
+        document.getElementById('save-query-modal').style.display = 'block';
     }
 
     // Confirm save query
@@ -834,7 +830,7 @@ class DorkAssistant {
 
     // Render templates
     renderTemplates() {
-        const templatesContainer = document.getElementById('templates-grid'); // Still refers to the main container
+        const templatesGrid = document.getElementById('templates-grid'); // Keep this ID as it's used in HTML
         const engineFilter = document.getElementById('template-engine').value;
 
         let filteredTemplates = this.templates;
@@ -848,41 +844,38 @@ class DorkAssistant {
             filteredTemplates = filteredTemplates.filter(t => t.engines.includes(engineFilter));
         }
 
-        templatesContainer.innerHTML = '';
-        templatesContainer.className = 'templates-list'; // Apply the new list class
+        templatesGrid.innerHTML = '';
 
         if (filteredTemplates.length === 0) {
-            templatesContainer.innerHTML = '<p class="no-templates-message">No templates found matching the selected filters.</p>';
+            templatesGrid.innerHTML = '<p>No templates found matching the selected filters.</p>';
             return;
         }
 
         filteredTemplates.forEach(template => {
-            const templateItem = document.createElement('div');
-            templateItem.className = 'template-list-item'; // Use the new list item class
-            templateItem.innerHTML = `
-                <div class="template-info">
-                    <h4>${template.name}</h4>
-                    <p>${template.description}</p>
-                    <div class="template-query">
-                        <code>${this.highlightPlaceholders(template.query)}</code>
-                    </div>
-                    <div class="template-meta">
-                        <span class="template-category">${template.category.charAt(0).toUpperCase() + template.category.slice(1)}</span>
-                        <div class="template-engines">
-                            ${template.engines.map(engine =>
-                                `<span class="engine-tag">${this.searchEngines[engine].name}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    <div class="template-tags">
-                        ${template.tags.map(tag =>
-                            `<span class="template-tag">${tag}</span>`
+            const templateCard = document.createElement('div');
+            templateCard.className = 'template-card'; // This style will now act as a list item
+            templateCard.innerHTML = `
+                <h4>${template.name}</h4>
+                <p>${template.description}</p>
+                <div class="template-query">
+                    <code>${this.highlightPlaceholders(template.query)}</code>
+                </div>
+                <div class="template-meta">
+                    <span class="template-category">${template.category}</span>
+                    <div class="template-engines">
+                        ${template.engines.map(engine =>
+                            `<span class="engine-tag">${this.searchEngines[engine].name}</span>`
                         ).join('')}
                     </div>
                 </div>
+                <div class="template-tags">
+                    ${template.tags.map(tag =>
+                        `<span class="template-tag">${tag}</span>`
+                    ).join('')}
+                </div>
                 <div class="template-actions">
                     <button onclick="dorkAssistant.useTemplate(${template.id})" class="btn-primary">
-                        <i class="fas fa-play-circle"></i> Use
+                        <i class="fas fa-play-circle"></i> Use Template
                     </button>
                     <button onclick="dorkAssistant.editTemplate(${template.id})" class="btn-secondary">
                         <i class="fas fa-edit"></i> Edit
@@ -892,7 +885,7 @@ class DorkAssistant {
                     </button>
                 </div>
             `;
-            templatesContainer.appendChild(templateItem);
+            templatesGrid.appendChild(templateCard);
         });
     }
 
@@ -963,13 +956,11 @@ class DorkAssistant {
         const engineCheckboxesDiv = document.querySelector('#add-template-modal .checkbox-group');
         engineCheckboxesDiv.innerHTML = '';
         Object.entries(this.searchEngines).forEach(([key, engine]) => {
-            // Skip Pastebin if it uses Google site search as its primary function
-            // if (key === 'pastebin') return; 
             engineCheckboxesDiv.innerHTML += `
                 <label><input type="checkbox" value="${key}"> ${engine.name}</label>
             `;
         });
-        document.getElementById('add-template-modal').style.display = 'flex';
+        document.getElementById('add-template-modal').style.display = 'block';
     }
 
     // Close add template modal
@@ -1018,138 +1009,21 @@ class DorkAssistant {
         this.showNotification('Template saved successfully!', 'success');
     }
 
-    // NEW: Edit Template function
+    // Edit Template (Placeholder for future functionality)
     editTemplate(templateId) {
-        const template = this.templates.find(t => t.id === templateId);
-        if (!template) {
-            this.showNotification('Template not found.', 'error');
-            return;
-        }
-
-        // Populate the edit modal fields
-        document.getElementById('editTemplateName').value = template.name;
-        document.getElementById('editTemplateDescription').value = template.description;
-        document.getElementById('editQueryText').value = template.query;
-        document.getElementById('editTemplateCategory').value = template.category;
-        document.getElementById('editTemplateTags').value = template.tags.join(', ');
-
-        // Populate compatible engines checkboxes
-        const editCompatibleEnginesDiv = document.getElementById('editCompatibleEngines');
-        editCompatibleEnginesDiv.innerHTML = ''; // Clear previous checkboxes
-        Object.entries(this.searchEngines).forEach(([key, engine]) => {
-            // Skip Pastebin if it uses Google site search as its primary function
-            // if (key === 'pastebin') return; 
-            const isChecked = template.engines.includes(key) ? 'checked' : '';
-            editCompatibleEnginesDiv.innerHTML += `
-                <label><input type="checkbox" value="${key}" ${isChecked}> ${engine.name}</label>
-            `;
-        });
-
-        // Set the template ID on the save button for easy retrieval during save
-        document.getElementById('editSaveTemplateBtn').dataset.templateId = templateId;
-
-        // Update initial live preview
-        this.updateEditPreview();
-
-        // Show the modal
-        document.getElementById('editTemplateModal').style.display = 'flex';
+        this.showNotification('Edit Template functionality is under development.', 'info');
+        // Implement logic to load template data into modal for editing
     }
 
-    // NEW: Update Live Preview in Edit Template Modal
-    updateEditPreview() {
-        const queryText = document.getElementById('editQueryText').value;
-        const placeholderValue = document.getElementById('editPlaceholderValue').value;
-        const livePreviewElement = document.getElementById('editLivePreview');
+    // Delete template
+    deleteTemplate(templateId) {
+        if (!confirm('Are you sure you want to delete this template?')) return;
 
-        let previewQuery = queryText;
-
-        // Replace all {{VARIABLES}} with the placeholder value
-        if (placeholderValue) {
-            previewQuery = queryText.replace(/\{\{(\w+)\}\}/g, placeholderValue);
-        }
-
-        livePreviewElement.innerHTML = this.highlightPlaceholders(previewQuery);
-    }
-
-    // NEW: Execute Previewed Query in Edit Template Modal
-    executeEditPreview() {
-        const previewQuery = document.getElementById('editLivePreview').textContent; // Use textContent to get raw query
-        
-        // Find the current engine (assuming it's the one selected in the main Dork Assistant, or default to Google if not set)
-        const currentEngineSelect = document.getElementById('search-engine');
-        const currentEngineKey = currentEngineSelect ? currentEngineSelect.value : 'google';
-        const engine = this.searchEngines[currentEngineKey];
-
-        if (!engine) {
-            this.showNotification('Could not determine search engine for preview.', 'error');
-            return;
-        }
-
-        let url = engine.url + encodeURIComponent(previewQuery);
-
-        if (currentEngineKey === 'fofa') {
-            url = engine.url + btoa(previewQuery);
-        }
-
-        window.open(url, '_blank');
-        this.showNotification('Executing previewed query!', 'info');
-    }
-
-    // NEW: Save Edited Template
-    saveEditedTemplate() {
-        const templateId = parseInt(document.getElementById('editSaveTemplateBtn').dataset.templateId);
-        const templateIndex = this.templates.findIndex(t => t.id === templateId);
-
-        if (templateIndex === -1) {
-            this.showNotification('Error: Template not found for editing.', 'error');
-            return;
-        }
-
-        const name = document.getElementById('editTemplateName').value.trim();
-        const description = document.getElementById('editTemplateDescription').value.trim();
-        const query = document.getElementById('editQueryText').value.trim();
-        const category = document.getElementById('editTemplateCategory').value;
-        const tags = document.getElementById('editTemplateTags').value.trim();
-
-        if (!name || !query) {
-            this.showNotification('Please fill in required fields (Name and Query).', 'warning');
-            return;
-        }
-
-        // Get selected engines from edit modal's checkboxes
-        const editEngineCheckboxes = document.querySelectorAll('#editCompatibleEngines input[type="checkbox"]:checked');
-        const engines = Array.from(editEngineCheckboxes).map(cb => cb.value);
-
-        if (engines.length === 0) {
-            this.showNotification('Please select at least one compatible engine.', 'warning');
-            return;
-        }
-
-        // Update the template object
-        this.templates[templateIndex].name = name;
-        this.templates[templateIndex].description = description;
-        this.templates[templateIndex].query = query;
-        this.templates[templateIndex].category = category;
-        this.templates[templateIndex].engines = engines;
-        this.templates[templateIndex].tags = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-
+        this.templates = this.templates.filter(t => t.id !== templateId);
         this.saveTemplates();
         this.renderTemplates();
-        this.renderTemplateCategories(); // Re-render sidebar as categories might change
-        this.closeEditTemplateModal();
-        this.showNotification('Template updated successfully!', 'success');
-    }
-
-    // NEW: Close Edit Template Modal
-    closeEditTemplateModal() {
-        document.getElementById('editTemplateModal').style.display = 'none';
-        // Reset form fields if necessary or rely on next edit to overwrite
-    }
-
-
-    // Delete template (now uses custom modal)
-    deleteTemplate(templateId) {
-        this.showDeleteConfirmModal(templateId, 'template');
+        this.renderTemplateCategories(); // Re-render categories after deletion
+        this.showNotification('Template deleted successfully!', 'success');
     }
 
     // Render saved queries
@@ -1176,7 +1050,7 @@ class DorkAssistant {
         savedQueriesList.innerHTML = '';
 
         if (filteredQueries.length === 0) {
-            savedQueriesList.innerHTML = '<p class="no-queries-message">No saved queries found matching the selected filters.</p>';
+            savedQueriesList.innerHTML = '<p>No saved queries found matching the selected filters.</p>';
             return;
         }
 
@@ -1262,6 +1136,7 @@ class DorkAssistant {
             if (!op && operatorConfig.placeholder) { // Handle generic keywords like in Pastebin/IntelX
                 // This is a heuristic for general terms in engines like pastebin/intelx that don't use prefixes
                 // If the placeholder is found directly in the query, assume it's a "basic term"
+                // This part needs careful consideration as it might conflict with actual basic terms.
                 // For now, prioritize explicit operators.
                 return;
             }
@@ -1354,53 +1229,20 @@ class DorkAssistant {
         window.open(url, '_blank');
     }
 
-    // Delete saved query (now uses custom modal)
+    // Delete saved query
     deleteSavedQuery(queryId) {
-        this.showDeleteConfirmModal(queryId, 'savedQuery');
+        if (!confirm('Are you sure you want to delete this saved query?')) return;
+
+        this.savedQueries = this.savedQueries.filter(q => q.id !== queryId);
+        this.saveSavedQueries();
+        this.renderSavedQueries();
+        this.showNotification('Saved query deleted successfully!', 'success');
     }
 
     // Filter saved queries
     filterSavedQueries() {
         this.renderSavedQueries();
     }
-
-    // NEW: Show custom delete confirmation modal
-    showDeleteConfirmModal(id, type) {
-        this.itemToDelete = id;
-        this.itemTypeToDelete = type;
-        const messageElement = document.getElementById('deleteMessage');
-        if (type === 'template') {
-            messageElement.textContent = 'Are you sure you want to delete this template? This action cannot be undone.';
-        } else if (type === 'savedQuery') {
-            messageElement.textContent = 'Are you sure you want to delete this saved query? This action cannot be undone.';
-        }
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    // NEW: Close custom delete confirmation modal
-    closeDeleteConfirmModal() {
-        this.itemToDelete = null;
-        this.itemTypeToDelete = null;
-        document.getElementById('deleteModal').style.display = 'none';
-    }
-
-    // NEW: Perform deletion after confirmation
-    performDeletion() {
-        if (this.itemTypeToDelete === 'template') {
-            this.templates = this.templates.filter(t => t.id !== this.itemToDelete);
-            this.saveTemplates();
-            this.renderTemplates();
-            this.renderTemplateCategories();
-            this.showNotification('Template deleted successfully!', 'success');
-        } else if (this.itemTypeToDelete === 'savedQuery') {
-            this.savedQueries = this.savedQueries.filter(q => q.id !== this.itemToDelete);
-            this.saveSavedQueries();
-            this.renderSavedQueries();
-            this.showNotification('Saved query deleted successfully!', 'success');
-        }
-        this.closeDeleteConfirmModal();
-    }
-
 
     // Storage methods
     loadTemplates() {
@@ -1423,54 +1265,46 @@ class DorkAssistant {
 
     // Show notification
     showNotification(message, type = 'info') {
-        // Find or create notification container
-        let container = document.getElementById('notificationContainer');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'notificationContainer';
-            container.className = 'notification-container'; // Class from styles.css
-            document.body.appendChild(container);
-        }
-
+        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `notification ${type}`; // Use classes from styles.css
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas ${this.getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
-            <button class="notification-close" onclick="this.closest('.notification').remove()">
-                <i class="fas fa-times"></i>
-            </button>
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#20c997' : type === 'error' ? '#dc3545' : type === 'warning' ? '#fd7e14' : '#0a84ff'}; /* Updated colors */
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            z-index: 10000;
+            font-weight: 500;
+            max-width: 300px;
+            word-wrap: break-word;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
         `;
-        container.appendChild(notification);
+        notification.textContent = message;
 
-        // Animate in (using CSS transitions defined in styles.css)
+        document.body.appendChild(notification);
+
+        // Animate in
         setTimeout(() => {
             notification.style.opacity = '1';
             notification.style.transform = 'translateY(0)';
-        }, 10);
+        }, 10); // Small delay to allow render before transition
 
-        // Remove after 3 seconds with slide out animation
+        // Remove after 3 seconds
         setTimeout(() => {
             notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)'; // Slide out to the right
+            notification.style.transform = 'translateY(-20px)';
             notification.addEventListener('transitionend', () => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
                 }
             }, { once: true });
         }, 3000);
-    }
-
-    getNotificationIcon(type) {
-        switch (type) {
-            case 'success': return 'fa-check-circle';
-            case 'error': return 'fa-exclamation-circle';
-            case 'warning': return 'fa-exclamation-triangle';
-            case 'info': return 'fa-info-circle';
-            default: return 'fa-bell';
-        }
     }
 }
 
