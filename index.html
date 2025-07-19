@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="blueteam-playbook.css">
     <link rel="stylesheet" href="case-studies.css">
     <link rel="stylesheet" href="dork-assistant.css">
+    <link rel="stylesheet" href="threat-intel.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -43,9 +44,8 @@
                     <span>Campaigns</span>
                     <div class="nav-indicator"></div>
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('intelligence')">
-                    <i class="fas fa-brain"></i>
-                    <span>Intelligence</span>
+                <a href="#" class="nav-item" onclick="showSection('threat-intel')"> <i class="fas fa-rss-square"></i>
+                    <span>Threat Intel</span>
                     <div class="nav-indicator"></div>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('analytics')">
@@ -1404,6 +1404,57 @@
                 </div>
             </section>
 
+            <section id="iocs" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Indicators of Compromise</h1>
+                        <p class="header-subtitle">IOC database and threat hunting</p>
+                    </div>
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Coming Soon</h3>
+                    <p>IOC management and threat hunting features are under development</p>
+                </div>
+            </section>
+
+            <section id="threat-intel" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Threat Intelligence Feeds</h1>
+                        <p class="header-subtitle">Real-time updates from leading cybersecurity sources</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary" onclick="threatIntel.showAddFeedModal()">
+                            <i class="fas fa-plus"></i> Add New Feed
+                        </button>
+                    </div>
+                </div>
+
+                <div class="threat-intel-controls">
+                    <input type="text" id="threat-intel-search" placeholder="Search articles..." onkeyup="threatIntel.filterArticles()">
+                    <select id="threat-intel-source-filter" onchange="threatIntel.filterArticles()">
+                        <option value="all">All Sources</option>
+                        </select>
+                    <select id="threat-intel-sort" onchange="threatIntel.sortArticles()">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title-asc">Title A-Z</option>
+                        <option value="title-desc">Title Z-A</option>
+                    </select>
+                </div>
+
+                <div class="threat-intel-grid" id="threat-intel-grid">
+                    <div class="no-articles-state" id="no-articles-state">
+                        <i class="fas fa-newspaper"></i>
+                        <h3>No Articles Found</h3>
+                        <p>No articles match your current filters. Try adjusting your search or add new feeds.</p>
+                    </div>
+                </div>
+            </section>
+
             <footer class="app-footer">
                 <div class="footer-content">
                     <div class="footer-bottom">
@@ -2095,5 +2146,6 @@
     <script src="investigation-notes.js"></script>
     <script src="blueteam-playbook.js"></script>
     <script src="case-studies.js"></script>
+    <script src="threat-intel.js"></script> </body>
 </body>
 </html>
