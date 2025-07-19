@@ -52,9 +52,7 @@ class ThreatIntel {
                 { name: 'KrebsOnSecurity', url: 'https://krebsonsecurity.com/feed/' },
                 { name: 'SecurityWeek', url: 'https://www.securityweek.com/feed/' },
                 { name: 'SANS Internet Storm Center', url: 'https://isc.sans.edu/rssfeed.xml' },
-                { name: 'Naked Security (Sophos)', url: 'https://nakedsecurity.sophos.com/feed/' },
                 { name: 'Microsoft Security Blog', url: 'https://www.microsoft.com/en-us/security/blog/feed/' },
-                { name: 'Dark Reading', url: 'https://www.darkreading.com/rss_simple.asp' }, // Test this again with new styles
                 { name: 'Google Cybersecurity Blog', url: 'https://security.googleblog.com/feeds/posts/default' }
                 // Add more feeds, but test them first on rss2json.com!
                 // { name: 'Cybersecurity Dive', url: 'https://www.cybersecuritydive.com/feeds/news/' },
