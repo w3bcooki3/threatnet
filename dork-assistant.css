@@ -76,7 +76,8 @@
     gap: 2rem;
 }
 
-.search-engine-selector label {
+.search-engine-selector label,
+.query-field-group label { /* Combined for consistency */
     display: block;
     color: rgba(255, 255, 255, 0.8);
     font-weight: 600;
@@ -84,7 +85,10 @@
     font-size: 0.9rem;
 }
 
-.search-engine-selector select {
+.search-engine-selector select,
+#target-profile, /* Apply styling to target-profile dropdown */
+.templates-filters select,
+.saved-queries-filters select {
     width: 100%;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -105,13 +109,19 @@
     cursor: pointer;
 }
 
-.search-engine-selector select:focus {
+.search-engine-selector select:focus,
+#target-profile:focus, /* Apply focus styling */
+.templates-filters select:focus,
+.saved-queries-filters select:focus {
     border-color: #ff4757;
     box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
     background: rgba(255, 255, 255, 0.08);
 }
 
-.search-engine-selector select option {
+.search-engine-selector select option,
+#target-profile option, /* Apply option styling */
+.templates-filters select option,
+.saved-queries-filters select option {
     background: #1a1a2e;
     color: #ffffff;
 }
@@ -120,14 +130,6 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-}
-
-.query-field-group label {
-    display: block;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
 }
 
 .query-field-group input {
@@ -151,6 +153,31 @@
 
 .query-field-group input::placeholder {
     color: rgba(255, 255, 255, 0.5);
+}
+
+.query-logical-operators {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap; /* Allow buttons to wrap */
+}
+
+.query-logical-operators button {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.query-logical-operators button:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+    color: #ff4757;
 }
 
 
@@ -271,6 +298,29 @@
     flex-wrap: wrap;
 }
 
+/* Clear Query button styling */
+.clear-query-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.clear-query-btn:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+    color: #ff4757;
+}
+
+
 /* Query Conversion Styles */
 .query-conversion h4 {
     font-size: 1.1rem;
@@ -334,6 +384,64 @@
     border-radius: 4px;
 }
 
+/* Query History */
+.query-history h4 {
+    font-size: 1.1rem;
+    color: #ff4757;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.query-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 400px; /* Limit height for scrollability */
+    overflow-y: auto; /* Make scrollable */
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.query-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
+}
+
+.query-history-item:hover {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ffffff;
+}
+
+.query-history-item code {
+    flex-grow: 1;
+    margin-right: 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.query-history-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.query-history-item-actions button {
+    padding: 0.3em 0.6em;
+    font-size: 0.8em;
+}
+
+
 /* Templates Tab Specific Styles */
 .templates-container {
     display: flex;
@@ -355,40 +463,58 @@
     flex-wrap: wrap;
 }
 
-.templates-filters select {
+/* Template Search Bar */
+.template-search-bar {
+    position: relative; /* For the search icon positioning */
+    flex-grow: 1; /* Allow it to take available space */
+    min-width: 200px; /* Ensure it doesn't get too small */
+}
+
+.template-search-bar input {
+    width: 100%;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ffffff;
     padding: 0.75rem 1rem;
     border-radius: 12px;
     outline: none;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 500;
     transition: all 0.3s ease;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF' opacity='0.5' %3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1.25rem;
-    cursor: pointer;
+    padding-right: 2.5rem; /* Space for the icon */
 }
 
-.templates-filters select:focus {
+.template-search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.template-search-bar input:focus {
     border-color: #ff4757;
     box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
     background: rgba(255, 255, 255, 0.08);
 }
 
+.template-search-bar i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.6);
+    pointer-events: none; /* Make icon unclickable */
+}
+
+
 .templates-content-area {
     display: flex;
     gap: 2rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent wrapping on larger screens */
+    align-items: flex-start; /* Align items to the top */
+    /* Ensure this container has enough vertical space to allow children to grow */
+    height: calc(100vh - 200px); /* Adjust based on header/tab height if needed */
 }
 
 .template-category-sidebar {
-    flex: 0 0 250px;
+    flex: 0 0 250px; /* Fixed width sidebar */
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
@@ -396,8 +522,11 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-height: 100%;
-    overflow-y: auto;
+    max-height: 100%; /* Take full height of parent (templates-content-area) */
+    overflow-y: auto; /* Enable vertical scrolling */
+    position: sticky; /* Make it sticky */
+    top: 2rem; /* Stick to top with some offset */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
 }
 
 .category-item {
@@ -410,6 +539,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-size: 0.95rem; /* Slightly larger font */
 }
 
 .category-item:hover {
@@ -425,16 +555,20 @@
 }
 
 .category-item i {
+    font-size: 1rem; /* Adjusted icon size for better alignment */
     width: 20px;
     text-align: center;
 }
 
 /* TEMPLATES LIST VIEW */
 .templates-list {
-    flex: 1;
+    flex: 1; /* Take remaining space */
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    min-width: 0; /* Allow content to shrink */
+    max-height: 100%; /* Take full height of parent (templates-content-area) */
+    overflow-y: auto; /* Make scrollable */
 }
 
 .template-list-item {
@@ -444,22 +578,23 @@
     padding: 1.2rem 1.5rem;
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
     display: flex;
-    align-items: flex-start;
-    gap: 1.5rem;
+    flex-direction: column; /* Stack info and actions vertically */
+    gap: 1rem; /* Space between info and actions */
 }
 
 .template-list-item:hover {
     background: linear-gradient(90deg, #2a2a40, #25253a);
     border-color: rgba(255, 71, 87, 0.3);
-    transform: translateX(5px);
+    transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .template-list-item .template-info {
     flex: 1;
     min-width: 0;
+    display: flex; /* Make info content a flex container */
+    flex-direction: column; /* Stack elements inside info */
 }
 
 .template-list-item h4 {
@@ -475,11 +610,14 @@
     font-size: 0.85rem;
     margin-bottom: 0.6rem;
     color: rgba(255, 255, 255, 0.7);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* Remove white-space: nowrap; overflow: hidden; text-overflow: ellipsis; to allow description to wrap */
+    white-space: normal; /* Allow text to wrap */
+    overflow: visible; /* Show full text */
+    text-overflow: clip; /* Clip text if it overflows, without ellipsis */
     min-height: unset;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2; /* Limit to 2 lines for descriptions */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
 }
 
 .template-list-item .template-query {
@@ -496,8 +634,9 @@
     color: rgba(255, 255, 255, 0.9);
     font-family: 'JetBrains Mono', monospace;
     overflow-x: auto;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    white-space: pre-wrap; /* Allow query to wrap within its container */
+    word-break: break-all; /* Break long words */
+    text-overflow: clip; /* Ensure no ellipsis on query itself */
     line-height: 1.4;
 }
 
@@ -509,12 +648,25 @@
     gap: 0.75rem;
 }
 
-.template-list-item .template-category,
-.template-list-item .engine-tag {
-    font-size: 0.65rem;
-    padding: 0.25em 0.6em;
+.template-list-item .template-category {
+    font-size: 0.75rem; /* Slightly larger for readability */
+    padding: 0.3em 0.8em;
     line-height: 1;
+    background: rgba(71, 190, 255, 0.1); /* Different color for category tag */
+    border: 1px solid rgba(71, 190, 255, 0.2);
+    color: #87e0ff;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex; /* Align icon and text */
+    align-items: center;
+    gap: 0.4rem;
 }
+.template-list-item .template-category i {
+    font-size: 0.8em; /* Adjust icon size within tag */
+}
+
 
 .template-engines {
     display: flex; /* Ensure flex behavior */
@@ -573,12 +725,14 @@
 .template-list-item .template-actions {
     flex-shrink: 0;
     display: flex;
-    flex-direction: row;
+    flex-direction: row; /* Keep buttons in a row for space efficiency */
     gap: 0.5rem;
-    padding-top: 0;
-    border-top: none;
-    margin-left: auto;
-    align-items: center;
+    padding-top: 1rem; /* Add padding to separate from info */
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* Separator */
+    justify-content: flex-end; /* Align buttons to the right */
+    margin-left: auto; /* Push actions to the right */
+    width: 100%; /* Ensure actions take full width for horizontal alignment */
+    flex-wrap: wrap; /* Allow buttons to wrap if necessary */
 }
 
 /* Specific button size and padding for list item actions */
@@ -623,9 +777,11 @@
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    align-items: center; /* Align filters vertically */
 }
 
 .saved-queries-filters input[type="text"] {
+    width: 100%; /* Ensure it spans full width in flex context */
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ffffff;
@@ -635,6 +791,8 @@
     font-size: 0.95rem;
     font-weight: 500;
     transition: all 0.3s ease;
+    flex-grow: 1; /* Allow search to grow */
+    min-width: 180px; /* Minimum width before wrapping */
 }
 
 .saved-queries-filters input[type="text"]::placeholder {
@@ -647,31 +805,6 @@
     background: rgba(255, 255, 255, 0.08);
 }
 
-.saved-queries-filters select {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    outline: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF' opacity='0.5' %3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1.25rem;
-    cursor: pointer;
-}
-
-.saved-queries-filters select:focus {
-    border-color: #ff4757;
-    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
-    background: rgba(255, 255, 255, 0.08);
-}
 
 .saved-queries-list {
     display: flex;
@@ -831,6 +964,29 @@
     margin-right: 0.25rem;
 }
 
+/* Clear Filters button */
+.clear-filters-btn {
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.clear-filters-btn:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+    color: #ff4757;
+}
+
+
 /* Add/Edit Template Modal */
 #add-template-modal .modal-content {
     max-width: 600px;
@@ -896,6 +1052,14 @@
 #save-query-modal .modal-content {
     max-width: 500px;
 }
+/* For new category input */
+#save-query-modal .new-category-input {
+    margin-top: 1rem;
+}
+#save-query-modal .new-category-input label {
+    margin-bottom: 0.5rem;
+}
+
 
 /* Ensure form actions in modals are right-aligned */
 #save-query-modal .form-actions {
@@ -948,17 +1112,45 @@
     flex-wrap: wrap;
 }
 
+/* Import/Export buttons */
+.dork-assistant-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 1rem; /* Adjust margin as it's now outside header-actions */
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 
 /* Responsive adjustments for Dork Assistant */
 @media (max-width: 1200px) {
     .templates-content-area {
-        flex-direction: column;
+        flex-direction: column; /* Stack sidebar and list */
+        align-items: stretch; /* Stretch items to fill width */
+        height: auto; /* Allow height to adjust */
     }
 
     .template-category-sidebar {
+        position: static; /* Remove sticky positioning */
+        top: auto;
         flex: none;
         width: 100%;
-        max-height: 250px;
+        max-height: 200px; /* Limit height and make it scrollable */
+        overflow-y: auto;
+        padding: 1rem;
+        flex-direction: row; /* Display categories in a row */
+        flex-wrap: wrap; /* Allow categories to wrap */
+        justify-content: center; /* Center categories */
+    }
+    .template-category-sidebar .category-item {
+        flex-shrink: 0; /* Prevent items from shrinking */
+    }
+
+
+    .templates-list {
+        max-height: none; /* Remove height constraint for list */
+        overflow-y: visible; /* Make visible */
     }
 }
 
