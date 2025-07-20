@@ -771,9 +771,6 @@
                     <button class="dork-tab-btn active" onclick="showDorkTab('query-builder')">
                         <i class="fas fa-tools"></i> Query Builder
                     </button>
-                    <button class="dork-tab-btn" onclick="showDorkTab('raw-data-analyzer')">
-                        <i class="fas fa-microscope"></i> Raw Data Analyzer
-                    </button>
                     <button class="dork-tab-btn" onclick="showDorkTab('templates')">
                         <i class="fas fa-layer-group"></i> Templates
                     </button>
@@ -804,35 +801,6 @@
                         </div>
 
                         <div class="query-builder-form">
-                            <div class="query-field-group">
-                                <label for="target-input">Target Input / Focus:</label>
-                                <div class="input-with-suggestion">
-                                    <input type="text" id="target-input" placeholder="e.g., example.com, 192.168.1.1, username, API_KEY" oninput="dorkAssistant.detectCategory()">
-                                    <select id="target-profile-category" onchange="dorkAssistant.setDetectedCategory(this.value)">
-                                        <option value="">Auto-Detect Category</option>
-                                        <option value="domain">Domain</option>
-                                        <option value="ip">IP Address</option>
-                                        <option value="webapp">Web Application</option>
-                                        <option value="file">File/Document</option>
-                                        <option value="credential">Credential/Secret</option>
-                                        <option value="social">Social Media</option>
-                                        <option value="email">Email Address</option>
-                                        <option value="location">Geographic Location</option>
-                                        <option value="person">Person/Individual</option>
-                                        <option value="organization">Organization</option>
-                                        <option value="cve">CVE/Vulnerability</option>
-                                        <option value="software">Software/Product</option>
-                                        <option value="network">Network Device</option>
-                                        <option value="iot">IoT Device</option>
-                                        <option value="blockchain">Blockchain/Crypto</option>
-                                        <option value="general">General Keyword</option>
-                                    </select>
-                                </div>
-                                <div id="sample-dork-suggestions" class="sample-dork-suggestions">
-                                    <p class="placeholder-message">Type a target or select a category to see sample dorks.</p>
-                                </div>
-                            </div>
-
                             <div class="query-field-group">
                                 <label for="basic-terms">Basic Search Terms:</label>
                                 <input type="text" id="basic-terms" placeholder="Enter search terms..." oninput="buildQuery()">
@@ -868,105 +836,6 @@
                             <div class="query-conversion">
                                 <h4>Convert to Other Engines:</h4>
                                 <div class="conversion-results" id="conversion-results">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="raw-data-analyzer-tab" class="dork-tab-content">
-                    <div class="analyzer-container">
-                        <div class="analyzer-input-section">
-                            <h4>Raw Data Input</h4>
-                            <div class="input-methods">
-                                <textarea id="raw-data-input" placeholder="Paste your raw text data here (e.g., search results, logs, source code)..." oninput="dorkAssistant.analyzeRawData()"></textarea>
-                                <div class="input-actions">
-                                    <button class="btn-secondary" onclick="document.getElementById('file-upload-input').click()">
-                                        <i class="fas fa-upload"></i> Upload File (.txt, .log, .json, etc.)
-                                    </button>
-                                    <input type="file" id="file-upload-input" style="display: none;" onchange="dorkAssistant.handleFileUpload(event)" accept=".txt,.log,.html,.json,.xml,.csv,.conf,.yaml,.yml,.ini,.php,.js,.css,.py,.rb,.go,.java,.c,.cpp,.h,.hpp,.md,.pdf,.doc,.docx,.xls,.xlsx">
-                                    <button class="btn-secondary" onclick="dorkAssistant.pasteFromClipboard()">
-                                        <i class="fas fa-clipboard"></i> Paste from Clipboard
-                                    </button>
-                                    <button class="btn-secondary" onclick="dorkAssistant.clearRawDataInput()">
-                                        <i class="fas fa-eraser"></i> Clear Input
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="custom-regex-section">
-                                <h5>Custom Regex (Optional)</h5>
-                                <div class="form-group">
-                                    <input type="text" id="custom-regex-pattern" placeholder="e.g., (user|pass):\\s*(\\w+)" oninput="dorkAssistant.updateCustomRegexPreview()">
-                                    <div class="regex-flags">
-                                        <label><input type="checkbox" id="regex-flag-i"> Case Insensitive (i)</label>
-                                        <label><input type="checkbox" id="regex-flag-g" checked> Global (g)</label>
-                                        <label><input type="checkbox" id="regex-flag-m"> Multiline (m)</label>
-                                        <label><input type="checkbox" id="regex-flag-s"> Dotall (s)</label>
-                                    </div>
-                                    <small>Test your regex at <a href="https://regex101.com/" target="_blank">regex101.com</a></small>
-                                </div>
-                                <button class="btn-primary" onclick="dorkAssistant.applyCustomRegex()">
-                                    <i class="fas fa-flask"></i> Apply Custom Regex
-                                </button>
-                                <div id="custom-regex-preview" class="custom-regex-preview">No matches yet.</div>
-                            </div>
-                        </div>
-
-                        <div class="analyzer-results-section">
-                            <div class="extracted-entities-display">
-                                <h4>Extracted Entities</h4>
-                                <div class="entity-category-list">
-                                    <div class="entity-category-item" id="entity-category-urls">
-                                        <h5><i class="fas fa-link"></i> URLs (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-ips">
-                                        <h5><i class="fas fa-network-wired"></i> IP Addresses (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-emails">
-                                        <h5><i class="fas fa-at"></i> Email Addresses (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-credentials">
-                                        <h5><i class="fas fa-key"></i> Credentials/Secrets (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-file_paths">
-                                        <h5><i class="fas fa-file-code"></i> Sensitive File Paths (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-custom">
-                                        <h5><i class="fas fa-flask"></i> Custom Matches (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dork-suggestions-section">
-                                <div class="selected-entity-display">
-                                    <h4>Selected Entity: <span id="selected-entity-value">None</span></h4>
-                                    <p id="selected-entity-type">(Click an extracted entity to select)</p>
-                                </div>
-
-                                <div class="contextual-dorks">
-                                    <h4>Contextual Dork Suggestions</h4>
-                                    <div id="dork-suggestions-list" class="dork-suggestions-list">
-                                        <p class="placeholder-message">Select an entity to see relevant dorking suggestions.</p>
-                                    </div>
-                                </div>
-
-                                <div class="external-osint-tools">
-                                    <h4>External OSINT Tools</h4>
-                                    <div id="osint-tool-links" class="osint-tool-links">
-                                        <p class="placeholder-message">Select an entity to see quick links to external OSINT tools.</p>
-                                    </div>
-                                </div>
-                                <div class="ethical-disclaimer">
-                                    <p>
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Ethical Disclaimer:</strong> This tool is intended for legitimate security research, penetration testing with explicit permission, and legal OSINT activities only. Misuse of this tool for unauthorized access, data exfiltration, or any illegal activities is strictly prohibited and may result in severe legal consequences. Users are solely responsible for their actions.
-                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -2301,6 +2170,6 @@
     <script src="investigation-notes.js"></script>
     <script src="blueteam-playbook.js"></script>
     <script src="case-studies.js"></script>
-    <script src="threat-intel.js"></script>
+    <script src="threat-intel.js"></script> </body>
 </body>
 </html>

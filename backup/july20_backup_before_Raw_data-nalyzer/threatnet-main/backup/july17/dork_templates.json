@@ -1,0 +1,272 @@
+[
+    {
+        "id": 1,
+        "name": "Database Files",
+        "description": "Find exposed database files and backups",
+        "query": "filetype:sql OR filetype:db OR filetype:mdb",
+        "category": "databases",
+        "engines": ["google", "bing"],
+        "tags": ["database", "sql", "backup", "exposed"]
+    },
+    {
+        "id": 2,
+        "name": "Admin Login Pages",
+        "description": "Discover admin and login interfaces",
+        "query": "intitle:\"admin login\" OR intitle:\"administrator login\"",
+        "category": "login",
+        "engines": ["google", "bing"],
+        "tags": ["admin", "login", "interface", "panel"]
+    },
+    {
+        "id": 3,
+        "name": "Exposed MongoDB",
+        "description": "Find exposed MongoDB instances",
+        "query": "port:27017 product:MongoDB",
+        "category": "databases",
+        "engines": ["shodan"],
+        "tags": ["mongodb", "database", "exposed", "nosql"]
+    },
+    {
+        "id": 4,
+        "name": "SSH Servers",
+        "description": "Find SSH servers with weak authentication",
+        "query": "port:22 \"SSH-2.0\"",
+        "category": "vulnerabilities",
+        "engines": ["shodan", "censys"],
+        "tags": ["ssh", "authentication", "remote", "access"]
+    },
+    {
+        "id": 5,
+        "name": "Cloud Storage Buckets",
+        "description": "Find exposed cloud storage buckets",
+        "query": "site:s3.amazonaws.com OR site:storage.googleapis.com",
+        "category": "cloud",
+        "engines": ["google"],
+        "tags": ["cloud", "storage", "aws", "gcp", "bucket"]
+    },
+    {
+        "id": 6,
+        "name": "IoT Cameras",
+        "description": "Find exposed IP cameras and webcams",
+        "query": "port:554 product:\"IP Camera\"",
+        "category": "iot",
+        "engines": ["shodan"],
+        "tags": ["iot", "camera", "webcam", "surveillance"]
+    },
+    {
+        "id": 7,
+        "name": "Configuration Files",
+        "description": "Find exposed configuration files",
+        "query": "filename:config.php OR filename:.env OR filename:wp-config.php",
+        "category": "files",
+        "engines": ["github"],
+        "tags": ["config", "environment", "credentials", "php"]
+    },
+    {
+        "id": 8,
+        "name": "Government Emails",
+        "description": "Find government email addresses",
+        "query": "site:gov filetype:pdf email",
+        "category": "government",
+        "engines": ["google"],
+        "tags": ["government", "email", "contact", "official"]
+    },
+    {
+        "id": 9,
+        "name": "Sensitive Documents",
+        "description": "Search for sensitive documents and reports",
+        "query": "filetype:doc OR filetype:docx OR filetype:xls OR filetype:xlsx confidential",
+        "category": "files",
+        "engines": ["google", "bing"],
+        "tags": ["document", "sensitive", "report", "confidential"]
+    },
+    {
+        "id": 10,
+        "name": "Exposed API Keys",
+        "description": "Find exposed API keys in code or public files",
+        "query": "intitle:\"API_KEY\" OR intext:\"api_key\" site:github.com",
+        "category": "vulnerabilities",
+        "engines": ["google", "github"],
+        "tags": ["api", "key", "credentials", "exposed"]
+    },
+    {
+        "id": 11,
+        "name": "Cisco Devices",
+        "description": "Identify exposed Cisco devices",
+        "query": "product:\"Cisco IOS\" port:8080",
+        "category": "network",
+        "engines": ["shodan", "censys", "zoomeye"],
+        "tags": ["cisco", "network", "device", "router"]
+    },
+    {
+        "id": 12,
+        "name": "Web Server Defaults",
+        "description": "Find web servers with default pages or configurations",
+        "query": "intitle:\"Apache2 Ubuntu Default Page\" OR intitle:\"Welcome to nginx!\"",
+        "category": "web",
+        "engines": ["google", "bing"],
+        "tags": ["webserver", "default", "apache", "nginx"]
+    },
+    {
+        "id": 13,
+        "name": "SQL Injection Targets",
+        "description": "Identify potential SQL Injection vulnerable sites",
+        "query": "inurl:php?id= OR inurl:asp?id=",
+        "category": "vulnerabilities",
+        "engines": ["google", "bing"],
+        "tags": ["sql", "injection", "vulnerability", "web"]
+    },
+    {
+        "id": 14,
+        "name": "FTP Servers",
+        "description": "Find exposed FTP servers allowing anonymous login",
+        "query": "port:21 \"Anonymous FTP login accepted\"",
+        "category": "network",
+        "engines": ["shodan", "censys"],
+        "tags": ["ftp", "filetransfer", "exposed", "anonymous"]
+    },
+    {
+        "id": 15,
+        "name": "RDP Access",
+        "description": "Find systems with exposed RDP (Remote Desktop Protocol)",
+        "query": "port:3389",
+        "category": "remote-access",
+        "engines": ["shodan", "censys", "zoomeye"],
+        "tags": ["rdp", "remote", "desktop", "access"]
+    },
+    {
+        "id": 16,
+        "name": "WordPress Vulnerabilities",
+        "description": "Identify WordPress sites with known vulnerabilities",
+        "query": "inurl:wp-content OR inurl:wp-includes intitle:\"WordPress\"",
+        "category": "vulnerabilities",
+        "engines": ["google", "bing"],
+        "tags": ["wordpress", "cms", "vulnerability", "php"]
+    },
+    {
+        "id": 17,
+        "name": "IoT Devices by Manufacturer",
+        "description": "Find specific IoT devices by manufacturer",
+        "query": "product:\"D-Link\" port:80",
+        "category": "iot",
+        "engines": ["shodan"],
+        "tags": ["iot", "device", "manufacturer", "smart-home"]
+    },
+    {
+        "id": 18,
+        "name": "Employee Directories",
+        "description": "Search for exposed employee directories or lists",
+        "query": "intitle:\"employee directory\" OR intitle:\"staff list\"",
+        "category": "people",
+        "engines": ["google", "bing"],
+        "tags": ["employee", "directory", "staff", "osint"]
+    },
+    {
+        "id": 19,
+        "name": "Google Docs Public",
+        "description": "Find publicly accessible Google Docs",
+        "query": "site:docs.google.com inurl:edit filetype:doc",
+        "category": "cloud",
+        "engines": ["google"],
+        "tags": ["google-docs", "cloud", "public", "sharing"]
+    },
+    {
+        "id": 20,
+        "name": "Exposed AWS S3 Buckets",
+        "description": "Specific search for exposed AWS S3 buckets",
+        "query": "site:.s3.amazonaws.com public",
+        "category": "cloud",
+        "engines": ["google"],
+        "tags": ["aws", "s3", "bucket", "cloud"]
+    },
+    {
+        "id": 21,
+        "name": "Social Media OSINT",
+        "description": "Find public social media profiles related to a keyword",
+        "query": "site:twitter.com OR site:linkedin.com \"keyword\"",
+        "category": "social",
+        "engines": ["google"],
+        "tags": ["social-media", "osint", "profile", "public"]
+    },
+    {
+        "id": 22,
+        "name": "Government Tender Documents",
+        "description": "Locate public government tender documents",
+        "query": "site:gov.au filetype:pdf tender OR bid",
+        "category": "government",
+        "engines": ["google"],
+        "tags": ["government", "tender", "procurement", "public-records"]
+    },
+    {
+        "id": 23,
+        "name": "Exposed Log Files",
+        "description": "Find publicly exposed server log files",
+        "query": "filetype:log access_log OR error_log",
+        "category": "files",
+        "engines": ["google", "bing"],
+        "tags": ["logs", "server", "exposed", "debug"]
+    },
+    {
+        "id": 24,
+        "name": "Vulnerable Jenkins Instances",
+        "description": "Find exposed Jenkins CI/CD servers",
+        "query": "product:Jenkins port:8080",
+        "category": "vulnerabilities",
+        "engines": ["shodan", "censys"],
+        "tags": ["jenkins", "ci/cd", "exposed", "devops"]
+    },
+    {
+        "id": 25,
+        "name": "IoT Dashboards",
+        "description": "Discover exposed IoT control panels/dashboards",
+        "query": "intitle:\"dashboard\" inurl:iot",
+        "category": "iot",
+        "engines": ["google", "bing"],
+        "tags": ["iot", "dashboard", "control", "exposed"]
+    },
+    {
+        "id": 26,
+        "name": "Company Contact Lists",
+        "description": "Search for exposed company contact information",
+        "query": "intitle:\"contact us\" OR \"our team\" filetype:xls",
+        "category": "people",
+        "engines": ["google", "bing"],
+        "tags": ["company", "contact", "employees", "osint"]
+    },
+    {
+        "id": 27,
+        "name": "Git Repositories",
+        "description": "Find exposed .git directories or repository leaks",
+        "query": "inurl:.git/config OR inurl:.git/HEAD",
+        "category": "files",
+        "engines": ["google", "bing"],
+        "tags": ["git", "repository", "exposed", "source-code"]
+    },
+    {
+        "id": 28,
+        "name": "Blockchain Explorers",
+        "description": "Access public blockchain explorers for crypto investigations",
+        "query": "site:etherscan.io OR site:blockchain.com bitcoin",
+        "category": "crypto",
+        "engines": ["google"],
+        "tags": ["blockchain", "crypto", "bitcoin", "ethereum"]
+    },
+    {
+        "id": 29,
+        "name": "Dark Web Forums (via Clearnet)",
+        "description": "Find mentions or links to dark web forums on clearnet",
+        "query": "site:.onion link:forum OR \"darknet market\"",
+        "category": "dark-web",
+        "engines": ["google"],
+        "tags": ["darkweb", "forum", "market", "clearnet"]
+    },
+    {
+        "id": 30,
+        "name": "Vulnerable Routers",
+        "description": "Identify potentially vulnerable router interfaces",
+        "query": "intitle:\"router setup\" OR \"admin login\" inurl:8080",
+        "category": "network",
+        "engines": ["google", "shodan"],
+        "tags": ["router", "vulnerability", "network", "admin"]
+    }
+]

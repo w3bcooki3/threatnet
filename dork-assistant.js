@@ -9,170 +9,195 @@ class DorkAssistant {
         this.itemTypeToDelete = null; // Stores the type of item ('template' or 'savedQuery')
         this.auditLog = this.loadAuditLog(); // Initialize audit log
 
+        // NEW: Raw Data Analyzer properties
+        this.extractedEntities = {
+            urls: [],
+            ips: [],
+            emails: [],
+            credentials: [],
+            file_paths: [],
+            custom: []
+        };
+        this.selectedEntity = {
+            value: null,
+            type: null
+        };
+
+        // NEW: Regex patterns for entity extraction
+        this.regexPatterns = {
+            url: /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})/gi,
+            ip: /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b(?::\d+)?/g, // Also captures port
+            email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
+            credential: /(password|passwd|pwd|secret|api_key|access_key|auth_token|bearer_token|private_key|client_secret|db_pass|s3_key|ssh_key|ftp_pass|admin_pass)[=\s:]{0,3}([\w\d\S]{8,64})(?:[\s;"'`,\n]|$)/gmi, // General, multi-line, case-insensitive
+            aws_key: /(AKIA|ASIA|AGIA|AIDA)[0-9A-Z]{16}/g,
+            s3_bucket: /(s3\.amazonaws\.com\/|s3:\/\/)([a-zA-Z0-9\-\.]{3,63})/g,
+            sensitive_path: /(\/(etc|var|home|root|admin|config|logs|backup|data)\/([\w\-\.\/]+)?\.(env|conf|log|sql|bak|zip|rar|7z|tgz|tar|gz|txt|json|xml|csv|yml|yaml|ini|php|js|css|py|rb|go|java|c|cpp|h|hpp|md|pdf|doc|docx|xls|xlsx)|(\.env|\.git\/config|\.hg\/hgrc|wp-config\.php|web\.config|database\.yml|config\.inc\.php))/gi // common files/paths
+        };
+
         this.searchEngines = {
             google: {
                 name: 'Google',
                 url: 'https://www.google.com/search?q=',
                 operators: {
-                    'Site Search': { operator: 'site:', placeholder: 'example.com', category: 'Domain & Host' },
-                    'File Type': { operator: 'filetype:', placeholder: 'pdf', category: 'Code & Files' },
-                    'In Title': { operator: 'intitle:', placeholder: 'admin login', category: 'Content Search' },
-                    'In URL': { operator: 'inurl:', placeholder: 'admin', category: 'Content Search' },
-                    'In Text': { operator: 'intext:', placeholder: 'password', category: 'Content Search' },
-                    'Cache': { operator: 'cache:', placeholder: 'example.com', category: 'Other Specific' },
-                    'Related': { operator: 'related:', placeholder: 'example.com', category: 'Other Specific' },
-                    'Exact Phrase': { operator: '"', placeholder: 'exact phrase', suffix: '"', category: 'Basic Search' },
-                    'Proximity Search': { operator: 'AROUND(n)', placeholder: 'word1 AROUND(5) word2', description: 'Finds words within N words of each other.', category: 'Basic Search' },
-                    'In Anchor': { operator: 'inanchor:', placeholder: 'login', description: 'Searches for text within anchor text of links.', category: 'Content Search' },
-                    'In Subject': { operator: 'insubject:', placeholder: 'password reset', description: 'Searches for text in the subject of indexed pages.', category: 'Content Search' },
-                    'Daterange': { operator: 'daterange:', placeholder: '2459000-2459005', description: 'Searches within a specific Julian date range.', category: 'Time & Date' }
+                    'Site Search': { operator: 'site:', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain', 'url'] },
+                    'File Type': { operator: 'filetype:', placeholder: 'pdf', category: 'Code & Files', appliesTo: ['file'] },
+                    'In Title': { operator: 'intitle:', placeholder: 'admin login', category: 'Content Search', appliesTo: ['webapp', 'credential', 'general'] },
+                    'In URL': { operator: 'inurl:', placeholder: 'admin', category: 'Content Search', appliesTo: ['webapp', 'credential', 'file'] },
+                    'In Text': { operator: 'intext:', placeholder: 'password', category: 'Content Search', appliesTo: ['credential', 'general', 'file', 'person', 'organization'] },
+                    'Cache': { operator: 'cache:', placeholder: 'example.com', category: 'Other Specific', appliesTo: ['domain', 'url'] },
+                    'Related': { operator: 'related:', placeholder: 'example.com', category: 'Other Specific', appliesTo: ['domain', 'url'] },
+                    'Exact Phrase': { operator: '"', placeholder: 'exact phrase', suffix: '"', category: 'Basic Search', appliesTo: ['general', 'person', 'organization', 'cve', 'software'] },
+                    'Proximity Search': { operator: 'AROUND(n)', placeholder: 'word1 AROUND(5) word2', description: 'Finds words within N words of each other.', category: 'Basic Search', appliesTo: ['general'] },
+                    'In Anchor': { operator: 'inanchor:', placeholder: 'login', description: 'Searches for text within anchor text of links.', category: 'Content Search', appliesTo: ['webapp'] },
+                    'In Subject': { operator: 'insubject:', placeholder: 'password reset', description: 'Searches for text in the subject of indexed pages.', category: 'Content Search', appliesTo: ['general'] },
+                    'Daterange': { operator: 'daterange:', placeholder: '2459000-2459005', description: 'Searches within a specific Julian date range.', category: 'Time & Date', appliesTo: ['general'] }
                 }
             },
             bing: {
                 name: 'Bing',
                 url: 'https://www.bing.com/search?q=',
                 operators: {
-                    'Site Search': { operator: 'site:', placeholder: 'example.com', category: 'Domain & Host' },
-                    'File Type': { operator: 'filetype:', placeholder: 'pdf', category: 'Code & Files' },
-                    'In Title': { operator: 'intitle:', placeholder: 'admin login', category: 'Content Search' },
-                    'In URL': { operator: 'inurl:', placeholder: 'admin', category: 'Content Search' },
-                    'In Text': { operator: 'intext:', placeholder: 'password', category: 'Content Search' },
-                    'Contains': { operator: 'contains:', placeholder: 'login', category: 'Content Search' },
-                    'IP Address': { operator: 'ip:', placeholder: '192.168.1.1', category: 'Location & Organization' },
-                    'Language': { operator: 'language:', placeholder: 'en', description: 'Filters results by language.', category: 'Other Specific' },
-                    'Feed': { operator: 'feed:', placeholder: 'example.com/rss.xml', description: 'Searches within RSS or Atom feeds.', category: 'Domain & Host' }
+                    'Site Search': { operator: 'site:', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain', 'url'] },
+                    'File Type': { operator: 'filetype:', placeholder: 'pdf', category: 'Code & Files', appliesTo: ['file'] },
+                    'In Title': { operator: 'intitle:', placeholder: 'admin login', category: 'Content Search', appliesTo: ['webapp', 'credential', 'general'] },
+                    'In URL': { operator: 'inurl:', placeholder: 'admin', category: 'Content Search', appliesTo: ['webapp', 'credential', 'file'] },
+                    'In Text': { operator: 'intext:', placeholder: 'password', category: 'Content Search', appliesTo: ['credential', 'general', 'file', 'person', 'organization'] },
+                    'Contains': { operator: 'contains:', placeholder: 'login', category: 'Content Search', appliesTo: ['content'] },
+                    'IP Address': { operator: 'ip:', placeholder: '192.168.1.1', category: 'Location & Organization', appliesTo: ['ip'] },
+                    'Language': { operator: 'language:', placeholder: 'en', description: 'Filters results by language.', category: 'Other Specific', appliesTo: ['general'] },
+                    'Feed': { operator: 'feed:', placeholder: 'example.com/rss.xml', description: 'Searches within RSS or Atom feeds.', category: 'Domain & Host', appliesTo: ['domain', 'url'] }
                 }
             },
             shodan: {
                 name: 'Shodan',
                 url: 'https://www.shodan.io/search?query=',
                 operators: {
-                    'Port': { operator: 'port:', placeholder: '22', category: 'Technical' },
-                    'Country': { operator: 'country:', placeholder: 'US', category: 'Location & Organization' },
-                    'City': { operator: 'city:', placeholder: 'New York', category: 'Location & Organization' },
-                    'Organization': { operator: 'org:', placeholder: 'Google', category: 'Location & Organization' },
-                    'Hostname': { operator: 'hostname:', placeholder: 'example.com', category: 'Domain & Host' },
-                    'Product': { operator: 'product:', placeholder: 'Apache', category: 'Technical' },
-                    'Version': { operator: 'version:', placeholder: '2.4', category: 'Technical' },
-                    'Operating System': { operator: 'os:', placeholder: 'Windows', category: 'Technical' },
-                    'Net': { operator: 'net:', placeholder: '192.168.1.0/24', category: 'Location & Organization' },
-                    'Before Date': { operator: 'before:', placeholder: '01/01/2023', category: 'Time & Date' },
-                    'After Date': { operator: 'after:', placeholder: '01/01/2023', category: 'Time & Date' },
-                    'Vulnerability (CVE)': { operator: 'vuln:', placeholder: 'CVE-2021-1234', description: 'Search for specific CVEs.', category: 'Technical' },
-                    'HTTP Title': { operator: 'http.title:', placeholder: 'Admin Panel', description: 'Search for text in HTTP titles.', category: 'Content Search' },
-                    'SSL Subject CN': { operator: 'ssl.cert.subject.cn:', placeholder: '*.example.com', description: 'Search for common name in SSL certificate subject.', category: 'SSL/TLS' },
-                    'SMTP Mail': { operator: 'smtp.mail:', placeholder: 'example.com', description: 'Search for SMTP banner mail field.', category: 'Email & Communication' }
+                    'Port': { operator: 'port:', placeholder: '22', category: 'Technical', appliesTo: ['ip', 'network'] },
+                    'Country': { operator: 'country:', placeholder: 'US', category: 'Location & Organization', appliesTo: ['location'] },
+                    'City': { operator: 'city:', placeholder: 'New York', category: 'Location & Organization', appliesTo: ['location'] },
+                    'Organization': { operator: 'org:', placeholder: 'Google', category: 'Location & Organization', appliesTo: ['organization'] },
+                    'Hostname': { operator: 'hostname:', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain'] },
+                    'Product': { operator: 'product:', placeholder: 'Apache', category: 'Technical', appliesTo: ['webapp', 'software', 'network', 'iot'] },
+                    'Version': { operator: 'version:', placeholder: '2.4', category: 'Technical', appliesTo: ['webapp', 'software', 'network', 'iot'] },
+                    'Operating System': { operator: 'os:', placeholder: 'Windows', category: 'Technical', appliesTo: ['software'] },
+                    'Net': { operator: 'net:', placeholder: '192.168.1.0/24', category: 'Location & Organization', appliesTo: ['ip', 'network'] },
+                    'Before Date': { operator: 'before:', placeholder: '01/01/2023', category: 'Time & Date', appliesTo: ['general'] },
+                    'After Date': { operator: 'after:', placeholder: '01/01/2023', category: 'Time & Date', appliesTo: ['general'] },
+                    'Vulnerability (CVE)': { operator: 'vuln:', placeholder: 'CVE-2021-1234', description: 'Search for specific CVEs.', category: 'Technical', appliesTo: ['cve'] },
+                    'HTTP Title': { operator: 'http.title:', placeholder: 'Admin Panel', description: 'Search for text in HTTP titles.', category: 'Content Search', appliesTo: ['webapp', 'general'] },
+                    'SSL Subject CN': { operator: 'ssl.cert.subject.cn:', placeholder: '*.example.com', description: 'Search for common name in SSL certificate subject.', category: 'SSL/TLS', appliesTo: ['domain', 'url'] },
+                    'SMTP Mail': { operator: 'smtp.mail:', placeholder: 'example.com', description: 'Search for SMTP banner mail field.', category: 'Email & Communication', appliesTo: ['domain', 'email'] }
                 }
             },
             censys: {
                 name: 'Censys',
                 url: 'https://search.censys.io/search?resource=hosts&q=',
                 operators: {
-                    'Services Port': { operator: 'services.port:', placeholder: '80', category: 'Technical' },
-                    'Services Service': { operator: 'services.service_name:', placeholder: 'HTTP', category: 'Technical' },
-                    'Location Country': { operator: 'location.country:', placeholder: 'United States', category: 'Location & Organization' },
-                    'Location City': { operator: 'location.city:', placeholder: 'New York', category: 'Location & Organization' },
-                    'Autonomous System': { operator: 'autonomous_system.name:', placeholder: 'Google', category: 'Location & Organization' },
-                    'DNS Names': { operator: 'dns.names:', placeholder: 'example.com', category: 'Domain & Host' },
-                    'Operating System': { operator: 'operating_system.product:', placeholder: 'Linux', category: 'Technical' },
-                    'TLS Certificate': { operator: 'services.tls.certificates.leaf_data.subject.common_name:', placeholder: 'example.com', category: 'SSL/TLS' },
-                    'Tags': { operator: 'tags:', placeholder: 'iot', description: 'Search for hosts with specific tags.', category: 'Technical' },
-                    'Protocols': { operator: 'protocols:', placeholder: '443/https', description: 'Search by protocol and port.', category: 'Technical' }
+                    'Services Port': { operator: 'services.port:', placeholder: '80', category: 'Technical', appliesTo: ['ip', 'network'] },
+                    'Services Service': { operator: 'services.service_name:', placeholder: 'HTTP', category: 'Technical', appliesTo: ['webapp', 'software'] },
+                    'Location Country': { operator: 'location.country:', placeholder: 'United States', category: 'Location & Organization', appliesTo: ['location'] },
+                    'Location City': { operator: 'location.city:', placeholder: 'New York', category: 'Location & Organization', appliesTo: ['location'] },
+                    'Autonomous System': { operator: 'autonomous_system.name:', placeholder: 'Google', category: 'Location & Organization', appliesTo: ['organization'] },
+                    'DNS Names': { operator: 'dns.names:', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain'] },
+                    'Operating System': { operator: 'operating_system.product:', placeholder: 'Linux', category: 'Technical', appliesTo: ['software'] },
+                    'TLS Certificate': { operator: 'services.tls.certificates.leaf_data.subject.common_name:', placeholder: 'example.com', category: 'SSL/TLS', appliesTo: ['domain', 'url'] },
+                    'Tags': { operator: 'tags:', placeholder: 'iot', description: 'Search for hosts with specific tags.', category: 'Technical', appliesTo: ['iot'] },
+                    'Protocols': { operator: 'protocols:', placeholder: '443/https', description: 'Search by protocol and port.', category: 'Technical', appliesTo: ['ip', 'network'] }
                 }
             },
             zoomeye: {
                 name: 'ZoomEye',
                 url: 'https://www.zoomeye.org/searchResult?q=',
                 operators: {
-                    'Port': { operator: 'port:', placeholder: '80', category: 'Technical' },
-                    'Service': { operator: 'service:', placeholder: 'http', category: 'Technical' },
-                    'Country': { operator: 'country:', placeholder: 'US', category: 'Location & Organization' },
-                    'City': { operator: 'city:', placeholder: 'New York', category: 'Location & Organization' },
-                    'Organization': { operator: 'org:', placeholder: 'Google', category: 'Location & Organization' },
-                    'Hostname': { operator: 'hostname:', placeholder: 'example.com', category: 'Domain & Host' },
-                    'Device': { operator: 'device:', placeholder: 'router', category: 'Technical' },
-                    'Operating System': { operator: 'os:', placeholder: 'Linux', category: 'Technical' },
-                    'App': { operator: 'app:', placeholder: 'nginx', description: 'Search for web application name.', category: 'Technical' },
-                    'Vulnerability': { operator: 'vulnerability:', placeholder: 'CVE-2021-1234', description: 'Search for known vulnerabilities.', category: 'Technical' }
+                    'Port': { operator: 'port:', placeholder: '80', category: 'Technical', appliesTo: ['ip', 'network'] },
+                    'Service': { operator: 'service:', placeholder: 'http', category: 'Technical', appliesTo: ['webapp', 'software'] },
+                    'Country': { operator: 'country:', placeholder: 'US', category: 'Location & Organization', appliesTo: ['location'] },
+                    'City': { operator: 'city:', placeholder: 'New York', category: 'Location & Organization', appliesTo: ['location'] },
+                    'Organization': { operator: 'org:', placeholder: 'Google', category: 'Location & Organization', appliesTo: ['organization'] },
+                    'Hostname': { operator: 'hostname:', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain'] },
+                    'Device': { operator: 'device:', placeholder: 'router', category: 'Technical', appliesTo: ['iot', 'network'] },
+                    'Operating System': { operator: 'os:', placeholder: 'Linux', category: 'Technical', appliesTo: ['software'] },
+                    'App': { operator: 'app:', placeholder: 'nginx', description: 'Search for web application name.', category: 'Technical', appliesTo: ['webapp', 'software'] },
+                    'Vulnerability': { operator: 'vulnerability:', placeholder: 'CVE-2021-1234', description: 'Search for known vulnerabilities.', category: 'Technical', appliesTo: ['cve'] }
                 }
             },
             fofa: {
                 name: 'FOFA',
                 url: 'https://fofa.so/result?qbase64=',
                 operators: {
-                    'Port': { operator: 'port=', placeholder: '80', category: 'Technical' },
-                    'Protocol': { operator: 'protocol=', placeholder: 'http', category: 'Technical' },
-                    'Country': { operator: 'country=', placeholder: 'US', category: 'Location & Organization' },
-                    'Region': { operator: 'region=', placeholder: 'California', category: 'Location & Organization' },
-                    'City': { operator: 'city=', placeholder: 'San Francisco', category: 'Location & Organization' },
-                    'Organization': { operator: 'org=', placeholder: 'Google', category: 'Location & Organization' },
-                    'Domain': { operator: 'domain=', placeholder: 'example.com', category: 'Domain & Host' },
-                    'Host': { operator: 'host=', placeholder: 'example.com', category: 'Domain & Host' },
-                    'Title': { operator: 'title=', placeholder: 'Admin Panel', category: 'Content Search' },
-                    'Body': { operator: 'body=', placeholder: 'login', category: 'Content Search' },
-                    'Header': { operator: 'header=', placeholder: 'Server', description: 'Search for text in HTTP headers.', category: 'Content Search' },
-                    'Cert': { operator: 'cert=', placeholder: 'Google', description: 'Search for SSL certificate issuer.', category: 'SSL/TLS' }
+                    'Port': { operator: 'port=', placeholder: '80', category: 'Technical', appliesTo: ['ip', 'network'] },
+                    'Protocol': { operator: 'protocol=', placeholder: 'http', category: 'Technical', appliesTo: ['ip', 'network'] },
+                    'Country': { operator: 'country=', placeholder: 'US', category: 'Location & Organization', appliesTo: ['location'] },
+                    'Region': { operator: 'region=', placeholder: 'California', category: 'Location & Organization', appliesTo: ['location'] },
+                    'City': { operator: 'city=', placeholder: 'San Francisco', category: 'Location & Organization', appliesTo: ['location'] },
+                    'Organization': { operator: 'org=', placeholder: 'Google', category: 'Location & Organization', appliesTo: ['organization'] },
+                    'Domain': { operator: 'domain=', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain'] },
+                    'Host': { operator: 'host=', placeholder: 'example.com', category: 'Domain & Host', appliesTo: ['domain', 'ip'] }, // FOFA host can be IP or domain
+                    'Title': { operator: 'title=', placeholder: 'Admin Panel', category: 'Content Search', appliesTo: ['webapp', 'general'] },
+                    'Body': { operator: 'body=', placeholder: 'login', category: 'Content Search', appliesTo: ['credential', 'general'] },
+                    'Header': { operator: 'header=', placeholder: 'Server', description: 'Search for text in HTTP headers.', category: 'Content Search', appliesTo: ['general'] },
+                    'Cert': { operator: 'cert=', placeholder: 'Google', description: 'Search for SSL certificate issuer.', category: 'SSL/TLS', appliesTo: ['domain', 'url'] }
                 }
             },
             github: {
                 name: 'GitHub',
                 url: 'https://github.com/search?q=',
                 operators: {
-                    'In File': { operator: 'in:file', placeholder: 'password', category: 'Code & Files' },
-                    'In Path': { operator: 'in:path', placeholder: 'config', category: 'Code & Files' },
-                    'Filename': { operator: 'filename:', placeholder: '.env', category: 'Code & Files' },
-                    'Extension': { operator: 'extension:', placeholder: 'sql', category: 'Code & Files' },
-                    'Language': { operator: 'language:', placeholder: 'python', category: 'Code & Files' },
-                    'User': { operator: 'user:', placeholder: 'username', category: 'Other Specific' },
-                    'Organization': { operator: 'org:', placeholder: 'organization', category: 'Other Specific' },
-                    'Repository': { operator: 'repo:', placeholder: 'user/repo', category: 'Domain & Host' },
-                    'Size': { operator: 'size:', placeholder: '>1000', category: 'Other Specific' },
-                    'Created': { operator: 'created:', placeholder: '2023-01-01', category: 'Time & Date' },
-                    'Pushed': { operator: 'pushed:', placeholder: '>2023-01-01', description: 'Last push date.', category: 'Time & Date' },
-                    'Stars': { operator: 'stars:', placeholder: '>100', description: 'Number of stars.', category: 'Other Specific' },
-                    'Forks': { operator: 'forks:', placeholder: '>10', description: 'Number of forks.', category: 'Other Specific' }
+                    'In File': { operator: 'in:file', placeholder: 'password', category: 'Code & Files', appliesTo: ['file', 'credential', 'general'] },
+                    'In Path': { operator: 'in:path', placeholder: 'config', category: 'Code & Files', appliesTo: ['file'] },
+                    'Filename': { operator: 'filename:', placeholder: '.env', category: 'Code & Files', appliesTo: ['file'] },
+                    'Extension': { operator: 'extension:', placeholder: 'sql', category: 'Code & Files', appliesTo: ['file'] },
+                    'Language': { operator: 'language:', placeholder: 'python', category: 'Code & Files', appliesTo: ['software'] },
+                    'User': { operator: 'user:', placeholder: 'username', category: 'Other Specific', appliesTo: ['person', 'social'] },
+                    'Organization': { operator: 'org:', placeholder: 'organization', category: 'Other Specific', appliesTo: ['organization'] },
+                    'Repository': { operator: 'repo:', placeholder: 'user/repo', category: 'Domain & Host', appliesTo: ['domain'] },
+                    'Size': { operator: 'size:', placeholder: '>1000', category: 'Other Specific', appliesTo: ['file'] },
+                    'Created': { operator: 'created:', placeholder: '2023-01-01', category: 'Time & Date', appliesTo: ['general'] },
+                    'Pushed': { operator: 'pushed:', placeholder: '>2023-01-01', description: 'Last push date.', category: 'Time & Date', appliesTo: ['general'] },
+                    'Stars': { operator: 'stars:', placeholder: '>100', description: 'Number of stars.', category: 'Other Specific', appliesTo: ['general'] },
+                    'Forks': { operator: 'forks:', placeholder: '>10', description: 'Number of forks.', category: 'Other Specific', appliesTo: ['general'] }
                 }
             },
             pastebin: {
                 name: 'Pastebin',
                 url: 'https://www.google.com/search?q=site:pastebin.com+', // Uses Google site search
                 operators: {
-                    'Keyword': { operator: '', placeholder: 'email@domain.com', description: 'General keyword search for sensitive data.', category: 'Basic Search' },
-                    'Password': { operator: '', placeholder: 'password', category: 'Basic Search' }, // Example for specific keywords
-                    'API Key': { operator: '', placeholder: 'api_key', category: 'Basic Search' },
-                    'Database': { operator: '', placeholder: 'database dump', category: 'Basic Search' },
-                    'Configuration': { operator: '', placeholder: 'config.php', category: 'Basic Search' },
-                    'Type': { operator: 'type:', placeholder: 'php', description: 'Paste type (e.g., php, sql).', category: 'Code & Files' }
+                    'Keyword': { operator: '', placeholder: 'email@domain.com', description: 'General keyword search for sensitive data.', category: 'Basic Search', appliesTo: ['general', 'credential', 'email', 'person'] },
+                    'Password': { operator: '', placeholder: 'password', category: 'Basic Search', appliesTo: ['credential'] }, // Example for specific keywords
+                    'API Key': { operator: '', placeholder: 'api_key', category: 'Basic Search', appliesTo: ['credential'] },
+                    'Database': { operator: '', placeholder: 'database dump', category: 'Basic Search', appliesTo: ['file', 'general'] },
+                    'Configuration': { operator: '', placeholder: 'config.php', category: 'Basic Search', appliesTo: ['file', 'general'] },
+                    'Type': { operator: 'type:', placeholder: 'php', description: 'Paste type (e.g., php, sql).', category: 'Code & Files', appliesTo: ['file'] }
                 }
             },
             binaryedge: {
                 name: 'BinaryEdge',
                 url: 'https://app.binaryedge.io/services/search?q=',
                 operators: {
-                    'Port': { operator: 'port:', placeholder: '80', category: 'Technical' },
-                    'Service': { operator: 'service:', placeholder: 'http', category: 'Technical' },
-                    'Country': { operator: 'country:', placeholder: 'US', category: 'Location & Organization' },
-                    'ASN': { operator: 'asn:', placeholder: 'AS15169', description: 'Autonomous System Number.', category: 'Location & Organization' },
-                    'Tag': { operator: 'tag:', placeholder: 'iot', description: 'Service tags.', category: 'Technical' },
-                    'IP': { operator: 'ip:', placeholder: '1.1.1.1', description: 'Specific IP address.', category: 'Location & Organization' },
-                    'Vulnerability': { operator: 'vulnerability:', placeholder: 'CVE-2022-1234', description: 'Known vulnerabilities.', category: 'Technical' },
-                    'Component': { operator: 'component.name:', placeholder: 'nginx', description: 'Software component name.', category: 'Technical' },
-                    'Header': { operator: 'http.headers:', placeholder: 'Server: Apache', description: 'HTTP headers.', category: 'Content Search' },
-                    'Title': { operator: 'http.title:', placeholder: 'Dashboard', description: 'HTTP title.', category: 'Content Search' }
+                    'Port': { operator: 'port:', placeholder: '80', category: 'Technical', appliesTo: ['ip', 'network'] },
+                    'Service': { operator: 'service:', placeholder: 'http', category: 'Technical', appliesTo: ['webapp', 'software'] },
+                    'Country': { operator: 'country:', placeholder: 'US', category: 'Location & Organization', appliesTo: ['location'] },
+                    'ASN': { operator: 'asn:', placeholder: 'AS15169', description: 'Autonomous System Number.', category: 'Location & Organization', appliesTo: ['organization', 'ip'] },
+                    'Tag': { operator: 'tag:', placeholder: 'iot', description: 'Service tags.', category: 'Technical', appliesTo: ['iot', 'software'] },
+                    'IP': { operator: 'ip:', placeholder: '1.1.1.1', description: 'Specific IP address.', category: 'Location & Organization', appliesTo: ['ip'] },
+                    'Vulnerability': { operator: 'vulnerability:', placeholder: 'CVE-2022-1234', description: 'Known vulnerabilities.', category: 'Technical', appliesTo: ['cve'] },
+                    'Component': { operator: 'component.name:', placeholder: 'nginx', description: 'Software component name.', category: 'Technical', appliesTo: ['webapp', 'software'] },
+                    'Header': { operator: 'http.headers:', placeholder: 'Server: Apache', description: 'HTTP headers.', category: 'Content Search', appliesTo: ['general'] },
+                    'Title': { operator: 'http.title:', placeholder: 'Dashboard', description: 'HTTP title.', category: 'Content Search', appliesTo: ['webapp', 'general'] }
                 }
             },
             intelx: {
                 name: 'IntelX',
                 url: 'https://public.intelx.io/search?s=',
                 operators: {
-                    'Term': { operator: '', placeholder: 'email@example.com', description: 'General search term.', category: 'Basic Search' },
-                    'Type': { operator: 'type:', placeholder: '2', description: 'Data type (e.g., 0=select all, 1=emails, 2=phones).', category: 'Technical' },
-                    'Date From': { operator: 'datefrom:', placeholder: '2023-01-01', description: 'Start date for results.', category: 'Time & Date' },
-                    'Date To': { operator: 'dateto:', placeholder: '2023-12-31', description: 'End date for results.', category: 'Time & Date' },
-                    'Max Results': { operator: 'maxresults:', placeholder: '100', description: 'Maximum number of results.', category: 'Other Specific' },
-                    'Sort': { operator: 'sort:', placeholder: '0', description: 'Sort order (0=relevance, 1=date desc).', category: 'Other Specific' },
-                    'Selector': { operator: 'selector:', placeholder: 'email', description: 'Search for specific selectors (e.g., email, phone, BTC).', category: 'Technical' },
-                    'Hostname': { operator: 'host:', placeholder: 'example.com', description: 'Search for hostnames.', category: 'Domain & Host' }
+                    'Term': { operator: '', placeholder: 'email@example.com', description: 'General search term.', category: 'Basic Search', appliesTo: ['general', 'email', 'credential', 'person', 'organization'] },
+                    'Type': { operator: 'type:', placeholder: '2', description: 'Data type (e.g., 0=select all, 1=emails, 2=phones).', category: 'Technical', appliesTo: ['email', 'phone'] }, // 'phone' is an example custom type
+                    'Date From': { operator: 'datefrom:', placeholder: '2023-01-01', description: 'Start date for results.', category: 'Time & Date', appliesTo: ['general'] },
+                    'Date To': { operator: 'dateto:', placeholder: '2023-12-31', description: 'End date for results.', category: 'Time & Date', appliesTo: ['general'] },
+                    'Max Results': { operator: 'maxresults:', placeholder: '100', description: 'Maximum number of results.', category: 'Other Specific', appliesTo: ['general'] },
+                    'Sort': { operator: 'sort:', placeholder: '0', description: 'Sort order (0=relevance, 1=date desc).', category: 'Other Specific', appliesTo: ['general'] },
+                    'Selector': { operator: 'selector:', placeholder: 'email', description: 'Search for specific selectors (e.g., email, phone, BTC).', category: 'Technical', appliesTo: ['email', 'blockchain'] },
+                    'Hostname': { operator: 'host:', placeholder: 'example.com', description: 'Search for hostnames.', category: 'Domain & Host', appliesTo: ['domain'] }
                 }
             }
         };
@@ -187,6 +212,7 @@ class DorkAssistant {
         this.renderSavedQueries();
         this.renderTemplateCategories(); // Call this here to initially render categories
         this.renderAuditLog(); // Render audit log on initialization
+        this._renderSampleDorkSuggestions('', ''); // Initialize with empty state
     }
 
     // Initialize default templates
@@ -314,7 +340,7 @@ class DorkAssistant {
                     id: 14,
                     name: 'SQL Injection Vulnerabilities (Generic)',
                     description: 'Attempt to identify potential SQL injection points by searching for common error messages.',
-                    query: 'intext:"SQL syntax" OR intext:"mysql_fetch_array()" OR intext:"Warning: mysql_num_rows()"',
+                    query: 'intext:"SQL syntax" OR intext:"mysql_fetch_array()" OR intext:\"Warning: mysql_num_rows()\"',
                     category: 'vulnerabilities',
                     engines: ['google', 'bing'],
                     tags: ['sql injection', 'vulnerability', 'web security', 'error message']
@@ -579,6 +605,249 @@ class DorkAssistant {
                     category: 'network',
                     engines: ['shodan', 'censys', 'zoomeye'],
                     tags: ['cisco', 'network', 'device', 'router']
+                },
+                {
+                    id: 44,
+                    name: "Wayback Machine - All Snapshots for Domain",
+                    description: "Find all historical snapshots of a given domain using Wayback Machine via Google.",
+                    query: "site:web.archive.org/web/* {{DOMAIN_NAME}}",
+                    category: "osint",
+                    engines: ["google"],
+                    tags: ["wayback machine", "archive", "domain", "osint", "historical data"]
+                },
+                {
+                    id: 45,
+                    name: "Wayback Machine - Specific File Type on Domain",
+                    description: "Search for specific file types (e.g., PDF, DOCX) on a domain's historical snapshots.",
+                    query: "site:web.archive.org/web/* {{DOMAIN_NAME}} filetype:{{FILE_TYPE}}",
+                    category: "files",
+                    engines: ["google"],
+                    tags: ["wayback machine", "archive", "file type", "osint", "historical data"]
+                },
+                {
+                    id: 46,
+                    name: "GitHub - Private Key Exposure",
+                    description: "Identify repositories containing common private key extensions that might be exposed.",
+                    query: "extension:pem OR extension:key OR extension:ppk OR extension:p12 OR filename:id_rsa",
+                    category: "code & files",
+                    engines: ["github"],
+                    tags: ["github", "private key", "credentials", "exposed", "leak", "source code"]
+                },
+                {
+                    id: 47,
+                    name: "GitHub - API Key Exposure (Generic)",
+                    description: "Search for generic API key patterns in GitHub repositories.",
+                    query: "github_token OR api_key OR authorization_key OR client_secret OR consumer_key",
+                    category: "code & files",
+                    engines: ["github"],
+                    tags: ["github", "api key", "token", "credentials", "exposed", "leak"]
+                },
+                {
+                    id: 48,
+                    name: "GitHub - SQL Dump/Database Files",
+                    description: "Find SQL database dumps or backup files exposed on GitHub.",
+                    query: "filename:dump.sql OR extension:sql in:file database password",
+                    category: "databases",
+                    engines: ["github"],
+                    tags: ["github", "sql", "database", "dump", "exposed", "leak"]
+                },
+                {
+                    id: 49,
+                    name: "GitHub - History of Deleted Files",
+                    description: "Leverage GitHub's history to find content from deleted files (requires manual investigation of results).",
+                    query: "in:history \"deleted file\" OR \"removed credentials\" OR \"secret\"",
+                    category: "code & files",
+                    engines: ["github"],
+                    tags: ["github", "history", "deleted files", "leak", "version control"]
+                },
+                {
+                    id: 50,
+                    name: "Wayback Machine - Sensitive Keywords",
+                    description: "Search Wayback Machine archives for specific sensitive keywords on a domain.",
+                    query: "site:web.archive.org/web/* {{DOMAIN_NAME}} (password OR confidential OR secret OR private)",
+                    category: "data leaks",
+                    engines: ["google"],
+                    tags: ["wayback machine", "sensitive data", "keywords", "osint", "data leak"]
+                },
+                {
+                    id: 51,
+                    name: "Publicly Exposed .git Folder",
+                    description: "Find web servers with exposed .git folders containing repository information.",
+                    query: "inurl:.git/HEAD OR inurl:.git/config",
+                    category: "files",
+                    engines: ["google", "bing"],
+                    tags: ["git", "exposed", "repository", "misconfiguration"]
+                },
+                {
+                    id: 52,
+                    name: "Open Redirect Vulnerabilities",
+                    description: "Discover potential open redirect vulnerabilities on websites.",
+                    query: "inurl:redirect= OR inurl:url= OR inurl:next= site:{{TARGET_SITE}}",
+                    category: "vulnerabilities",
+                    engines: ["google", "bing"],
+                    tags: ["vulnerability", "open redirect", "web security"]
+                },
+                {
+                    id: 53,
+                    name: "Cross-Site Scripting (XSS) - Reflected",
+                    description: "Search for common reflected XSS patterns in URLs.",
+                    query: "inurl:\"<script>alert\" OR inurl:\"javascript:alert\" site:{{TARGET_SITE}}",
+                    category: "vulnerabilities",
+                    engines: ["google", "bing"],
+                    tags: ["xss", "vulnerability", "web security", "injection"]
+                },
+                {
+                    id: 54,
+                    name: "Exposed Nginx Configuration Files",
+                    description: "Locate publicly accessible Nginx configuration files that might reveal server details.",
+                    query: "filetype:conf intext:nginx version",
+                    category: "files",
+                    engines: ["google", "bing"],
+                    tags: ["nginx", "config", "exposed", "server"]
+                },
+                {
+                    id: 55,
+                    name: "Open Proxy Servers",
+                    description: "Identify potentially open proxy servers.",
+                    query: "intitle:\"Proxy Server\" inurl:proxy.php OR intext:\"Powered by Squid\"",
+                    category: "network",
+                    engines: ["google", "bing"],
+                    tags: ["proxy", "open proxy", "network"]
+                },
+                {
+                    id: 56,
+                    name: "OSINT - Social Media Profiles by Name",
+                    description: "Find public social media profiles (Twitter, LinkedIn, Facebook, Instagram) for a given name.",
+                    query: "\"{{FULL_NAME}}\" site:twitter.com OR site:linkedin.com OR site:facebook.com OR site:instagram.com",
+                    category: "osint",
+                    engines: ["google", "bing"],
+                    tags: ["osint", "social media", "person", "reconnaissance"]
+                },
+                {
+                    id: 57,
+                    name: "OSINT - Company Documents/Presentations",
+                    description: "Locate public documents or presentations from a specific company, often containing internal data.",
+                    query: "site:{{COMPANY_DOMAIN}} filetype:ppt OR filetype:pptx OR filetype:pdf OR filetype:doc OR filetype:docx (confidential OR internal OR proprietary)",
+                    category: "osint",
+                    engines: ["google", "bing"],
+                    tags: ["osint", "company", "documents", "data leak", "corporate intelligence"]
+                },
+                {
+                    id: 58,
+                    name: "OSINT - Email Lists/Spreadsheets",
+                    description: "Find spreadsheets or documents containing lists of email addresses.",
+                    query: "filetype:xls OR filetype:xlsx OR filetype:csv intext:@{{DOMAIN_NAME}}",
+                    category: "osint",
+                    engines: ["google", "bing"],
+                    tags: ["osint", "email", "list", "spreadsheet", "data leak"]
+                },
+                {
+                    id: 59,
+                    name: "OSINT - Forum/Blog Mentions of Entity",
+                    description: "Search for mentions of a specific entity (person, company, product) across forums and blogs.",
+                    query: "intext:\"{{ENTITY_NAME}}\" (inurl:forum OR inurl:blog OR inurl:comment)",
+                    category: "osint",
+                    engines: ["google", "bing"],
+                    tags: ["osint", "reputation", "mentions", "forum", "blog"]
+                },
+                {
+                    id: 60,
+                    name: "GitHub - Exposed SSH Keys",
+                    description: "Find public GitHub repositories containing .ssh directories or common SSH key names.",
+                    query: "inpath:.ssh id_rsa OR id_dsa OR known_hosts",
+                    category: "code & files",
+                    engines: ["github"],
+                    tags: ["github", "ssh key", "credentials", "exposed", "leak", "source code"]
+                },
+                {
+                    id: 61,
+                    name: "GitHub - AWS Credentials Exposure",
+                    description: "Search for common AWS credential patterns in GitHub repositories.",
+                    query: "aws_access_key_id OR aws_secret_access_key OR \"AKIA\" OR \"ASIA\"",
+                    category: "cloud",
+                    engines: ["github"],
+                    tags: ["github", "aws", "credentials", "exposed", "cloud", "leak"]
+                },
+                {
+                    id: 62,
+                    name: "GitHub - Google API Key Exposure",
+                    description: "Find Google API keys in public GitHub repositories.",
+                    query: "AIza{{GOOGLE_API_KEY_PATTERN}}",
+                    category: "cloud",
+                    engines: ["github"],
+                    tags: ["github", "google api", "api key", "credentials", "exposed", "cloud"]
+                },
+                {
+                    id: 63,
+                    name: "Wayback Machine - Domain Whois History",
+                    description: "Look for historical WHOIS records via Wayback Machine (may require external WHOIS tools, but directs to archive).",
+                    query: "site:whois.domaintools.com/{{DOMAIN_NAME}} OR site:who.is/whois/{{DOMAIN_NAME}}",
+                    category: "osint",
+                    engines: ["google"],
+                    tags: ["wayback machine", "whois", "domain", "osint", "historical data"]
+                },
+                {
+                    id: 64,
+                    name: "Wayback Machine - CMS Login Pages",
+                    description: "Find historical login pages for common CMS (e.g., WordPress, Joomla, Drupal) on a specific domain.",
+                    query: "site:web.archive.org/web/* {{DOMAIN_NAME}} (inurl:wp-admin OR inurl:administrator OR inurl:user/login)",
+                    category: "login",
+                    engines: ["google"],
+                    tags: ["wayback machine", "cms", "login", "vulnerability", "historical data"]
+                },
+                {
+                    id: 65,
+                    name: "Wayback Machine - Old API Endpoints",
+                    description: "Discover old or deprecated API endpoints in historical snapshots that might be vulnerable.",
+                    query: "site:web.archive.org/web/* {{DOMAIN_NAME}} inurl:api/v1 OR inurl:oldapi OR intext:\"deprecated endpoint\"",
+                    category: "vulnerabilities",
+                    engines: ["google"],
+                    tags: ["wayback machine", "api", "vulnerability", "historical data"]
+                },
+                {
+                    id: 66,
+                    name: "OSINT - Exposed Employee Resumes/CVs",
+                    description: "Search for public resumes or CVs associated with a company or domain, potentially revealing sensitive information.",
+                    query: "site:{{COMPANY_DOMAIN}} filetype:pdf (resume OR CV OR curriculum vitae) OR intext:\"looking for a new opportunity\" intext:{{COMPANY_NAME}}",
+                    category: "osint",
+                    engines: ["google", "bing"],
+                    tags: ["osint", "employee", "resume", "cv", "personal data", "reconnaissance"]
+                },
+                {
+                    id: 67,
+                    name: "OSINT - Exposed Google Groups/Forums",
+                    description: "Find publicly accessible Google Groups or other forum discussions related to a target.",
+                    query: "site:groups.google.com intext:{{TARGET_KEYWORD}} (confidential OR internal OR restricted)",
+                    category: "osint",
+                    engines: ["google"],
+                    tags: ["osint", "forum", "google groups", "discussion", "data leak"]
+                },
+                {
+                    id: 68,
+                    name: "GitHub - Exposed Database Connection Strings",
+                    description: "Search for common database connection string patterns in public GitHub repositories.",
+                    query: "jdbc:mysql:// OR postgresql:// OR mongodb:// OR sqlserver:// in:file password",
+                    category: "databases",
+                    engines: ["github"],
+                    tags: ["github", "database", "connection string", "credentials", "exposed", "leak"]
+                },
+                {
+                    id: 69,
+                    name: "GitHub - Generic Sensitive Information (Broad)",
+                    description: "A broad search for commonly exposed sensitive terms in GitHub repositories.",
+                    query: "password OR credentials OR secret OR token OR api_key OR private_key OR id_rsa OR .env",
+                    category: "code & files",
+                    engines: ["github"],
+                    tags: ["github", "sensitive data", "credentials", "leak", "broad scan"]
+                },
+                {
+                    id: 70,
+                    name: "Wayback Machine - Exposed Directories/Indexes",
+                    description: "Discover historical snapshots of exposed directories or file indexes.",
+                    query: "site:web.archive.org/web/* {{DOMAIN_NAME}} intitle:\"index of\" OR intitle:\"directory listing for\"",
+                    category: "files",
+                    engines: ["google"],
+                    tags: ["wayback machine", "directory listing", "exposed", "files", "historical data"]
                 }
             ];
             this.saveTemplates();
@@ -609,6 +878,9 @@ class DorkAssistant {
             this.renderSavedQueries();
         } else if (tabName === 'audit-log') {
             this.renderAuditLog();
+        } else if (tabName === 'raw-data-analyzer') { // NEW
+            this.analyzeRawData(); // Re-run analysis if there's data
+            this.updateSelectedEntityDisplay(); // Refresh selected entity display
         }
     }
 
@@ -685,6 +957,8 @@ class DorkAssistant {
 
     // Build query from form inputs
     buildQuery() {
+        // No longer using targetInput directly in buildQuery.
+        // It's handled by _useSuggestedSampleDork or just exists for category detection.
         const basicTerms = document.getElementById('basic-terms').value.trim();
         const operatorInputs = document.querySelectorAll('.operator-field input');
 
@@ -701,8 +975,6 @@ class DorkAssistant {
             if (value) {
                 const operator = input.dataset.operator;
                 const suffix = input.dataset.suffix || '';
-                // Handle special cases for operators that don't need a value if already defined by placeholder
-                // For now, assume all operators need a value for consistency
                 queryParts.push(`${operator}${value}${suffix}`);
             }
         });
@@ -716,12 +988,15 @@ class DorkAssistant {
 
     // Clear all inputs in the query builder
     clearQuery() {
+        document.getElementById('target-input').value = '';
         document.getElementById('basic-terms').value = '';
         document.querySelectorAll('.operator-field input').forEach(input => {
             input.value = '';
         });
         document.getElementById('generated-query').value = '';
+        document.getElementById('target-profile-category').value = ''; // Reset to "Auto-Detect"
         this.updateConversions(''); // Clear conversions as well
+        this._renderSampleDorkSuggestions('', ''); // Clear sample dorks
         this.showNotification('Query builder cleared!', 'info');
     }
 
@@ -1103,6 +1378,7 @@ class DorkAssistant {
             case 'crypto': return 'fas fa-bitcoin';
             case 'dark-web': return 'fas fa-moon';
             case 'remote-access': return 'fas fa-desktop';
+            case 'code & files': return 'fas fa-code'; // For GitHub section
             default: return 'fas fa-folder';
         }
     }
@@ -1260,7 +1536,7 @@ class DorkAssistant {
         engineCheckboxesDiv.innerHTML = '';
         Object.entries(this.searchEngines).forEach(([key, engine]) => {
             // Skip Pastebin if it uses Google site search as its primary function
-            // if (key === 'pastebin') return; 
+            // if (key === 'pastebin') return;
             engineCheckboxesDiv.innerHTML += `
                 <label><input type="checkbox" value="${key}"> ${engine.name}</label>
             `;
@@ -1335,7 +1611,7 @@ class DorkAssistant {
         editCompatibleEnginesDiv.innerHTML = ''; // Clear previous checkboxes
         Object.entries(this.searchEngines).forEach(([key, engine]) => {
             // Skip Pastebin if it uses Google site search as its primary function
-            // if (key === 'pastebin') return; 
+            // if (key === 'pastebin') return;
             const isChecked = template.engines.includes(key) ? 'checked' : '';
             editCompatibleEnginesDiv.innerHTML += `
                 <label><input type="checkbox" value="${key}" ${isChecked}> ${engine.name}</label>
@@ -1371,7 +1647,7 @@ class DorkAssistant {
     // NEW: Execute Previewed Query in Edit Template Modal
     executeEditPreview() {
         const previewQuery = document.getElementById('editLivePreview').textContent; // Use textContent to get raw query
-        
+
         // Find the current engine (assuming it's the one selected in the main Dork Assistant, or default to Google if not set)
         const currentEngineSelect = document.getElementById('search-engine');
         const currentEngineKey = currentEngineSelect ? currentEngineSelect.value : 'google';
@@ -1546,12 +1822,33 @@ class DorkAssistant {
 
     // Helper to parse and populate the query builder form from a loaded query string
     populateQueryBuilderFromLoadedQuery(queryString, engineKey) {
-        const engineOperators = this.searchEngines[engineKey].operators;
+        // Clear all relevant inputs first
+        this.clearQuery(); // This clears everything. We'll repopulate smart.
+
+        const targetInputElem = document.getElementById('target-input');
+        const basicTermsElem = document.getElementById('basic-terms');
+        const operatorInputs = document.querySelectorAll('.operator-field input');
+
         let remainingQuery = queryString;
 
-        // Clear existing inputs
-        document.getElementById('basic-terms').value = '';
-        document.querySelectorAll('.operator-field input').forEach(input => input.value = '');
+        // Step 1: Try to extract a primary target from the beginning of the query string
+        // Heuristic: Check if the first 'word' (or quoted phrase) looks like a common target type
+        const firstTermMatch = remainingQuery.match(/^(?:[^\s"]+|"[^"]*")(?:\s|$)/);
+        let potentialTargetValue = firstTermMatch ? firstTermMatch[0].trim().replace(/"/g, '') : '';
+        let detectedTargetCategory = this._detectCategoryFromValue(potentialTargetValue);
+
+        if (potentialTargetValue && detectedTargetCategory !== 'general' && detectedTargetCategory !== '') {
+            targetInputElem.value = potentialTargetValue;
+            document.getElementById('target-profile-category').value = detectedTargetCategory;
+            remainingQuery = remainingQuery.substring(potentialTargetValue.length).trim();
+        } else {
+            // If no clear target, the entire string initially goes to basic terms for parsing operators
+            basicTermsElem.value = queryString;
+            remainingQuery = queryString; // Reset remainingQuery for operator parsing
+        }
+
+        // Step 2: Populate operators and remaining basic terms
+        const engineOperators = this.searchEngines[engineKey].operators;
 
         // Sort operators by length of operator string (descending) to match longer operators first
         const sortedOperators = Object.values(engineOperators).sort((a, b) => (b.operator || '').length - (a.operator || '').length);
@@ -1560,14 +1857,10 @@ class DorkAssistant {
             const op = operatorConfig.operator;
             const suffix = operatorConfig.suffix || '';
 
-            if (!op && operatorConfig.placeholder) { // Handle generic keywords like in Pastebin/IntelX
-                // This is a heuristic for general terms in engines like pastebin/intelx that don't use prefixes
-                // If the placeholder is found directly in the query, assume it's a "basic term"
-                // For now, prioritize explicit operators.
-                return;
+            if (!op && operatorConfig.placeholder) {
+                return; // Skip generic placeholders without an operator prefix
             }
 
-            // Escape special regex characters in the operator and suffix
             const escapedOp = op ? op.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
             const escapedSuffix = suffix ? suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
 
@@ -1580,18 +1873,16 @@ class DorkAssistant {
                 }
             } else if (op) { // Standard operators like site: example.com or intitle:"some title"
                 regex = new RegExp(`${escapedOp}(?:([^\\s"']+|"[^"]+"|'[^']+')\\s*)?`, 'g'); // Optional value, consumes trailing space
-            } else { // Handle empty operator for general terms, should be part of basic-terms
-                return;
+            } else {
+                return; // Skip if no operator defined
             }
 
             const matches = [...remainingQuery.matchAll(regex)];
 
-            // Process matches from right to left to avoid issues with overlapping matches
             for (let i = matches.length - 1; i >= 0; i--) {
                 const match = matches[i];
-                let value = match[1] || ''; // Value is typically the first capturing group
+                let value = match[1] || '';
 
-                // Remove quotes from captured value
                 if (value.startsWith('"') && value.endsWith('"')) {
                     value = value.slice(1, -1);
                 }
@@ -1605,7 +1896,6 @@ class DorkAssistant {
 
                 if (inputElement && value) {
                     inputElement.value = value;
-                    // Remove the matched part from the remaining query string
                     remainingQuery = remainingQuery.substring(0, match.index) +
                                      remainingQuery.substring(match.index + match[0].length);
                 } else if (inputElement && !value && op && op.endsWith(':')) {
@@ -1617,9 +1907,19 @@ class DorkAssistant {
             }
         });
 
-        // The remaining part of the query is considered basic terms
-        document.getElementById('basic-terms').value = remainingQuery.trim();
-        this.buildQuery(); // Rebuild the query after populating
+        // The remaining part of the query is considered basic terms (after removing operators and initial target)
+        // Only update basic terms if it wasn't already explicitly set by target detection
+        if (basicTermsElem.value === queryString || !basicTermsElem.value) { // If basicTerms still holds original string or is empty
+            basicTermsElem.value = remainingQuery.trim();
+        } else {
+            // If basic terms already had content from target detection, append remaining
+            if (remainingQuery.trim() && !basicTermsElem.value.includes(remainingQuery.trim())) {
+                basicTermsElem.value = `${basicTermsElem.value} ${remainingQuery.trim()}`;
+            }
+        }
+
+
+        this.buildQuery(); // Rebuild the full query string displayed in the output
     }
 
 
@@ -1710,7 +2010,7 @@ class DorkAssistant {
             this.logAudit('DELETE_SAVED_QUERY', { name: deletedQuery.name, query: deletedQuery.query });
         } else if (this.itemTypeToDelete === 'auditLog') {
             this.clearAuditLog();
-            this.showNotification('Audit log cleared successfully!', 'success');
+            this.showNotification('Audit log cleared!', 'success');
         }
         this.closeDeleteConfirmModal();
     }
@@ -1859,6 +2159,775 @@ class DorkAssistant {
             case 'info': return 'fa-info-circle';
             default: return 'fa-bell';
         }
+    }
+
+    // =======================================================
+    // NEW FEATURES IMPLEMENTATION START HERE
+    // =======================================================
+
+    // 1. Intelligent Category Detection & Sample Dork Suggestions (Query Builder)
+    detectCategory() {
+        const targetInput = document.getElementById('target-input').value.trim();
+        const categorySelect = document.getElementById('target-profile-category');
+
+        let detectedCategory = this._detectCategoryFromValue(targetInput);
+
+        // Update the dropdown only if a non-empty category is detected, otherwise keep "Auto-Detect"
+        categorySelect.value = detectedCategory || '';
+
+        // Render sample dorks based on the detected category
+        this._renderSampleDorkSuggestions(targetInput, detectedCategory);
+        this.buildQuery(); // Rebuild query to reflect any changes from targetInput
+    }
+
+    _detectCategoryFromValue(value) {
+        if (!value) return '';
+
+        // Prioritize more specific regex
+        // IP Address
+        if (value.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}(?::\d+)?$/)) {
+            return 'ip';
+        }
+        // CVE
+        if (value.match(/CVE-\d{4}-\d{4,7}/i)) {
+            return 'cve';
+        }
+        // Email
+        if (value.match(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)) {
+            return 'email';
+        }
+        // Credential/Secret (more generic patterns for API keys, passwords, sensitive terms)
+        if (value.match(/(AKIA|ASIA|AGIA|AIDA)[0-9A-Z]{16}/) ||
+            value.match(/(password|secret|api_key|token|client_secret|db_pass|s3_key|ssh_key|ftp_pass|admin_pass)/i) ||
+            value.match(/(\b(?:pk|sk|access|secret|auth|token)[_.-]?[kK]ey\b)/i) ) {
+            return 'credential';
+        }
+        // URL
+        if (value.match(/^https?:\/\/[^\s/$.?#].[^\s]*$/i) || value.match(/^www\.[^\s/$.?#].[^\s]*$/i)) {
+            return 'url';
+        }
+        // Domain (basic check, often follows URL detection)
+        if (value.match(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:[:/].*)?$/) && !value.includes(' ') && !value.includes('/') && !value.includes('@')) {
+            return 'domain';
+        }
+        // File Path/Extension (includes common sensitive file names)
+        if (value.match(/\.(sql|env|conf|log|bak|zip|rar|7z|tgz|tar|gz|txt|json|xml|csv|yml|yaml|ini|php|js|css|py|rb|go|java|c|cpp|h|hpp|md|pdf|doc|docx|xls|xlsx)$/i) ||
+            value.match(/(\/(etc|var|home|root|admin|config|logs|backup|data)\/)/i) ||
+            value.match(/(\.env|\.git\/config|\.hg\/hgrc|wp-config\.php|web\.config|database\.yml|config\.inc\.php)/i)) {
+            return 'file';
+        }
+        // Social Media platform
+        if (value.match(/(twitter|linkedin|facebook|instagram|github|trello)\.com/i)) {
+            return 'social';
+        }
+        // Web Application/Software
+        if (value.match(/(apache|nginx|wordpress|joomla|drupal|jenkins|jira|confluence|gitlab|microsoft exchange|elastic|docker)/i)) {
+            return 'webapp';
+        }
+        // Network Device
+        if (value.match(/(cisco|juniper|huawei|router|switch|firewall|modem)/i)) {
+            return 'network';
+        }
+        // IoT Device
+        if (value.match(/(iot|camera|webcam|sensor|smart home|thermostat|d-link|hikvision)/i)) {
+            return 'iot';
+        }
+        // Blockchain/Crypto
+        if (value.match(/(bitcoin|ethereum|blockchain|crypto|wallet|btc|eth|xrp)/i) || value.length >= 26 && value.length <= 35 && value.match(/^[13][a-km-zA-HJ-NP-Z1-9]{26,33}$/)) { // Basic BTC address regex
+            return 'blockchain';
+        }
+        // Person (very basic keywords)
+        if (value.match(/(ceo|cto|founder|john doe|jane smith|employee|staff)/i)) {
+            return 'person';
+        }
+        // Organization (very basic keywords)
+        if (value.match(/(inc|llc|corp|company|foundation|group|university|hospital|ltd)/i)) {
+            return 'organization';
+        }
+
+        return 'general'; // Default fallback
+    }
+
+    setDetectedCategory(category) {
+        const targetInput = document.getElementById('target-input').value.trim();
+        this._renderSampleDorkSuggestions(targetInput, category);
+        this.buildQuery();
+    }
+
+    _renderSampleDorkSuggestions(targetValue, targetCategory) {
+        const suggestionsContainer = document.getElementById('sample-dork-suggestions');
+        suggestionsContainer.innerHTML = '';
+
+        if (!targetValue || !targetCategory || targetCategory === 'general') {
+            suggestionsContainer.innerHTML = `<p class="placeholder-message">Type a target or select a category to see sample dorks.</p>`;
+            if (targetValue && targetCategory === 'general') {
+                // If general keyword, still provide a basic phrase search option
+                suggestionsContainer.innerHTML = `<h5>General Suggestions for "${targetValue}"</h5>`;
+                 suggestionsContainer.innerHTML += this._createSampleDorkItem({
+                    name: `Exact phrase search for "${targetValue}"`,
+                    description: `Find exact mentions of your keyword across the web.`,
+                    query: `"${targetValue}"`,
+                    engine: 'google',
+                    icon: 'fas fa-quote-left'
+                });
+            }
+            return;
+        }
+
+        suggestionsContainer.innerHTML = `<h5>Sample Dorks for "${targetCategory.charAt(0).toUpperCase() + targetCategory.slice(1)}": ${targetValue}</h5>`;
+
+        const dorksToSuggest = [];
+
+        // Dynamic Suggestions based on Category
+        switch (targetCategory) {
+            case 'domain':
+            case 'url':
+                const domain = targetValue.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+                dorksToSuggest.push(
+                    { name: `Find all pages on ${domain}`, description: `Use 'site:' to restrict search to this domain.`, query: `site:${domain}`, engine: 'google', icon: 'fas fa-globe' },
+                    { name: `Identify exposed files on ${domain}`, description: `Look for common sensitive file types like configs, logs, or backups.`, query: `site:${domain} (filetype:log OR filetype:env OR inurl:backup OR inurl:admin)`, engine: 'google', icon: 'fas fa-file-code' },
+                    { name: `Discover subdomains of ${domain}`, description: `Find subdomains indexed by Google that might host different services.`, query: `site:*.${domain} -www`, engine: 'google', icon: 'fas fa-sitemap' },
+                    { name: `Check Wayback Machine for ${domain}`, description: `Explore historical versions of web pages for old content.`, query: `site:web.archive.org/web/* ${domain}`, engine: 'google', icon: 'fas fa-archive' }
+                );
+                break;
+            case 'ip':
+                const ip = targetValue.split(':')[0]; // remove port if present
+                dorksToSuggest.push(
+                    { name: `Shodan search for ${ip}`, description: `Find open ports, banners, and services on this IP address.`, query: `ip:${ip}`, engine: 'shodan', icon: 'fas fa-search-dollar' },
+                    { name: `Censys analysis for ${ip}`, description: `Get detailed host information, certificates, and potential vulnerabilities.`, query: `ip:${ip}`, engine: 'censys', icon: 'fas fa-microscope' },
+                    { name: `Find webcams on ${ip}'s subnet`, description: `Scan the /24 subnet for exposed IP cameras.`, query: `net:${ip.split('.').slice(0,3).join('.')}.0/24 product:"IP Camera"`, engine: 'shodan', icon: 'fas fa-video' }
+                );
+                break;
+            case 'email':
+                const emailDomain = targetValue.split('@')[1];
+                dorksToSuggest.push(
+                    { name: `IntelX search for ${emailDomain} emails`, description: `Find more emails associated with this domain in IntelX database.`, query: `type:1 "${emailDomain}"`, engine: 'intelx', icon: 'fas fa-fingerprint' },
+                    { name: `Find documents containing ${targetValue}`, description: `Search for PDFs or other documents that mention this email.`, query: `"${targetValue}" filetype:pdf OR filetype:doc OR filetype:xls`, engine: 'google', icon: 'fas fa-envelope-open-text' },
+                    { name: `LinkedIn profiles for "${targetValue}"`, description: `Search for LinkedIn profiles associated with the email.`, query: `site:linkedin.com "${targetValue}"`, engine: 'google', icon: 'fab fa-linkedin' }
+                );
+                break;
+            case 'credential':
+                dorksToSuggest.push(
+                    { name: `Search GitHub for "${targetValue}"`, description: `Find code repositories that might expose this credential.`, query: `"${targetValue}" language:json OR language:yaml OR language:xml`, engine: 'github', icon: 'fab fa-github' },
+                    { name: `Search Pastebin for "${targetValue}"`, description: `Look for leaked pastes containing the credential.`, query: `site:pastebin.com "${targetValue}"`, engine: 'google', icon: 'fas fa-clipboard' },
+                    { name: `Google search for exposed credentials`, description: `Broad search for the credential with terms like 'exposed' or 'leak'.`, query: `"${targetValue}" (exposed OR leak OR confidential)`, engine: 'google', icon: 'fas fa-key' }
+                );
+                break;
+            case 'file':
+                const filename = targetValue.split('/').pop();
+                const fileExtension = filename.includes('.') ? filename.split('.').pop() : '';
+                dorksToSuggest.push(
+                    { name: `Find filename "${filename}" on GitHub`, description: `Search GitHub for repositories containing this exact filename.`, query: `filename:${filename}`, engine: 'github', icon: 'fab fa-github' },
+                    { name: `Search for filetype:${fileExtension} across sites`, description: `Look for other files of this type on the web.`, query: `filetype:${fileExtension} ${filename}`, engine: 'google', icon: 'fas fa-file-export' },
+                    { name: `Find public directories for "${targetValue}"`, description: `Look for exposed directory listings that include this file path.`, query: `intitle:"index of" "${targetValue}"`, engine: 'google', icon: 'fas fa-folder-open' }
+                );
+                break;
+            case 'cve':
+                dorksToSuggest.push(
+                    { name: `Shodan search for CVE ${targetValue}`, description: `Find hosts vulnerable to this specific CVE on Shodan.`, query: `vuln:${targetValue}`, engine: 'shodan', icon: 'fas fa-bug' },
+                    { name: `Exploit-DB for ${targetValue}`, description: `Search for public exploits or proof-of-concepts related to the CVE.`, query: `site:exploit-db.com intext:"${targetValue}"`, engine: 'google', icon: 'fas fa-flask' },
+                    { name: `GitHub: Search for ${targetValue} POC`, description: `Find code or discussions about the CVE vulnerability.`, query: `"${targetValue}" (poc OR exploit)`, engine: 'github', icon: 'fab fa-github' }
+                );
+                break;
+            case 'webapp':
+            case 'software':
+                dorksToSuggest.push(
+                    { name: `Shodan search for product "${targetValue}"`, description: `Find instances of this web application or software exposed online.`, query: `product:"${targetValue}"`, engine: 'shodan', icon: 'fas fa-server' },
+                    { name: `Find login panels for "${targetValue}"`, description: `Discover publicly accessible admin or login interfaces.`, query: `intitle:"${targetValue} login" OR inurl:${targetValue}/admin`, engine: 'google', icon: 'fas fa-sign-in-alt' },
+                    { name: `Known vulnerabilities for "${targetValue}"`, description: `Search for known CVEs or exploit mentions related to the software.`, query: `"${targetValue}" vulnerability OR CVE`, engine: 'google', icon: 'fas fa-bug' }
+                );
+                break;
+            case 'social':
+            case 'person':
+                dorksToSuggest.push(
+                    { name: `Google for all social profiles of "${targetValue}"`, description: `Find public profiles across major social media platforms.`, query: `"${targetValue}" site:twitter.com OR site:linkedin.com OR site:facebook.com OR site:instagram.com`, engine: 'google', icon: 'fas fa-user-friends' },
+                    { name: `LinkedIn profile for "${targetValue}"`, description: `Directly search for professional profiles.`, query: `site:linkedin.com/in/ "${targetValue}"`, engine: 'google', icon: 'fab fa-linkedin' },
+                    { name: `News/Mentions of "${targetValue}"`, description: `Find articles or discussions mentioning the person or social entity.`, query: `"${targetValue}" site:news.google.com OR inurl:blog OR inurl:forum`, engine: 'google', icon: 'fas fa-newspaper' }
+                );
+                break;
+            case 'organization':
+                dorksToSuggest.push(
+                    { name: `Company domain for "${targetValue}"`, description: `Try to find the official website for the organization.`, query: `"${targetValue}" website`, engine: 'google', icon: 'fas fa-building' },
+                    { name: `Employee emails for "${targetValue}"`, description: `Look for exposed employee directories or email patterns.`, query: `"${targetValue}" employee email list filetype:xls OR filetype:csv`, engine: 'google', icon: 'fas fa-envelope' },
+                    { name: `Data leaks related to "${targetValue}"`, description: `Search for mentions of data breaches or exposed data.`, query: `"${targetValue}" data leak OR breach OR confidential filetype:pdf`, engine: 'google', icon: 'fas fa-shield-virus' }
+                );
+                break;
+            case 'iot':
+                dorksToSuggest.push(
+                    { name: `Shodan search for IoT device "${targetValue}"`, description: `Find instances of the IoT device exposed online.`, query: `product:"${targetValue}"`, engine: 'shodan', icon: 'fas fa-wifi' },
+                    { name: `Find exposed IoT dashboards for "${targetValue}"`, description: `Look for public control panels or interfaces.`, query: `intitle:"dashboard" inurl:iot "${targetValue}"`, engine: 'google', icon: 'fas fa-tachometer-alt' }
+                );
+                break;
+            case 'blockchain':
+                dorksToSuggest.push(
+                    { name: `Blockchain explorer for "${targetValue}"`, description: `Search public blockchain explorers for transaction history.`, query: `site:etherscan.io OR site:blockchain.com "${targetValue}"`, engine: 'google', icon: 'fas fa-bitcoin' },
+                    { name: `IntelX: Crypto addresses matching "${targetValue}"`, description: `Search IntelX for mentions of this crypto address/keyword.`, query: `selector:btc OR selector:eth "${targetValue}"`, engine: 'intelx', icon: 'fas fa-fingerprint' }
+                );
+                break;
+            default:
+                // Fallback for categories not explicitly handled or 'general'
+                dorksToSuggest.push(
+                    { name: `General search for "${targetValue}"`, description: `A broad web search for your input.`, query: `"${targetValue}"`, engine: 'google', icon: 'fas fa-search' }
+                );
+                break;
+        }
+
+        if (dorksToSuggest.length > 0) {
+            dorksToSuggest.forEach(dork => {
+                suggestionsContainer.innerHTML += this._createSampleDorkItem(dork, targetValue);
+            });
+        } else {
+            suggestionsContainer.innerHTML = `<p class="placeholder-message">No specific sample dorks for this category. Try a general search.</p>`;
+        }
+    }
+
+    _createSampleDorkItem(dork, targetValuePlaceholder) {
+        // Replace dynamic placeholders in the query if they exist
+        let finalQuery = dork.query;
+        if (targetValuePlaceholder) {
+            finalQuery = finalQuery
+                .replace(/\{\{DOMAIN_NAME\}\}/g, targetValuePlaceholder.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0])
+                .replace(/\{\{TARGET_SITE\}\}/g, targetValuePlaceholder.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0])
+                .replace(/\{\{EMAIL_DOMAIN\}\}/g, targetValuePlaceholder.split('@')[1] || targetValuePlaceholder)
+                .replace(/\{\{SSH_VERSION\}\}/g, targetValuePlaceholder) // Assuming target value can be a version
+                .replace(/\{\{CVE_ID\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{FULL_NAME\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{COMPANY_DOMAIN\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{COMPANY_NAME\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{ENTITY_NAME\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{FILE_TYPE\}\}/g, targetValuePlaceholder.split('.').pop())
+                .replace(/\{\{GOOGLE_API_KEY_PATTERN\}\}/g, targetValuePlaceholder); // Example for API key pattern
+        }
+
+        // Encode the query for passing to onclick, especially if it contains quotes
+        const encodedQuery = finalQuery.replace(/'/g, "\\'");
+
+        return `
+            <div class="sample-dork-item">
+                <span class="dork-title"><i class="${dork.icon}"></i> ${dork.name}</span>
+                <p class="dork-description">${dork.description}</p>
+                <code>${this.highlightPlaceholders(finalQuery)}</code>
+                <div class="dork-actions">
+                    <button onclick="dorkAssistant._useSuggestedSampleDork('${encodedQuery}', '${targetValuePlaceholder}')" class="btn-primary">
+                        <i class="fas fa-arrow-right"></i> Use Dork
+                    </button>
+                    <button onclick="navigator.clipboard.writeText('${encodedQuery}').then(() => dorkAssistant.showNotification(\'Dork copied!\', \'success\')).catch(() => dorkAssistant.showNotification(\'Failed to copy dork\', \'error\'))" class="btn-secondary">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    _useSuggestedSampleDork(query, targetValue) {
+        // Clear all existing inputs in the query builder
+        this.clearQueryBuilderOperators();
+        document.getElementById('basic-terms').value = ''; // Ensure basic terms is also clear
+
+        // Try to intelligently populate basic terms and operators
+        let remainingQuery = query;
+        const currentEngine = document.getElementById('search-engine').value;
+        const engineOperators = this.searchEngines[currentEngine].operators;
+
+        // Populate target input if the suggested query strongly features the target value
+        const targetInputElem = document.getElementById('target-input');
+        if (targetValue && query.includes(targetValue)) {
+            targetInputElem.value = targetValue;
+            document.getElementById('target-profile-category').value = this._detectCategoryFromValue(targetValue) || '';
+            remainingQuery = remainingQuery.replace(targetValue, '').trim(); // Remove target value from remaining
+        } else {
+            targetInputElem.value = '';
+            document.getElementById('target-profile-category').value = '';
+        }
+
+        // Sort operators by length of operator string (descending) to match longer operators first
+        const sortedOperators = Object.values(engineOperators).sort((a, b) => (b.operator || '').length - (a.operator || '').length);
+
+        sortedOperators.forEach(operatorConfig => {
+            const op = operatorConfig.operator;
+            const suffix = operatorConfig.suffix || '';
+
+            if (!op && operatorConfig.placeholder) {
+                return;
+            }
+
+            const escapedOp = op ? op.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+            const escapedSuffix = suffix ? suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+
+            let regex;
+            if (op && suffix) {
+                if (op === '"' && suffix === '"') {
+                    regex = new RegExp(`${escapedOp}(.*?)${escapedSuffix}`, 'g');
+                } else {
+                    regex = new RegExp(`${escapedOp}([^\\s]+)${escapedSuffix}`, 'g');
+                }
+            } else if (op) {
+                regex = new RegExp(`${escapedOp}(?:([^\\s"']+|"[^"]+"|'[^']+')\\s*)?`, 'g');
+            } else {
+                return;
+            }
+
+            const matches = [...remainingQuery.matchAll(regex)];
+
+            for (let i = matches.length - 1; i >= 0; i--) {
+                const match = matches[i];
+                let value = match[1] || '';
+
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.slice(1, -1);
+                }
+                if (value.startsWith("'") && value.endsWith("'")) {
+                    value = value.slice(1, -1);
+                }
+
+                const inputElement = document.querySelector(
+                    `.operator-field input[data-operator="${op}"][data-suffix="${suffix}"]`
+                );
+
+                if (inputElement && value) {
+                    inputElement.value = value;
+                    remainingQuery = remainingQuery.substring(0, match.index) +
+                                     remainingQuery.substring(match.index + match[0].length);
+                } else if (inputElement && !value && op && op.endsWith(':')) {
+                    inputElement.value = '';
+                    remainingQuery = remainingQuery.substring(0, match.index) +
+                                     remainingQuery.substring(match.index + match[0].length);
+                }
+            }
+        });
+
+        // Any remaining text goes to basic terms
+        if (remainingQuery.trim()) {
+            document.getElementById('basic-terms').value = remainingQuery.trim();
+        }
+
+
+        this.buildQuery(); // Rebuild the final query in the output box
+        this.showNotification('Dork loaded into builder!', 'success');
+        this.logAudit('USE_SAMPLE_DORK', { query: query, targetValue: targetValue });
+    }
+
+    _clearQueryBuilderOperators() {
+        document.querySelectorAll('.operator-field input').forEach(input => {
+            input.value = '';
+        });
+    }
+
+    // 2. Raw Data Analyzer & Entity Extractor (No changes here, as requested)
+
+    // ... (rest of the Raw Data Analyzer code remains the same as previous full JS file) ...
+
+    analyzeRawData() {
+        const rawData = document.getElementById('raw-data-input').value;
+        this.extractedEntities = {
+            urls: new Set(), // Use Set to avoid duplicates
+            ips: new Set(),
+            emails: new Set(),
+            credentials: new Set(),
+            file_paths: new Set(),
+            custom: new Set()
+        };
+
+        // Extract URLs
+        let match;
+        this.regexPatterns.url.lastIndex = 0; // Reset regex for multiple exec calls
+        while ((match = this.regexPatterns.url.exec(rawData)) !== null) {
+            this.extractedEntities.urls.add(match[0]);
+        }
+
+        // Extract IPs
+        this.regexPatterns.ip.lastIndex = 0;
+        while ((match = this.regexPatterns.ip.exec(rawData)) !== null) {
+            this.extractedEntities.ips.add(match[0]);
+        }
+
+        // Extract Emails
+        this.regexPatterns.email.lastIndex = 0;
+        while ((match = this.regexPatterns.email.exec(rawData)) !== null) {
+            this.extractedEntities.emails.add(match[0]);
+        }
+
+        // Extract Credentials/Secrets (combine patterns)
+        // Ensure new RegExp is created each time to reset lastIndex for combined regex
+        const combinedCredentialRegex = new RegExp(
+            `${this.regexPatterns.credential.source}|${this.regexPatterns.aws_key.source}`, 'gmi'
+        );
+        while ((match = combinedCredentialRegex.exec(rawData)) !== null) {
+            this.extractedEntities.credentials.add(match[0]);
+        }
+        // Also add S3 bucket URLs as potential sensitive info
+        this.regexPatterns.s3_bucket.lastIndex = 0;
+        while ((match = this.regexPatterns.s3_bucket.exec(rawData)) !== null) {
+             this.extractedEntities.credentials.add(match[0]); // Add full S3 URL
+        }
+
+
+        // Extract Sensitive File Paths
+        this.regexPatterns.sensitive_path.lastIndex = 0;
+        while ((match = this.regexPatterns.sensitive_path.exec(rawData)) !== null) {
+            this.extractedEntities.file_paths.add(match[0]);
+        }
+
+        // Re-apply custom regex if pattern exists
+        const customPatternInput = document.getElementById('custom-regex-pattern');
+        if (customPatternInput && customPatternInput.value.trim()) {
+            this.applyCustomRegex(false); // Apply but don't show notification or log audit for passive re-analysis
+        }
+
+
+        this.renderExtractedEntities();
+        // Log audit only if user actively changes input, not on passive re-render
+        // this.logAudit('ANALYZE_RAW_DATA', { inputLength: rawData.length, entitiesFound: Object.values(this.extractedEntities).reduce((acc, curr) => acc + curr.size, 0) });
+    }
+
+    renderExtractedEntities() {
+        for (const type in this.extractedEntities) {
+            const listElement = document.querySelector(`#entity-category-${type} .entity-list`);
+            const countElement = document.querySelector(`#entity-category-${type} .count`);
+            listElement.innerHTML = ''; // Clear previous entries
+            const uniqueEntities = Array.from(this.extractedEntities[type]); // Convert Set to Array
+
+            countElement.textContent = uniqueEntities.length;
+
+            if (uniqueEntities.length === 0) {
+                listElement.innerHTML = `<li style="text-align: center; color: rgba(255,255,255,0.5); border: none; cursor: default; padding: 0.5rem;">No ${type.replace(/_/g, ' ').toLowerCase().replace('ips', 'IP addresses').replace('urls', 'URLs').replace('file_paths', 'file paths')} found.</li>`;
+            } else {
+                uniqueEntities.forEach(entity => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = entity;
+                    listItem.onclick = () => this.selectEntity(entity, type);
+                    listElement.appendChild(listItem);
+                });
+            }
+        }
+    }
+
+    // Data Input Methods
+    handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('raw-data-input').value = e.target.result;
+            this.analyzeRawData();
+            this.showNotification(`File "${file.name}" loaded.`, 'success');
+            this.logAudit('UPLOAD_FILE_FOR_ANALYSIS', { fileName: file.name, fileSize: file.size });
+        };
+        reader.onerror = () => {
+            this.showNotification('Error reading file!', 'error');
+            this.logAudit('FILE_UPLOAD_ERROR', { fileName: file.name, error: reader.error });
+        };
+        reader.readAsText(file);
+    }
+
+    async pasteFromClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById('raw-data-input').value = text;
+            this.analyzeRawData();
+            this.showNotification('Content pasted from clipboard!', 'success');
+            this.logAudit('PASTE_FROM_CLIPBOARD', { contentPreview: text.substring(0, 100) + (text.length > 100 ? '...' : '') });
+        } catch (err) {
+            this.showNotification('Failed to read from clipboard. Ensure permission is granted.', 'error');
+            console.error('Failed to read clipboard contents: ', err);
+            this.logAudit('CLIPBOARD_PASTE_ERROR', { error: err.message });
+        }
+    }
+
+    clearRawDataInput() {
+        document.getElementById('raw-data-input').value = '';
+        this.analyzeRawData(); // This will clear the displayed entities
+        this.showNotification('Raw data input cleared!', 'info');
+        this.logAudit('CLEAR_RAW_DATA_INPUT');
+    }
+
+    // Custom Regex Support
+    updateCustomRegexPreview() {
+        const pattern = document.getElementById('custom-regex-pattern').value;
+        const rawData = document.getElementById('raw-data-input').value;
+        const previewDiv = document.getElementById('custom-regex-preview');
+
+        if (!pattern) {
+            previewDiv.innerHTML = 'No matches yet.';
+            return;
+        }
+
+        try {
+            const flags = this.getRegexFlags();
+            const regex = new RegExp(pattern, flags);
+            // Ensure regex is reset for replace
+            regex.lastIndex = 0;
+            let highlightedText = rawData.replace(regex, (match) => `<span class="highlight">${match}</span>`);
+            previewDiv.innerHTML = highlightedText || 'No matches found with this regex.';
+        } catch (e) {
+            previewDiv.innerHTML = `<span style="color: #ff4757;">Invalid regex: ${e.message}</span>`;
+        }
+    }
+
+    applyCustomRegex(log = true) {
+        const pattern = document.getElementById('custom-regex-pattern').value;
+        const rawData = document.getElementById('raw-data-input').value;
+        if (!pattern) {
+            if (log) this.showNotification('Please enter a custom regex pattern.', 'warning');
+            return;
+        }
+
+        try {
+            const flags = this.getRegexFlags();
+            const regex = new RegExp(pattern, flags);
+            let match;
+            this.extractedEntities.custom.clear(); // Clear previous custom matches
+            regex.lastIndex = 0; // Reset regex for exec loop
+
+            while ((match = regex.exec(rawData)) !== null) {
+                this.extractedEntities.custom.add(match[0]); // Add the full match
+            }
+            this.renderExtractedEntities();
+            if (log) {
+                this.showNotification(`Custom regex applied. Found ${this.extractedEntities.custom.size} matches.`, 'success');
+                this.logAudit('APPLY_CUSTOM_REGEX', { pattern: pattern, flags: flags, matchesFound: this.extractedEntities.custom.size });
+            }
+        } catch (e) {
+            if (log) this.showNotification(`Invalid regex pattern: ${e.message}`, 'error');
+            console.error("Custom regex error:", e);
+            if (log) this.logAudit('CUSTOM_REGEX_ERROR', { pattern: pattern, error: e.message });
+        }
+    }
+
+    getRegexFlags() {
+        let flags = '';
+        if (document.getElementById('regex-flag-i').checked) flags += 'i';
+        if (document.getElementById('regex-flag-g').checked) flags += 'g';
+        if (document.getElementById('regex-flag-m').checked) flags += 'm';
+        if (document.getElementById('regex-flag-s').checked) flags += 's';
+        return flags;
+    }
+
+    // 3. Cross-Referencing & New Dork Suggestions
+
+    selectEntity(value, type) {
+        this.selectedEntity = { value, type };
+        this.updateSelectedEntityDisplay();
+        this.generateContextualDorks();
+        this.generateExternalOsintLinks();
+        this.logAudit('SELECT_ENTITY', { entityValue: value, entityType: type });
+        // No notification here as it's a frequent interaction
+    }
+
+    updateSelectedEntityDisplay() {
+        document.getElementById('selected-entity-value').textContent = this.selectedEntity.value || 'None';
+        document.getElementById('selected-entity-type').textContent = this.selectedEntity.type ? `(${this.selectedEntity.type.replace(/_/g, ' ')})` : '(Click an extracted entity to select)';
+        this.generateContextualDorks(); // Refresh when selected entity changes
+        this.generateExternalOsintLinks(); // Refresh when selected entity changes
+    }
+
+    generateContextualDorks() {
+        const dorkSuggestionsList = document.getElementById('dork-suggestions-list');
+        dorkSuggestionsList.innerHTML = '';
+
+        if (!this.selectedEntity.value) {
+            dorkSuggestionsList.innerHTML = '<p class="placeholder-message">Select an entity to see relevant dorking suggestions.</p>';
+            return;
+        }
+
+        let suggestions = [];
+        const entityVal = this.selectedEntity.value;
+        const entityType = this.selectedEntity.type;
+
+        // General suggestions across engines
+        suggestions.push({
+            name: `General Search for "${entityVal}"`,
+            query: `"${entityVal}"`,
+            engines: ['google', 'bing'],
+            icon: 'fas fa-search',
+            description: 'Perform a general search for the selected entity.'
+        });
+
+        if (entityType === 'urls' || entityType === 'domain') {
+            const domain = entityVal.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+            suggestions.push(
+                { name: `Site search for ${domain}`, description: `Use 'site:' to restrict search to this domain.`, query: `site:${domain}`, engines: ['google', 'bing'], icon: 'fas fa-globe' },
+                { name: `Identify exposed files on ${domain}`, description: `Look for common sensitive file types like configs, logs, or backups.`, query: `site:${domain} (filetype:log OR filetype:env OR inurl:backup OR inurl:admin)`, engines: ['google', 'bing'], icon: 'fas fa-file-code' },
+                { name: `Discover subdomains of ${domain}`, description: `Find subdomains indexed by Google that might host different services.`, query: `site:*.${domain} -www`, engines: ['google'], icon: 'fas fa-sitemap' },
+                { name: `Check Wayback Machine for ${domain}`, description: `Explore historical snapshots of web pages for old content.`, query: `site:web.archive.org/web/* ${domain}`, engines: ['google'], icon: 'fas fa-archive' },
+                { name: `GitHub repositories for ${domain}`, description: `Search GitHub for code or projects related to this domain.`, query: `site:github.com "${domain}"`, engines: ['github'], icon: 'fab fa-github' }
+            );
+        } else if (entityType === 'ips') {
+            const ip = entityVal.split(':')[0]; // Remove port if present
+            suggestions.push(
+                { name: `Shodan: IP services for ${ip}`, description: `Find open ports, banners, and services on this IP address.`, query: `ip:${ip}`, engine: 'shodan', icon: 'fas fa-search-dollar' },
+                { name: `Censys: IP analysis for ${ip}`, description: `Get detailed host information and certificate data for the IP.`, query: `ip:${ip}`, engines: ['censys'], icon: 'fas fa-microscope' },
+                { name: `ZoomEye: IP services for ${ip}`, description: `Identify services, devices, and applications running on the IP.`, query: `ip:${ip}`, engines: ['zoomeye'], icon: 'fas fa-crosshairs' },
+                { name: `BinaryEdge: IP details for ${ip}`, description: `Access threat intelligence and historical data for the IP.`, query: `ip:${ip}`, engines: ['binaryedge'], icon: 'fas fa-binary' },
+                { name: `Find webcams on network ${ip.split('.').slice(0,3).join('.')}.0/24`, description: `Scan the /24 subnet for exposed IP cameras.`, query: `net:${ip.split('.').slice(0,3).join('.')}.0/24 product:"IP Camera"`, engines: ['shodan'], icon: 'fas fa-video' }
+            );
+        } else if (entityType === 'emails') {
+            const domain = entityVal.split('@')[1];
+            suggestions.push(
+                { name: `IntelX: Emails from ${domain}`, description: `Find more emails associated with this domain in IntelX database.`, query: `type:1 "${domain}"`, engines: ['intelx'], icon: 'fas fa-fingerprint' },
+                { name: `Google for emails on ${domain} documents`, description: `Find documents on the domain containing email addresses.`, query: `site:${domain} filetype:pdf intext:"email"`, engines: ['google'], icon: 'fas fa-file-pdf' },
+                { name: `LinkedIn profiles for "${entityVal}"`, description: `Search for LinkedIn profiles associated with the email.`, query: `site:linkedin.com "${entityVal}"`, engines: ['google'], icon: 'fab fa-linkedin' }
+            );
+        } else if (entityType === 'credentials') {
+            suggestions.push(
+                { name: `Search GitHub for "${entityVal}"`, description: `Find code repositories that might expose this credential, focusing on config files.`, query: `"${entityVal}" language:json OR language:yaml OR language:xml`, engines: ['github'], icon: 'fab fa-github' },
+                { name: `Search Pastebin for "${entityVal}"`, description: `Look for leaked pastes containing the credential.`, query: `site:pastebin.com "${entityVal}"`, engines: ['google'], icon: 'fas fa-clipboard' },
+                { name: `Google: Broad search for "${entityVal}"`, description: `Perform a broad web search for the credential with leak indicators.`, query: `"${entityVal}" (exposed OR leak OR confidential)`, engines: ['google', 'bing'], icon: 'fas fa-key' }
+            );
+        } else if (entityType === 'file_paths') {
+            const filename = entityVal.split('/').pop();
+            const fileExtension = filename.includes('.') ? filename.split('.').pop() : '';
+            dorksToSuggest.push(
+                { name: `Find filename "${filename}" on GitHub`, description: `Search GitHub for repositories containing this exact filename.`, query: `filename:${filename}`, engines: ['github'], icon: 'fab fa-github' },
+                { name: `Search for filetype:${fileExtension} across sites`, description: `Look for other files of this type on the web.`, query: `filetype:${fileExtension} ${filename}`, engines: ['google', 'bing'], icon: 'fas fa-file-export' },
+                { name: `Find public directories for "${entityVal}"`, description: `Look for exposed directory listings that include this file path.`, query: `intitle:"index of" "${entityVal}"`, engine: 'google', icon: 'fas fa-folder-open' }
+            );
+        } else if (entityType === 'custom') {
+             suggestions.push(
+                { name: `Google Search for custom match`, description: `General Google search for the custom extracted value.`, query: `"${entityVal}"`, engines: ['google'], icon: 'fab fa-google' },
+                { name: `GitHub Search for custom match`, description: `Search GitHub for code containing the custom extracted value.`, query: `"${entityVal}"`, engines: ['github'], icon: 'fab fa-github' }
+            );
+        } else if (entityType === 'cve') {
+            suggestions.push(
+                { name: `Shodan search for CVE ${entityVal}`, description: `Find hosts vulnerable to this specific CVE on Shodan.`, query: `vuln:${entityVal}`, engine: 'shodan', icon: 'fas fa-bug' },
+                { name: `Exploit-DB for ${entityVal}`, description: `Search for public exploits or proof-of-concepts related to the CVE.`, query: `site:exploit-db.com intext:"${entityVal}"`, engine: 'google', icon: 'fas fa-flask' },
+                { name: `GitHub: Search for ${entityVal} POC`, description: `Find code or discussions about the CVE vulnerability.`, query: `"${entityVal}" (poc OR exploit)`, engine: 'github', icon: 'fab fa-github' }
+            );
+        } else if (entityType === 'person') {
+            suggestions.push(
+                { name: `Google for all social profiles of "${entityVal}"`, description: `Find public profiles across major social media platforms.`, query: `"${entityVal}" site:twitter.com OR site:linkedin.com OR site:facebook.com OR site:instagram.com`, engine: 'google', icon: 'fas fa-user-friends' },
+                { name: `LinkedIn profile for "${entityVal}"`, description: `Directly search for professional profiles.`, query: `site:linkedin.com/in/ "${entityVal}"`, engine: 'google', icon: 'fab fa-linkedin' },
+                { name: `News/Mentions of "${entityVal}"`, description: `Find articles or discussions mentioning the person or social entity.`, query: `"${entityVal}" site:news.google.com OR inurl:blog OR inurl:forum`, engine: 'google', icon: 'fas fa-newspaper' }
+            );
+        } else if (entityType === 'organization') {
+            suggestions.push(
+                { name: `Company domain for "${entityVal}"`, description: `Try to find the official website for the organization.`, query: `"${entityVal}" website`, engine: 'google', icon: 'fas fa-building' },
+                { name: `Employee emails for "${entityVal}"`, description: `Look for exposed employee directories or email patterns.`, query: `"${entityVal}" employee email list filetype:xls OR filetype:csv`, engine: 'google', icon: 'fas fa-envelope' },
+                { name: `Data leaks related to "${entityVal}"`, description: `Search for mentions of data breaches or exposed data.`, query: `"${entityVal}" data leak OR breach OR confidential filetype:pdf`, engine: 'google', icon: 'fas fa-shield-virus' }
+            );
+        } else if (entityType === 'iot') {
+            dorksToSuggest.push(
+                { name: `Shodan search for IoT device "${entityVal}"`, description: `Find instances of the IoT device exposed online.`, query: `product:"${entityVal}"`, engine: 'shodan', icon: 'fas fa-wifi' },
+                { name: `Find exposed IoT dashboards for "${entityVal}"`, description: `Look for public control panels or interfaces.`, query: `intitle:"dashboard" inurl:iot "${entityVal}"`, engine: 'google', icon: 'fas fa-tachometer-alt' }
+            );
+        } else if (entityType === 'blockchain') {
+            dorksToSuggest.push(
+                { name: `Blockchain explorer for "${entityVal}"`, description: `Search public blockchain explorers for transaction history.`, query: `site:etherscan.io OR site:blockchain.com "${entityVal}"`, engine: 'google', icon: 'fas fa-bitcoin' },
+                { name: `IntelX: Crypto addresses matching "${entityVal}"`, description: `Search IntelX for mentions of this crypto address/keyword.`, query: `selector:btc OR selector:eth "${entityVal}"`, engine: 'intelx', icon: 'fas fa-fingerprint' }
+            );
+        }
+
+
+        if (dorksToSuggest.length > 0) {
+            dorksToSuggest.forEach(dork => {
+                suggestionsContainer.innerHTML += this._createSampleDorkItem(dork, targetValue);
+            });
+        } else {
+            suggestionsContainer.innerHTML = `<p class="placeholder-message">No specific sample dorks for this category. Try a general search.</p>`;
+        }
+    }
+
+    _createSampleDorkItem(dork, targetValuePlaceholder) {
+        // Replace dynamic placeholders in the query if they exist
+        let finalQuery = dork.query;
+        if (targetValuePlaceholder) {
+            finalQuery = finalQuery
+                .replace(/\{\{DOMAIN_NAME\}\}/g, targetValuePlaceholder.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0])
+                .replace(/\{\{TARGET_SITE\}\}/g, targetValuePlaceholder.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0])
+                .replace(/\{\{EMAIL_DOMAIN\}\}/g, targetValuePlaceholder.split('@')[1] || targetValuePlaceholder)
+                .replace(/\{\{SSH_VERSION\}\}/g, targetValuePlaceholder) // Assuming target value can be a version
+                .replace(/\{\{CVE_ID\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{FULL_NAME\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{COMPANY_DOMAIN\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{COMPANY_NAME\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{ENTITY_NAME\}\}/g, targetValuePlaceholder)
+                .replace(/\{\{FILE_TYPE\}\}/g, targetValuePlaceholder.split('.').pop())
+                .replace(/\{\{GOOGLE_API_KEY_PATTERN\}\}/g, targetValuePlaceholder); // Example for API key pattern
+        }
+
+        // Encode the query for passing to onclick, especially if it contains quotes
+        const encodedQuery = finalQuery.replace(/'/g, "\\'");
+
+        return `
+            <div class="sample-dork-item">
+                <span class="dork-title"><i class="${dork.icon}"></i> ${dork.name}</span>
+                <p class="dork-description">${dork.description}</p>
+                <code>${this.highlightPlaceholders(finalQuery)}</code>
+                <div class="dork-actions">
+                    <button onclick="dorkAssistant._useSuggestedSampleDork('${encodedQuery}', '${targetValuePlaceholder}')" class="btn-primary">
+                        <i class="fas fa-arrow-right"></i> Use Dork
+                    </button>
+                    <button onclick="navigator.clipboard.writeText('${encodedQuery}').then(() => dorkAssistant.showNotification(\'Dork copied!\', \'success\')).catch(() => dorkAssistant.showNotification(\'Failed to copy dork\', \'error\'))" class="btn-secondary">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    _useSuggestedSampleDork(query, targetValue) {
+        // Clear all existing inputs in the query builder
+        document.getElementById('target-input').value = '';
+        document.getElementById('basic-terms').value = '';
+        this._clearQueryBuilderOperators();
+        document.getElementById('target-profile-category').value = ''; // Reset category dropdown
+
+        // Set the Target Input field if a target value was part of the suggestion
+        if (targetValue) {
+            document.getElementById('target-input').value = targetValue;
+            document.getElementById('target-profile-category').value = this._detectCategoryFromValue(targetValue);
+        }
+
+        // Parse the suggested query and populate basic terms and operators
+        let remainingQuery = query;
+
+        // Extract any known operators from the suggested query
+        const currentEngineOperators = this.searchEngines[this.currentEngine].operators;
+        const operatorElements = document.querySelectorAll('.operator-field input');
+
+        Object.values(currentEngineOperators).forEach(opConfig => {
+            const operator = opConfig.operator;
+            const suffix = opConfig.suffix || '';
+            if (!operator) return;
+
+            // Create a regex to find the operator and its value (handling quotes)
+            const opRegex = new RegExp(`${operator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:("|')([^"']*)("|')|([^\\s"]+))?`, 'i');
+            const match = remainingQuery.match(opRegex);
+
+            if (match) {
+                let value = '';
+                if (match[2]) { // For quoted values (match[2] is content inside quotes)
+                    value = match[2];
+                } else if (match[4]) { // For unquoted values (match[4] is the value after operator)
+                    value = match[4];
+                }
+
+                const targetInput = Array.from(operatorElements).find(
+                    input => input.dataset.operator === operator && input.dataset.suffix === suffix
+                );
+
+                if (targetInput) {
+                    targetInput.value = value;
+                    // Remove the matched part from the remaining query string
+                    remainingQuery = remainingQuery.replace(match[0], '').trim();
+                }
+            }
+        });
+
+        // The rest of the query, after extracting operators, goes into basic terms
+        document.getElementById('basic-terms').value = remainingQuery.trim();
+
+
+        this.buildQuery(); // Rebuild the final query string displayed in the output box
+        this.showNotification('Dork loaded into builder!', 'success');
+        this.logAudit('USE_SAMPLE_DORK', { query: query, targetValue: targetValue });
+    }
+
+    _clearQueryBuilderOperators() {
+        document.querySelectorAll('.operator-field input').forEach(input => {
+            input.value = '';
+        });
     }
 }
 

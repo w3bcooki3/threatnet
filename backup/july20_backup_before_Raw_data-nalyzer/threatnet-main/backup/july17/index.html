@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="blueteam-playbook.css">
     <link rel="stylesheet" href="case-studies.css">
     <link rel="stylesheet" href="dork-assistant.css">
-    <link rel="stylesheet" href="threat-intel.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -44,8 +43,9 @@
                     <span>Campaigns</span>
                     <div class="nav-indicator"></div>
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('threat-intel')"> <i class="fas fa-rss-square"></i>
-                    <span>Threat Intel</span>
+                <a href="#" class="nav-item" onclick="showSection('intelligence')">
+                    <i class="fas fa-brain"></i>
+                    <span>Intelligence</span>
                     <div class="nav-indicator"></div>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('analytics')">
@@ -554,18 +554,18 @@
                         <div class="vault-filters">
                             <select id="vaultEntryTypeFilter" onchange="filterVaultEntries()">
                                 <option value="all">All Entry Types</option>
-                                <option value="tool">Tool</option>
-                                <option value="email">Email Address</option>
-                                <option value="phone">Phone Number</option>
+                                <option value="tool">Tools</option>
+                                <option value="email">Email Addresses</option>
+                                <option value="phone">Phone Numbers</option>
                                 <option value="crypto">Crypto Transaction</option>
-                                <option value="location">Location</option>
+                                <option value="location">Locations</option>
                                 <option value="link">Social / Internet Link</option>
-                                <option value="media">Image / Video</option>
+                                <option value="media">Images / Videos</option>
                                 <option value="password">Password</option>
                                 <option value="keyword">Keyword</option>
                                 <option value="social">Social Media Profile</option>
-                                <option value="domain">Domain/IP/URL</option>
-                                <option value="username">Username/Handle</option>
+                                <option value="domain">Domains/IPs/URLs</option>
+                                <option value="username">Usernames/Handles</option>
                                 <option value="threat">Threat Intelligence</option>
                                 <option value="vulnerability">Vulnerability</option>
                                 <option value="malware">Malware/File</option>
@@ -771,22 +771,15 @@
                     <button class="dork-tab-btn active" onclick="showDorkTab('query-builder')">
                         <i class="fas fa-tools"></i> Query Builder
                     </button>
-                    <button class="dork-tab-btn" onclick="showDorkTab('raw-data-analyzer')">
-                        <i class="fas fa-microscope"></i> Raw Data Analyzer
-                    </button>
                     <button class="dork-tab-btn" onclick="showDorkTab('templates')">
                         <i class="fas fa-layer-group"></i> Templates
                     </button>
                     <button class="dork-tab-btn" onclick="showDorkTab('saved-queries')">
                         <i class="fas fa-bookmark"></i> Saved Queries
                     </button>
-                    <button class="dork-tab-btn" onclick="showDorkTab('audit-log')">
-                        <i class="fas fa-history"></i> Audit Log
-                    </button>
                 </div>
 
-                <div id="query-builder-tab" class="dork-tab-content active">
-                    <div class="query-builder-container">
+                <div id="query-builder-tab" class="dork-tab-content active"> <div class="query-builder-container">
                         <div class="search-engine-selector">
                             <label for="search-engine">Target Search Engine:</label>
                             <select id="search-engine" onchange="updateQuerySyntax()">
@@ -798,60 +791,25 @@
                                 <option value="fofa">FOFA</option>
                                 <option value="github">GitHub</option>
                                 <option value="pastebin">Pastebin</option>
-                                <option value="binaryedge">BinaryEdge</option>
-                                <option value="intelx">IntelX</option>
                             </select>
                         </div>
 
                         <div class="query-builder-form">
                             <div class="query-field-group">
-                                <label for="target-input">Target Input / Focus:</label>
-                                <div class="input-with-suggestion">
-                                    <input type="text" id="target-input" placeholder="e.g., example.com, 192.168.1.1, username, API_KEY" oninput="dorkAssistant.detectCategory()">
-                                    <select id="target-profile-category" onchange="dorkAssistant.setDetectedCategory(this.value)">
-                                        <option value="">Auto-Detect Category</option>
-                                        <option value="domain">Domain</option>
-                                        <option value="ip">IP Address</option>
-                                        <option value="webapp">Web Application</option>
-                                        <option value="file">File/Document</option>
-                                        <option value="credential">Credential/Secret</option>
-                                        <option value="social">Social Media</option>
-                                        <option value="email">Email Address</option>
-                                        <option value="location">Geographic Location</option>
-                                        <option value="person">Person/Individual</option>
-                                        <option value="organization">Organization</option>
-                                        <option value="cve">CVE/Vulnerability</option>
-                                        <option value="software">Software/Product</option>
-                                        <option value="network">Network Device</option>
-                                        <option value="iot">IoT Device</option>
-                                        <option value="blockchain">Blockchain/Crypto</option>
-                                        <option value="general">General Keyword</option>
-                                    </select>
-                                </div>
-                                <div id="sample-dork-suggestions" class="sample-dork-suggestions">
-                                    <p class="placeholder-message">Type a target or select a category to see sample dorks.</p>
-                                </div>
-                            </div>
-
-                            <div class="query-field-group">
-                                <label for="basic-terms">Basic Search Terms:</label>
-                                <input type="text" id="basic-terms" placeholder="Enter search terms..." oninput="buildQuery()">
-                            </div>
+                                <label>Basic Search Terms:</label>
+                                <input type="text" id="basic-terms" placeholder="Enter search terms..." oninput="buildQuery()"> </div>
 
                             <div class="query-operators">
                                 <h4>Search Operators:</h4>
                                 <div class="operators-grid" id="operators-grid">
-                                </div>
+                                    </div>
                             </div>
 
                             <div class="query-preview">
-                                <label for="generated-query">Generated Query:</label>
+                                <label>Generated Query:</label>
                                 <div class="query-output">
                                     <textarea id="generated-query" readonly placeholder="Your query will appear here..."></textarea>
                                     <div class="query-actions">
-                                        <button onclick="clearQuery()" class="btn-secondary clear-query-btn">
-                                            <i class="fas fa-eraser"></i> Clear Query
-                                        </button>
                                         <button onclick="copyQuery()" class="btn-secondary">
                                             <i class="fas fa-copy"></i> Copy
                                         </button>
@@ -868,106 +826,7 @@
                             <div class="query-conversion">
                                 <h4>Convert to Other Engines:</h4>
                                 <div class="conversion-results" id="conversion-results">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="raw-data-analyzer-tab" class="dork-tab-content">
-                    <div class="analyzer-container">
-                        <div class="analyzer-input-section">
-                            <h4>Raw Data Input</h4>
-                            <div class="input-methods">
-                                <textarea id="raw-data-input" placeholder="Paste your raw text data here (e.g., search results, logs, source code)..." oninput="dorkAssistant.analyzeRawData()"></textarea>
-                                <div class="input-actions">
-                                    <button class="btn-secondary" onclick="document.getElementById('file-upload-input').click()">
-                                        <i class="fas fa-upload"></i> Upload File (.txt, .log, .json, etc.)
-                                    </button>
-                                    <input type="file" id="file-upload-input" style="display: none;" onchange="dorkAssistant.handleFileUpload(event)" accept=".txt,.log,.html,.json,.xml,.csv,.conf,.yaml,.yml,.ini,.php,.js,.css,.py,.rb,.go,.java,.c,.cpp,.h,.hpp,.md,.pdf,.doc,.docx,.xls,.xlsx">
-                                    <button class="btn-secondary" onclick="dorkAssistant.pasteFromClipboard()">
-                                        <i class="fas fa-clipboard"></i> Paste from Clipboard
-                                    </button>
-                                    <button class="btn-secondary" onclick="dorkAssistant.clearRawDataInput()">
-                                        <i class="fas fa-eraser"></i> Clear Input
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="custom-regex-section">
-                                <h5>Custom Regex (Optional)</h5>
-                                <div class="form-group">
-                                    <input type="text" id="custom-regex-pattern" placeholder="e.g., (user|pass):\\s*(\\w+)" oninput="dorkAssistant.updateCustomRegexPreview()">
-                                    <div class="regex-flags">
-                                        <label><input type="checkbox" id="regex-flag-i"> Case Insensitive (i)</label>
-                                        <label><input type="checkbox" id="regex-flag-g" checked> Global (g)</label>
-                                        <label><input type="checkbox" id="regex-flag-m"> Multiline (m)</label>
-                                        <label><input type="checkbox" id="regex-flag-s"> Dotall (s)</label>
                                     </div>
-                                    <small>Test your regex at <a href="https://regex101.com/" target="_blank">regex101.com</a></small>
-                                </div>
-                                <button class="btn-primary" onclick="dorkAssistant.applyCustomRegex()">
-                                    <i class="fas fa-flask"></i> Apply Custom Regex
-                                </button>
-                                <div id="custom-regex-preview" class="custom-regex-preview">No matches yet.</div>
-                            </div>
-                        </div>
-
-                        <div class="analyzer-results-section">
-                            <div class="extracted-entities-display">
-                                <h4>Extracted Entities</h4>
-                                <div class="entity-category-list">
-                                    <div class="entity-category-item" id="entity-category-urls">
-                                        <h5><i class="fas fa-link"></i> URLs (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-ips">
-                                        <h5><i class="fas fa-network-wired"></i> IP Addresses (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-emails">
-                                        <h5><i class="fas fa-at"></i> Email Addresses (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-credentials">
-                                        <h5><i class="fas fa-key"></i> Credentials/Secrets (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-file_paths">
-                                        <h5><i class="fas fa-file-code"></i> Sensitive File Paths (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                    <div class="entity-category-item" id="entity-category-custom">
-                                        <h5><i class="fas fa-flask"></i> Custom Matches (<span class="count">0</span>)</h5>
-                                        <ul class="entity-list"></ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dork-suggestions-section">
-                                <div class="selected-entity-display">
-                                    <h4>Selected Entity: <span id="selected-entity-value">None</span></h4>
-                                    <p id="selected-entity-type">(Click an extracted entity to select)</p>
-                                </div>
-
-                                <div class="contextual-dorks">
-                                    <h4>Contextual Dork Suggestions</h4>
-                                    <div id="dork-suggestions-list" class="dork-suggestions-list">
-                                        <p class="placeholder-message">Select an entity to see relevant dorking suggestions.</p>
-                                    </div>
-                                </div>
-
-                                <div class="external-osint-tools">
-                                    <h4>External OSINT Tools</h4>
-                                    <div id="osint-tool-links" class="osint-tool-links">
-                                        <p class="placeholder-message">Select an entity to see quick links to external OSINT tools.</p>
-                                    </div>
-                                </div>
-                                <div class="ethical-disclaimer">
-                                    <p>
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Ethical Disclaimer:</strong> This tool is intended for legitimate security research, penetration testing with explicit permission, and legal OSINT activities only. Misuse of this tool for unauthorized access, data exfiltration, or any illegal activities is strictly prohibited and may result in severe legal consequences. Users are solely responsible for their actions.
-                                    </p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -977,10 +836,6 @@
                     <div class="templates-container">
                         <div class="templates-header">
                             <div class="templates-filters">
-                                <div class="template-search-bar">
-                                    <input type="text" id="template-search-input" placeholder="Search templates..." onkeyup="searchTemplates()">
-                                    <i class="fas fa-search"></i>
-                                </div>
                                 <select id="template-engine" onchange="filterTemplates()">
                                     <option value="all">All Engines</option>
                                     <option value="google">Google</option>
@@ -991,8 +846,6 @@
                                     <option value="fofa">FOFA</option>
                                     <option value="github">GitHub</option>
                                     <option value="pastebin">Pastebin</option>
-                                    <option value="binaryedge">BinaryEdge</option>
-                                    <option value="intelx">IntelX</option>
                                 </select>
                             </div>
                             <button onclick="showAddTemplateModal()" class="btn-primary">
@@ -1002,9 +855,9 @@
 
                         <div class="templates-content-area">
                             <div class="template-category-sidebar" id="template-category-sidebar">
-                            </div>
-                            <div class="templates-list" id="templates-grid">
-                            </div>
+                                </div>
+                            <div class="templates-grid" id="templates-grid">
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -1018,35 +871,15 @@
                                 <select id="saved-queries-engine" onchange="filterSavedQueries()">
                                     <option value="all">All Engines</option>
                                     <option value="google">Google</option>
-                                    <option value="bing">Bing</option>
                                     <option value="shodan">Shodan</option>
                                     <option value="censys">Censys</option>
-                                    <option value="zoomeye">ZoomEye</option>
-                                    <option value="fofa">FOFA</option>
                                     <option value="github">GitHub</option>
-                                    <option value="pastebin">Pastebin</option>
-                                    <option value="binaryedge">BinaryEdge</option>
-                                    <option value="intelx">IntelX</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="saved-queries-list" id="saved-queries-list">
-                        </div>
-                    </div>
-                </div>
-
-                <div id="audit-log-tab" class="dork-tab-content">
-                    <div class="audit-log-container">
-                        <div class="audit-log-header">
-                            <h3>Dork Assistant Audit Log</h3>
-                            <button onclick="clearAuditLog()" class="btn-danger">
-                                <i class="fas fa-trash"></i> Clear Log
-                            </button>
-                        </div>
-                        <div class="audit-log-list" id="audit-log-list">
-                            <p class="no-logs-message">No audit log entries to display.</p>
-                        </div>
+                            </div>
                     </div>
                 </div>
             </section>
@@ -1394,7 +1227,7 @@
                                 <span><strong>Updated:</strong> <span id="note-detail-updated">Date</span></span>
                             </div>
 
-                            <div id="note-detail-tags-container" class="note-detail-section" style="display: none;">
+                            <div id="note-detail-tags-container" class="note-detail-tags-container" style="display: none;">
                                 <h4>Tags</h4>
                                 <div id="note-detail-tags" class="note-detail-tags"></div>
                             </div>
@@ -1559,57 +1392,6 @@
                 </div>
             </section>
 
-            <section id="iocs" class="content-section">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Indicators of Compromise</h1>
-                        <p class="header-subtitle">IOC database and threat hunting</p>
-                    </div>
-                </div>
-                <div class="coming-soon">
-                    <div class="coming-soon-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3>Coming Soon</h3>
-                    <p>IOC management and threat hunting features are under development</p>
-                </div>
-            </section>
-
-            <section id="threat-intel" class="content-section">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Threat Intelligence Feeds</h1>
-                        <p class="header-subtitle">Real-time updates from leading cybersecurity sources</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn-primary" onclick="threatIntel.showAddFeedModal()">
-                            <i class="fas fa-plus"></i> Add New Feed
-                        </button>
-                    </div>
-                </div>
-
-                <div class="threat-intel-controls">
-                    <input type="text" id="threat-intel-search" placeholder="Search articles..." onkeyup="threatIntel.filterArticles()">
-                    <select id="threat-intel-source-filter" onchange="threatIntel.filterArticles()">
-                        <option value="all">All Sources</option>
-                        </select>
-                    <select id="threat-intel-sort" onchange="threatIntel.sortArticles()">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="title-asc">Title A-Z</option>
-                        <option value="title-desc">Title Z-A</option>
-                    </select>
-                </div>
-
-                <div class="threat-intel-grid" id="threat-intel-grid">
-                    <div class="no-articles-state" id="no-articles-state">
-                        <i class="fas fa-newspaper"></i>
-                        <h3>No Articles Found</h3>
-                        <p>No articles match your current filters. Try adjusting your search or add new feeds.</p>
-                    </div>
-                </div>
-            </section>
-
             <footer class="app-footer">
                 <div class="footer-content">
                     <div class="footer-bottom">
@@ -1728,16 +1510,13 @@
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <h3>Confirm Deletion</h3>
-                <button class="modal-close" onclick="dorkAssistant.closeDeleteConfirmModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
-                <p id="deleteMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+                <p id="deleteMessage">Are you sure you want to delete this tool? This action cannot be undone.</p>
             </div>
             <div class="form-actions">
-                <button type="button" class="btn-secondary" onclick="dorkAssistant.closeDeleteConfirmModal()">Cancel</button>
-                <button type="button" class="btn-danger" onclick="dorkAssistant.performDeletion()">
+                <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" class="btn-danger" onclick="confirmDelete()">
                     <i class="fas fa-trash"></i>
                     Delete
                 </button>
@@ -2069,17 +1848,14 @@
                         <label for="template-name">Template Name:</label>
                         <input type="text" id="template-name" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="template-description">Description:</label>
                         <textarea id="template-description" rows="3"></textarea>
                     </div>
-                    
                     <div class="form-group">
                         <label for="template-query">Query:</label>
                         <textarea id="template-query" rows="4" required></textarea>
                     </div>
-                    
                     <div class="form-group">
                         <label for="template-cat">Category:</label>
                         <select id="template-cat" required>
@@ -2091,12 +1867,8 @@
                             <option value="iot">IoT Devices</option>
                             <option value="social">Social Media</option>
                             <option value="government">Government</option>
-                            <option value="data leaks">Data Leaks</option>
-                            <option value="osint">OSINT</option>
-                            <option value="network">Network</option>
                         </select>
                     </div>
-                    
                     <div class="form-group">
                         <label for="template-engines">Compatible Engines:</label>
                         <div class="checkbox-group">
@@ -2105,15 +1877,8 @@
                             <label><input type="checkbox" value="shodan"> Shodan</label>
                             <label><input type="checkbox" value="censys"> Censys</label>
                             <label><input type="checkbox" value="github"> GitHub</label>
-                            <label><input type="checkbox" value="zoomeye"> ZoomEye</label>
-                            <label><input type="checkbox" value="fofa"> FOFA</label>
-                            <label><input type="checkbox" value="binaryedge"> BinaryEdge</label>
-                            <label><input type="checkbox" value="intelx"> IntelX</label>
-                            <label><input type="checkbox" value="pastebin"> Pastebin</label>
-                        </select>
                         </div>
                     </div>
-                    
                     <div class="form-group">
                         <label for="template-tags">Tags (comma separated):</label>
                         <input type="text" id="template-tags" placeholder="security, database, exposed">
@@ -2155,79 +1920,6 @@
             </div>
         </div>
     </div>
-
-    <div id="editTemplateModal" class="modal">
-        <div class="modal-content large-modal">
-            <div class="modal-header">
-                <h3>Edit Template</h3>
-                <button class="modal-close" onclick="dorkAssistant.closeEditTemplateModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="editTemplateName">Template Name:</label>
-                    <input type="text" id="editTemplateName" required>
-                </div>
-                <div class="form-group">
-                    <label for="editTemplateDescription">Description:</label>
-                    <textarea id="editTemplateDescription" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="editQueryText">Query Text</label>
-                    <input type="text" id="editQueryText" oninput="dorkAssistant.updateEditPreview()" required>
-                    <small>Modify the search query as needed.</small>
-                </div>
-                <div class="form-group">
-                    <label for="editPlaceholderValue">Target/Placeholder Value (Optional)</label>
-                    <input type="text" id="editPlaceholderValue" placeholder="e.g., example.com, AcmeCorp, jira-plugin" oninput="dorkAssistant.updateEditPreview()">
-                    <small>This value will replace ALL <span class="placeholder-variable">{VARIABLES}</span> in the query.</small>
-                </div>
-                <div class="form-group">
-                    <label>Live Preview</label>
-                    <div class="edit-query-preview">
-                        <code id="editLivePreview"></code>
-                    </div>
-                    <small>This is the query that will be executed.</small>
-                </div>
-                <div class="form-group">
-                    <label for="editTemplateCategory">Category:</label>
-                    <select id="editTemplateCategory" required>
-                        <option value="databases">Databases</option>
-                        <option value="login">Login Pages</option>
-                        <option value="cloud">Cloud Services</option>
-                        <option value="files">Sensitive Files</option>
-                        <option value="vulnerabilities">Vulnerabilities</option>
-                        <option value="iot">IoT Devices</option>
-                        <option value="social">Social Media</option>
-                        <option value="government">Government</option>
-                        <option value="data leaks">Data Leaks</option>
-                        <option value="osint">OSINT</option>
-                        <option value="network">Network</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Compatible Engines:</label>
-                    <div class="checkbox-group" id="editCompatibleEngines">
-                        </div>
-                </div>
-                <div class="form-group">
-                    <label for="editTemplateTags">Tags (comma separated):</label>
-                    <input type="text" id="editTemplateTags" placeholder="security, database, exposed">
-                </div>
-            </div>
-            <div class="modal-footer edit-template-footer">
-                <button type="button" class="btn-secondary" onclick="dorkAssistant.closeEditTemplateModal()">Cancel</button>
-                <button type="button" class="btn-primary" onclick="dorkAssistant.executeEditPreview()">
-                    <i class="fas fa-rocket"></i> Execute Previewed Query
-                </button>
-                <button type="button" class="btn-success" id="editSaveTemplateBtn" onclick="dorkAssistant.saveEditedTemplate()">
-                    <i class="fas fa-save"></i> Save Changes
-                </button>
-            </div>
-        </div>
-    </div>
-
 
     <div id="notificationContainer" class="notification-container"></div>
 
@@ -2292,15 +1984,11 @@
         </div>
     </div>
 
-    <div id="notificationContainer" class="notification-container"></div>
-
-
     <script src="mitre-converter.js"></script>
     <script src="script.js"></script>
     <script src="dork-assistant.js"></script>
     <script src="investigation-notes.js"></script>
     <script src="blueteam-playbook.js"></script>
     <script src="case-studies.js"></script>
-    <script src="threat-intel.js"></script>
 </body>
 </html>

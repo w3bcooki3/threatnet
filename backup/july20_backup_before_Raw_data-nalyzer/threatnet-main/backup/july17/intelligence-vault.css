@@ -1,0 +1,1253 @@
+/* intelligence-vault.css */
+
+/* Intelligence Vault Styles */
+.vault-controls {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    flex-wrap: wrap; /* Allow wrapping */
+    justify-content: space-between; /* Distribute items */
+    box-sizing: border-box; /* Crucial for width calculations */
+    width: 100%; /* Ensure it takes full available width */
+}
+
+.vault-search {
+    flex: 1; /* Allow to grow/shrink */
+    max-width: 400px;
+    min-width: 250px; /* Prevent it from becoming too small */
+}
+
+.vault-filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap; /* Allow filters to wrap */
+    justify-content: flex-end; /* Align filters to the right */
+}
+
+.vault-filters select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    outline: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    flex-grow: 1; /* Allow selects to grow within their container */
+    min-width: 120px; /* Prevent selects from becoming too narrow */
+}
+
+.vault-filters select:hover,
+.vault-filters select:focus {
+    border-color: #ff4757;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.view-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.view-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    flex: 1; /* Make view buttons take equal space */
+    white-space: nowrap; /* Prevent text wrapping inside buttons */
+}
+
+.view-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.view-btn.active {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+}
+
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    border-radius: 12px;
+    margin-left: auto;
+    flex-wrap: wrap; /* Allow wrapping */
+    justify-content: center; /* Center bulk actions */
+    width: auto; /* Allow content to dictate width */
+    box-sizing: border-box; /* Include padding/border in width */
+}
+
+.selected-count {
+    color: #ff4757;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.bulk-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    flex-grow: 1; /* Allow buttons to grow */
+    justify-content: center; /* Center text within buttons */
+}
+
+.bulk-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.bulk-btn.danger {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+}
+
+.bulk-btn.danger:hover {
+    background: rgba(220, 53, 69, 0.15);
+}
+
+/* Parent and Child Tabs - CRITICAL FOR HORIZONTAL SCROLL FIX */
+.parent-tabs,
+.child-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    overflow-x: auto; /* Enable horizontal scrolling when content overflows */
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap; /* Keep tabs on one line */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(255, 71, 87, 0.3) transparent; /* Firefox */
+    
+    /* Ensure these containers are flexible and don't force overflow */
+    box-sizing: border-box;
+    width: 100%; /* Occupy full available width */
+    min-width: 0; /* Allow the container to shrink as needed */
+}
+
+.parent-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    flex-shrink: 0; /* Prevent tabs from shrinking below their content size */
+    min-width: fit-content; /* Let content dictate minimum width */
+}
+
+.parent-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.parent-tab.active {
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.15), rgba(255, 107, 122, 0.1));
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(255, 71, 87, 0.2);
+}
+
+.parent-tab i {
+    font-size: 1.1rem;
+}
+
+.child-tabs {
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.child-tab {
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0; /* Prevent child tabs from shrinking excessively */
+    min-width: fit-content;
+    font-size: 0.9rem;
+}
+
+.child-tab:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.child-tab.active {
+    background: rgba(255, 71, 87, 0.1);
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+}
+
+/* Tools Container - CRITICAL FOR GRID/LIST LAYOUT */
+.tools-container {
+    min-height: 400px;
+    width: 100%; /* Ensure it takes 100% of parent width */
+    box-sizing: border-box; /* Include padding/border in width calculation */
+    /* Add padding here if it needs internal padding not provided by parent .content-section */
+    /* For consistency with Multi-Vault, ensure this container itself doesn't force a minimum width */
+    min-width: 0; /* Allow container to shrink */
+}
+
+/* --- ADJUSTED GRID COLUMNS HERE --- */
+.tools-grid {
+    display: grid;
+    /* This is the key change:
+       We set a higher min-width (e.g., 200px) and let auto-fit determine the columns.
+       This will naturally create 3-4 columns on larger screens and fewer on smaller ones.
+    */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted min-width for better fit */
+    gap: 2rem;
+    width: 100%; /* Ensure grid takes full available width */
+    box-sizing: border-box; /* Include padding/border in width calculation */
+    min-width: 0; /* Allow grid to shrink */
+}
+
+.tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%; /* Ensure list takes full available width */
+    box-sizing: border-box; /* Include padding/border in width calculation */
+    min-width: 0; /* Allow list to shrink */
+}
+
+/* Redesigned Tool Card (Grid View) */
+.tool-card {
+    background: rgba(15, 15, 25, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box; /* Crucial for grid item responsiveness */
+    min-width: 0; /* Allow card content to shrink without overflow */
+}
+
+.tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #ff4757, #ff6b7a);
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.tool-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 71, 87, 0.5);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.tool-card:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tool-card.selected {
+    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+    box-shadow: 0 12px 40px rgba(255, 71, 87, 0.2);
+}
+
+.tool-card.selected .tool-checkbox input[type="checkbox"] {
+    transform: scale(1.1);
+}
+
+.tool-checkbox {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 10;
+}
+
+.tool-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #ff4757;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.tool-header {
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+    padding-top: 1rem;
+}
+
+.tool-status {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.tool-status .pinned {
+    color: #ffc107;
+}
+
+.tool-status .starred {
+    color: #ff4757;
+}
+
+.tool-name {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    word-break: break-word; /* Allow long names to break lines */
+}
+
+.tool-url {
+    margin-bottom: 1.2rem;
+}
+
+.tool-url a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.3s ease;
+    word-break: break-all; /* Allow long URLs to break */
+}
+
+.tool-url a:hover {
+    color: #ff4757;
+    text-decoration: underline;
+}
+
+.tool-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.8rem;
+    flex-grow: 1;
+    word-break: break-word; /* Allow long descriptions to break */
+}
+
+.tool-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.8rem;
+}
+
+.tool-tag {
+    padding: 0.3rem 0.9rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.tool-card:hover .tool-tag {
+    background: rgba(255, 71, 87, 0.1);
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+}
+
+.tool-actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: flex-end;
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+}
+
+.tool-action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.8rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.05rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tool-action-btn:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+    color: #ff4757;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.2);
+}
+
+.tool-action-btn.active {
+    background: rgba(255, 71, 87, 0.25);
+    border-color: rgba(255, 71, 87, 0.5);
+    color: #ff4757;
+}
+
+.tool-action-btn.danger {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+    color: #dc3545;
+}
+
+.tool-action-btn.danger:hover {
+    background: rgba(220, 53, 69, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(220, 53, 69, 0.2);
+}
+
+.tool-info {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Redesigned Tool Item (List View) */
+.tool-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: rgba(15, 15, 25, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box; /* Crucial for list item responsiveness */
+    width: 100%; /* Ensure list item takes full width */
+    min-width: 0; /* Allow the item to shrink */
+}
+
+.tool-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, #ff4757, #ff6b7a);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.3s ease;
+}
+
+.tool-item:hover {
+    background: rgba(15, 15, 25, 0.8);
+    border-color: rgba(255, 71, 87, 0.4);
+    transform: translateX(8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.tool-item:hover::before {
+    transform: scaleY(1);
+}
+
+.tool-item.selected {
+    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+    box-shadow: 0 8px 30px rgba(255, 71, 87, 0.2);
+}
+
+.tool-item .tool-checkbox {
+    position: static;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+}
+
+.tool-item .tool-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+.tool-item .tool-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tool-item .tool-header {
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.tool-item .tool-status {
+    display: none;
+}
+
+.tool-item .tool-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+
+.tool-item .tool-url {
+    margin-bottom: 0.75rem;
+}
+
+.tool-item .tool-description {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
+
+.tool-item .tool-tags {
+    margin-bottom: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+
+.tool-item .tool-tag {
+    flex-shrink: 0;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.7rem;
+    border-radius: 12px;
+}
+
+.tool-item .tool-actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-left: 1rem;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tool-item:hover .tool-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.tool-item .tool-action-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.no-tools {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    grid-column: 1 / -1;
+}
+
+.no-tools-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.no-tools-icon i {
+    font-size: 2rem;
+    color: #ff4757;
+}
+
+.no-tools h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+}
+
+.no-tools p {
+    font-size: 1rem;
+    max-width: 400px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+/* Modal Styles for Add/Edit Tool and Delete Confirmation (specific to vault) */
+#addToolModal .modal-content,
+#deleteModal .modal-content {
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+#addToolModal .modal-header,
+#deleteModal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#addToolModal .modal-header h3,
+#deleteModal .modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+#addToolModal .modal-close,
+#deleteModal .modal-close {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#addToolModal .modal-close:hover,
+#deleteModal .modal-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+#deleteModal .delete-modal .modal-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+
+#deleteModal .delete-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc3545;
+    font-size: 1.5rem;
+}
+
+#deleteModal .modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+#deleteModal .modal-body p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Form Styles within modals */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    outline: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #ff4757;
+    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group select option {
+    background: #1a1a2e;
+    color: #ffffff;
+}
+
+.form-group small {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1rem 2rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 2rem;
+}
+
+/* Import Tools Modal specific styles */
+#importToolsModal .import-section {
+    text-align: center;
+}
+
+#importToolsModal .import-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff4757, #ff6b7a);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin: 0 auto 2rem;
+    box-shadow: 0 12px 32px rgba(255, 71, 87, 0.3);
+}
+
+#importToolsModal h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 1rem;
+}
+
+#importToolsModal p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+#toolsFileUploadArea {
+    border: 2px dashed rgba(255, 71, 87, 0.3);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    background: rgba(255, 71, 87, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 2rem;
+}
+
+#toolsFileUploadArea:hover {
+    border-color: rgba(255, 71, 87, 0.5);
+    background: rgba(255, 71, 87, 0.08);
+}
+
+#toolsFileUploadArea.dragover {
+    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.12);
+    transform: scale(1.02);
+}
+
+#importToolsModal .upload-content i {
+    font-size: 3rem;
+    color: #ff4757;
+    margin-bottom: 1rem;
+}
+
+#importToolsModal .upload-content h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+#importToolsModal .upload-content p {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 2rem;
+}
+
+/* REFINED Responsive adjustments for Intelligence Vault */
+
+/* Overall container adjustment if needed - review app-container and main-content from styles.css */
+/* Make sure the main content area has proper flexible width and overflow handling */
+
+/* General adjustments for screens up to 1400px (large desktops/laptops) */
+@media (max-width: 1400px) {
+    .tools-grid {
+        /* Adjusted for fewer columns at max-width 1400px, like Multi-Vault */
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Aim for 4-5 columns max */
+        gap: 1.5rem;
+    }
+
+    .tool-card {
+        padding: 1.5rem;
+    }
+
+    .tool-name {
+        font-size: 1.4rem;
+    }
+
+    .tool-description {
+        font-size: 0.95rem;
+    }
+}
+
+/* Tablet and smaller laptop devices (up to 1024px) */
+@media (max-width: 1024px) {
+    .vault-controls {
+        flex-direction: column; /* Stack controls vertically */
+        align-items: stretch; /* Stretch items to full width */
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .vault-search {
+        max-width: 100%; /* Ensure search takes full width */
+    }
+
+    .vault-filters {
+        flex-direction: column; /* Stack filters vertically */
+        align-items: stretch;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    .vault-filters select,
+    .view-toggle {
+        width: 100%; /* Make selects and toggle full width */
+    }
+
+    .bulk-actions {
+        order: -1; /* Move bulk actions to the top for prominence */
+        width: 100%;
+        margin-left: 0; /* Remove auto margin */
+        padding: 0.75rem 1rem;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .selected-count {
+        flex-basis: 100%; /* Ensure count takes full line */
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .bulk-btn {
+        flex-grow: 1; /* Allow buttons to expand */
+        width: auto;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .parent-tabs,
+    .child-tabs {
+        /* Ensure these still scroll horizontally but fit within parent */
+        padding: 0.5rem;
+        margin-left: 0; /* Reset negative margins if present in global styles */
+        margin-right: 0;
+        width: 100%; /* Crucial: make sure they don't try to go wider than parent */
+        border-radius: 12px;
+        justify-content: flex-start;
+        box-sizing: border-box; /* Re-confirm box-sizing */
+    }
+
+    .tools-grid {
+        /* Adjusted for 2-3 columns on tablets */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Smaller min-width for more flexibility */
+        gap: 1rem;
+    }
+
+    .tool-card {
+        padding: 1.2rem;
+    }
+
+    .tool-name {
+        font-size: 1.25rem;
+    }
+
+    .tool-description {
+        font-size: 0.9rem;
+    }
+
+    .tool-tags {
+        gap: 0.4rem;
+    }
+
+    .tool-tag {
+        padding: 0.25rem 0.8rem;
+        font-size: 0.75rem;
+    }
+
+    .tool-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6rem;
+    }
+
+    .tool-action-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 0.95rem;
+    }
+
+    .tool-item {
+        flex-direction: column; /* Stack elements in list view */
+        align-items: flex-start;
+        padding: 1rem;
+        gap: 0.8rem;
+    }
+
+    .tool-item .tool-checkbox {
+        margin-bottom: 0.5rem;
+    }
+
+    .tool-item .tool-info {
+        width: 100%;
+    }
+
+    .tool-item .tool-actions {
+        flex-direction: row; /* Keep actions in a row at bottom of list item */
+        justify-content: flex-end;
+        width: 100%;
+        margin-top: 0.5rem;
+        opacity: 1; /* Always show actions in list view for better interaction */
+        transform: translateX(0);
+    }
+}
+
+/* Mobile devices (up to 768px) */
+@media (max-width: 768px) {
+    /* Assuming .content-section has a standard padding that contributes to the issue */
+    /* This rule will make the content section itself flexible */
+    .content-section {
+        padding: 1rem; /* Adjust general padding */
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden; /* Ensure this section doesn't cause horizontal scroll */
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .header-content h1 {
+        font-size: 1.8rem; /* Smaller title */
+        margin-bottom: 0.25rem;
+    }
+
+    .header-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .header-actions,
+    .header-filters {
+        gap: 0.5rem;
+    }
+
+    .header-filters select,
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .vault-controls {
+        padding: 0.5rem;
+        gap: 0.8rem;
+        border-radius: 10px;
+    }
+
+    .vault-search input {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .vault-filters select {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.8rem;
+    }
+
+    .view-btn {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.85rem;
+    }
+
+    .bulk-actions {
+        padding: 0.5rem 0.7rem;
+        border-radius: 8px;
+    }
+
+    .selected-count {
+        font-size: 0.8rem;
+    }
+
+    .bulk-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Tabs (Parent and Child) - Adjusted for Mobile Full Bleed */
+    .parent-tabs,
+    .child-tabs {
+        padding: 0.2rem;
+        border-radius: 8px;
+        gap: 0.2rem;
+        /* Critical for full bleed to match Multi-Vault */
+        margin-left: -1rem; /* This cancels out the .content-section's padding */
+        margin-right: -1rem;
+        width: calc(100% + 2rem); /* And this expands to fill the new width */
+    }
+
+    .parent-tab {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.75rem;
+        gap: 0.4rem;
+        border-radius: 8px;
+    }
+
+    .parent-tab i {
+        font-size: 0.9rem;
+    }
+
+    .child-tab {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    .tools-grid {
+        grid-template-columns: 1fr; /* Single column for all mobile */
+        gap: 0.6rem;
+    }
+
+    .tool-card {
+        padding: 0.8rem;
+        border-radius: 10px;
+    }
+
+    .tool-checkbox {
+        top: 0.6rem;
+        left: 0.6rem;
+    }
+
+    .tool-header {
+        padding-top: 0.6rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .tool-status {
+        font-size: 0.9rem;
+        gap: 0.5rem;
+    }
+
+    .tool-name {
+        font-size: 1.2rem;
+    }
+
+    .tool-url a {
+        font-size: 0.8rem;
+        gap: 0.4rem;
+    }
+
+    .tool-description {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .tool-tags {
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .tool-tag {
+        padding: 0.15rem 0.5rem;
+        font-size: 0.65rem;
+        border-radius: 8px;
+    }
+
+    .tool-actions {
+        gap: 0.4rem;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .tool-action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+        padding: 0.5rem;
+        flex-grow: 1;
+    }
+
+    .tool-item {
+        padding: 0.6rem 0.8rem;
+        gap: 0.5rem;
+        border-radius: 10px;
+    }
+
+    .tool-item .tool-header {
+        margin-bottom: 0.15rem;
+    }
+
+    .tool-item .tool-name {
+        font-size: 1rem;
+    }
+
+    .tool-item .tool-url {
+        font-size: 0.75rem;
+    }
+
+    .tool-item .tool-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 3;
+    }
+
+    .tool-item .tool-actions {
+        gap: 0.2rem;
+        justify-content: space-around;
+    }
+
+    .tool-item .tool-action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+        padding: 0.3rem;
+    }
+
+    .no-tools {
+        padding: 1rem 0.5rem;
+    }
+
+    .no-tools-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 0.6rem;
+    }
+
+    .no-tools-icon i {
+        font-size: 1rem;
+    }
+
+    .no-tools h3 {
+        font-size: 1rem;
+    }
+
+    .no-tools p {
+        font-size: 0.8rem;
+        max-width: 95%;
+    }
+}
