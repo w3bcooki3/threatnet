@@ -554,18 +554,18 @@
                         <div class="vault-filters">
                             <select id="vaultEntryTypeFilter" onchange="filterVaultEntries()">
                                 <option value="all">All Entry Types</option>
-                                <option value="tool">Tools</option>
-                                <option value="email">Email Addresses</option>
-                                <option value="phone">Phone Numbers</option>
+                                <option value="tool">Tool</option>
+                                <option value="email">Email Address</option>
+                                <option value="phone">Phone Number</option>
                                 <option value="crypto">Crypto Transaction</option>
-                                <option value="location">Locations</option>
+                                <option value="location">Location</option>
                                 <option value="link">Social / Internet Link</option>
-                                <option value="media">Images / Videos</option>
+                                <option value="media">Image / Video</option>
                                 <option value="password">Password</option>
                                 <option value="keyword">Keyword</option>
                                 <option value="social">Social Media Profile</option>
-                                <option value="domain">Domains/IPs/URLs</option>
-                                <option value="username">Usernames/Handles</option>
+                                <option value="domain">Domain/IP/URL</option>
+                                <option value="username">Username/Handle</option>
                                 <option value="threat">Threat Intelligence</option>
                                 <option value="vulnerability">Vulnerability</option>
                                 <option value="malware">Malware/File</option>
@@ -777,6 +777,9 @@
                     <button class="dork-tab-btn" onclick="showDorkTab('saved-queries')">
                         <i class="fas fa-bookmark"></i> Saved Queries
                     </button>
+                    <button class="dork-tab-btn" onclick="showDorkTab('audit-log')">
+                        <i class="fas fa-history"></i> Audit Log
+                    </button>
                 </div>
 
                 <div id="query-builder-tab" class="dork-tab-content active">
@@ -814,6 +817,9 @@
                                 <div class="query-output">
                                     <textarea id="generated-query" readonly placeholder="Your query will appear here..."></textarea>
                                     <div class="query-actions">
+                                        <button onclick="clearQuery()" class="btn-secondary clear-query-btn">
+                                            <i class="fas fa-eraser"></i> Clear Query
+                                        </button>
                                         <button onclick="copyQuery()" class="btn-secondary">
                                             <i class="fas fa-copy"></i> Copy
                                         </button>
@@ -840,6 +846,10 @@
                     <div class="templates-container">
                         <div class="templates-header">
                             <div class="templates-filters">
+                                <div class="template-search-bar">
+                                    <input type="text" id="template-search-input" placeholder="Search templates..." onkeyup="searchTemplates()">
+                                    <i class="fas fa-search"></i>
+                                </div>
                                 <select id="template-engine" onchange="filterTemplates()">
                                     <option value="all">All Engines</option>
                                     <option value="google">Google</option>
@@ -891,6 +901,20 @@
                         </div>
 
                         <div class="saved-queries-list" id="saved-queries-list">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="audit-log-tab" class="dork-tab-content">
+                    <div class="audit-log-container">
+                        <div class="audit-log-header">
+                            <h3>Dork Assistant Audit Log</h3>
+                            <button onclick="clearAuditLog()" class="btn-danger">
+                                <i class="fas fa-trash"></i> Clear Log
+                            </button>
+                        </div>
+                        <div class="audit-log-list" id="audit-log-list">
+                            <p class="no-logs-message">No audit log entries to display.</p>
                         </div>
                     </div>
                 </div>

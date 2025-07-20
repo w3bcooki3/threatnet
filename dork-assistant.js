@@ -7,7 +7,7 @@ class DorkAssistant {
         this.currentTemplateCategory = 'all'; // Initialize current category filter
         this.itemToDelete = null; // Stores the ID of the item to be deleted
         this.itemTypeToDelete = null; // Stores the type of item ('template' or 'savedQuery')
-
+        this.auditLog = this.loadAuditLog(); // Initialize audit log
 
         this.searchEngines = {
             google: {
@@ -186,6 +186,7 @@ class DorkAssistant {
         this.renderTemplates();
         this.renderSavedQueries();
         this.renderTemplateCategories(); // Call this here to initially render categories
+        this.renderAuditLog(); // Render audit log on initialization
     }
 
     // Initialize default templates
@@ -326,6 +327,258 @@ class DorkAssistant {
                     category: 'vulnerabilities',
                     engines: ['shodan', 'fofa'],
                     tags: ['apache', 'struts', 'rce', 'vulnerability', 'server']
+                },
+                {
+                    id: 16,
+                    name: 'WordPress Vulnerabilities',
+                    description: 'Identify WordPress sites with known vulnerabilities',
+                    query: 'inurl:wp-content OR inurl:wp-includes intitle:\"WordPress\"',
+                    category: 'web',
+                    engines: ['google', 'bing'],
+                    tags: ['wordpress', 'cms', 'vulnerability', 'php']
+                },
+                {
+                    id: 17,
+                    name: 'IoT Devices by Manufacturer',
+                    description: 'Find specific IoT devices by manufacturer',
+                    query: 'product:\"D-Link\" port:80',
+                    category: 'iot',
+                    engines: ['shodan'],
+                    tags: ['iot', 'device', 'manufacturer', 'smart-home']
+                },
+                {
+                    id: 18,
+                    name: 'Employee Directories',
+                    description: 'Search for exposed employee directories or lists',
+                    query: 'intitle:\"employee directory\" OR intitle:\"staff list\"',
+                    category: 'people',
+                    engines: ['google', 'bing'],
+                    tags: ['employee', 'directory', 'staff', 'osint']
+                },
+                {
+                    id: 19,
+                    name: 'Google Docs Public',
+                    description: 'Find publicly accessible Google Docs',
+                    query: 'site:docs.google.com inurl:edit filetype:doc',
+                    category: 'cloud',
+                    engines: ['google'],
+                    tags: ['google-docs', 'cloud', 'public', 'sharing']
+                },
+                {
+                    id: 20,
+                    name: 'Exposed AWS S3 Buckets',
+                    description: 'Specific search for exposed AWS S3 buckets',
+                    query: 'site:.s3.amazonaws.com public',
+                    category: 'cloud',
+                    engines: ['google'],
+                    tags: ['aws', 's3', 'bucket', 'cloud']
+                },
+                {
+                    id: 21,
+                    name: 'Social Media OSINT',
+                    description: 'Find public social media profiles related to a keyword',
+                    query: 'site:twitter.com OR site:linkedin.com \"keyword\"',
+                    category: 'social',
+                    engines: ['google'],
+                    tags: ['social-media', 'osint', 'profile', 'public']
+                },
+                {
+                    id: 22,
+                    name: 'Government Tender Documents',
+                    description: 'Locate public government tender documents',
+                    query: 'site:gov.au filetype:pdf tender OR bid',
+                    category: 'government',
+                    engines: ['google'],
+                    tags: ['government', 'tender', 'procurement', 'public-records']
+                },
+                {
+                    id: 23,
+                    name: 'Exposed Log Files',
+                    description: 'Find publicly exposed server log files',
+                    query: 'filetype:log access_log OR error_log',
+                    category: 'files',
+                    engines: ['google', 'bing'],
+                    tags: ['logs', 'server', 'exposed', 'debug']
+                },
+                {
+                    id: 24,
+                    name: 'Vulnerable Jenkins Instances',
+                    description: 'Find exposed Jenkins CI/CD servers',
+                    query: 'product:Jenkins port:8080',
+                    category: 'vulnerabilities',
+                    engines: ['shodan', 'censys'],
+                    tags: ['jenkins', 'ci/cd', 'exposed', 'devops']
+                },
+                {
+                    id: 25,
+                    name: 'IoT Dashboards',
+                    description: 'Discover exposed IoT control panels/dashboards',
+                    query: 'intitle:\"dashboard\" inurl:iot',
+                    category: 'iot',
+                    engines: ['google', 'bing'],
+                    tags: ['iot', 'dashboard', 'control', 'exposed']
+                },
+                {
+                    id: 26,
+                    name: 'Company Contact Lists',
+                    description: 'Search for exposed company contact information',
+                    query: 'intitle:\"contact us\" OR \"our team\" filetype:xls',
+                    category: 'people',
+                    engines: ['google', 'bing'],
+                    tags: ['company', 'contact', 'employees', 'osint']
+                },
+                {
+                    id: 27,
+                    name: 'Git Repositories',
+                    description: 'Find exposed .git directories or repository leaks',
+                    query: 'inurl:.git/config OR inurl:.git/HEAD',
+                    category: 'files',
+                    engines: ['google', 'bing'],
+                    tags: ['git', 'repository', 'exposed', 'source-code']
+                },
+                {
+                    id: 28,
+                    name: 'Blockchain Explorers',
+                    description: 'Access public blockchain explorers for crypto investigations',
+                    query: 'site:etherscan.io OR site:blockchain.com bitcoin',
+                    category: 'crypto',
+                    engines: ['google'],
+                    tags: ['blockchain', 'crypto', 'bitcoin', 'ethereum']
+                },
+                {
+                    id: 29,
+                    name: 'Dark Web Forums (via Clearnet)',
+                    description: 'Find mentions or links to dark web forums on clearnet',
+                    query: 'site:.onion link:forum OR \"darknet market\"',
+                    category: 'dark-web',
+                    engines: ['google'],
+                    tags: ['darkweb', 'forum', 'market', 'clearnet']
+                },
+                {
+                    id: 30,
+                    name: 'Vulnerable Routers',
+                    description: 'Identify potentially vulnerable router interfaces',
+                    query: 'intitle:\"router setup\" OR \"admin login\" inurl:8080',
+                    category: 'network',
+                    engines: ['google', 'shodan'],
+                    tags: ['router', 'vulnerability', 'network', 'admin']
+                },
+                {
+                    id: 31,
+                    name: 'Specific SSH Version via Shodan',
+                    description: 'Find SSH servers running a specific version (e.g., for known vulnerabilities)',
+                    query: 'port:22 product:OpenSSH version:{{SSH_VERSION}}',
+                    category: 'vulnerabilities',
+                    engines: ['shodan'],
+                    tags: ['ssh', 'version', 'vulnerability']
+                },
+                {
+                    id: 32,
+                    name: 'Emails from Specific Domain (IntelX)',
+                    description: 'Search for email addresses from a specific domain in IntelX',
+                    query: 'type:1 \"{{EMAIL_DOMAIN}}\"',
+                    category: 'osint',
+                    engines: ['intelx'],
+                    tags: ['email', 'osint', 'domain']
+                },
+                {
+                    id: 33,
+                    name: 'Apache Struts CVE Search (Shodan)',
+                    description: 'Search Shodan for Apache Struts instances vulnerable to a specific CVE',
+                    query: 'product:Apache Struts vuln:{{CVE_ID}}',
+                    category: 'vulnerabilities',
+                    engines: ['shodan'],
+                    tags: ['apache', 'struts', 'cve', 'vulnerability']
+                },
+                {
+                    id: 34,
+                    name: 'Public Trello Boards',
+                    description: 'Find publicly accessible Trello boards that might contain sensitive information',
+                    query: 'site:trello.com inurl:board intext:confidential OR password',
+                    category: 'cloud',
+                    engines: ['google', 'bing'],
+                    tags: ['trello', 'collaboration', 'exposed', 'misconfiguration']
+                },
+                {
+                    id: 35,
+                    name: 'Exposed ElasticSearch Instances',
+                    description: 'Discover publicly accessible ElasticSearch instances',
+                    query: 'port:9200 product:ElasticSearch',
+                    category: 'databases',
+                    engines: ['shodan'],
+                    tags: ['elasticsearch', 'database', 'exposed', 'nosql']
+                },
+                {
+                    id: 36,
+                    name: 'Microsoft Exchange Web Access',
+                    description: 'Find Microsoft Exchange Web Access (OWA) portals',
+                    query: 'intitle:\"Outlook Web App\" inurl:owa',
+                    category: 'web',
+                    engines: ['google', 'bing'],
+                    tags: ['exchange', 'owa', 'webmail']
+                },
+                {
+                    id: 37,
+                    name: 'Open Jenkins Servers',
+                    description: 'Find Jenkins servers that might be openly accessible',
+                    query: 'intitle:\"Jenkins\" inurl:jenkins/login',
+                    category: 'web',
+                    engines: ['google', 'bing'],
+                    tags: ['jenkins', 'ci/cd', 'exposed']
+                },
+                {
+                    id: 38,
+                    name: 'Exposed Docker Registries',
+                    description: 'Identify public or misconfigured Docker registries',
+                    query: 'port:5000 \"Docker Registry\"',
+                    category: 'cloud',
+                    engines: ['shodan'],
+                    tags: ['docker', 'registry', 'exposed', 'container']
+                },
+                {
+                    id: 39,
+                    name: 'Confidential PDFs',
+                    description: 'Search for PDF documents containing the word \'confidential\'',
+                    query: 'filetype:pdf confidential',
+                    category: 'files',
+                    engines: ['google', 'bing'],
+                    tags: ['pdf', 'confidential', 'document']
+                },
+                {
+                    id: 40,
+                    name: 'Public CCTV Streams',
+                    description: 'Find public CCTV camera streams',
+                    query: 'inurl:\"/view/viewer_index.shtml\" intitle:\"Live View\"',
+                    category: 'iot',
+                    engines: ['google'],
+                    tags: ['cctv', 'camera', 'stream', 'public']
+                },
+                {
+                    id: 41,
+                    name: 'Exposed RDP Servers',
+                    description: 'Find systems with exposed RDP (Remote Desktop Protocol)',
+                    query: 'port:3389',
+                    category: 'remote-access',
+                    engines: ['shodan', 'censys', 'zoomeye'],
+                    tags: ['rdp', 'remote', 'desktop', 'access']
+                },
+                {
+                    id: 42,
+                    name: 'Publicly Accessible FTP Servers',
+                    description: 'Find exposed FTP servers allowing anonymous login',
+                    query: 'port:21 \"Anonymous FTP login accepted\"',
+                    category: 'network',
+                    engines: ['shodan', 'censys'],
+                    tags: ['ftp', 'filetransfer', 'exposed', 'anonymous']
+                },
+                {
+                    id: 43,
+                    name: 'Cisco IOS Devices',
+                    description: 'Identify exposed Cisco IOS devices',
+                    query: 'product:\"Cisco IOS\" port:8080',
+                    category: 'network',
+                    engines: ['shodan', 'censys', 'zoomeye'],
+                    tags: ['cisco', 'network', 'device', 'router']
                 }
             ];
             this.saveTemplates();
@@ -354,6 +607,8 @@ class DorkAssistant {
             this.renderTemplateCategories(); // Ensure categories are rendered when tab is active
         } else if (tabName === 'saved-queries') {
             this.renderSavedQueries();
+        } else if (tabName === 'audit-log') {
+            this.renderAuditLog();
         }
     }
 
@@ -459,6 +714,17 @@ class DorkAssistant {
         this.updateConversions(query);
     }
 
+    // Clear all inputs in the query builder
+    clearQuery() {
+        document.getElementById('basic-terms').value = '';
+        document.querySelectorAll('.operator-field input').forEach(input => {
+            input.value = '';
+        });
+        document.getElementById('generated-query').value = '';
+        this.updateConversions(''); // Clear conversions as well
+        this.showNotification('Query builder cleared!', 'info');
+    }
+
     // Update query conversions for other engines
     updateConversions(query) {
         const conversionsDiv = document.getElementById('conversion-results');
@@ -515,6 +781,7 @@ class DorkAssistant {
             url = engine.url + btoa(query);
         }
         window.open(url, '_blank');
+        this.logAudit('TEST_CONVERTED_QUERY', { query: query, targetEngine: engine.name });
     }
 
     // Convert query between different search engines
@@ -702,6 +969,7 @@ class DorkAssistant {
 
         navigator.clipboard.writeText(query).then(() => {
             this.showNotification('Query copied to clipboard!', 'success');
+            this.logAudit('COPY_QUERY', { query: query, engine: this.currentEngine });
         }).catch(() => {
             this.showNotification('Failed to copy query', 'error');
         });
@@ -724,6 +992,7 @@ class DorkAssistant {
         }
 
         window.open(url, '_blank');
+        this.logAudit('TEST_QUERY', { query: query, engine: this.currentEngine });
     }
 
     // Save current query
@@ -769,6 +1038,7 @@ class DorkAssistant {
         this.renderSavedQueries();
         this.closeSaveQueryModal();
         this.showNotification('Query saved successfully!', 'success');
+        this.logAudit('SAVE_QUERY', { name: name, query: savedQuery.query, engine: savedQuery.engine });
     }
 
     // Close save query modal
@@ -828,6 +1098,11 @@ class DorkAssistant {
             case 'data leaks': return 'fas fa-shield-virus'; // Changed icon for data leaks
             case 'osint': return 'fas fa-user-secret';
             case 'network': return 'fas fa-network-wired';
+            case 'web': return 'fas fa-globe';
+            case 'people': return 'fas fa-user-friends';
+            case 'crypto': return 'fas fa-bitcoin';
+            case 'dark-web': return 'fas fa-moon';
+            case 'remote-access': return 'fas fa-desktop';
             default: return 'fas fa-folder';
         }
     }
@@ -836,17 +1111,30 @@ class DorkAssistant {
     renderTemplates() {
         const templatesContainer = document.getElementById('templates-grid'); // Still refers to the main container
         const engineFilter = document.getElementById('template-engine').value;
+        const searchTerm = document.getElementById('template-search-input').value.toLowerCase(); // Get search term
 
         let filteredTemplates = this.templates;
 
-        // Use currentTemplateCategory for filtering
+        // Apply category filter
         if (this.currentTemplateCategory && this.currentTemplateCategory !== 'all') {
             filteredTemplates = filteredTemplates.filter(t => t.category === this.currentTemplateCategory);
         }
 
+        // Apply engine filter
         if (engineFilter !== 'all') {
             filteredTemplates = filteredTemplates.filter(t => t.engines.includes(engineFilter));
         }
+
+        // Apply search term filter
+        if (searchTerm) {
+            filteredTemplates = filteredTemplates.filter(t =>
+                t.name.toLowerCase().includes(searchTerm) ||
+                t.description.toLowerCase().includes(searchTerm) ||
+                t.query.toLowerCase().includes(searchTerm) ||
+                t.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            );
+        }
+
 
         templatesContainer.innerHTML = '';
         templatesContainer.className = 'templates-list'; // Apply the new list class
@@ -867,7 +1155,10 @@ class DorkAssistant {
                         <code>${this.highlightPlaceholders(template.query)}</code>
                     </div>
                     <div class="template-meta">
-                        <span class="template-category">${template.category.charAt(0).toUpperCase() + template.category.slice(1)}</span>
+                        <span class="template-category">
+                            <i class="${this.getCategoryIcon(template.category)}"></i>
+                            ${template.category.charAt(0).toUpperCase() + template.category.slice(1)}
+                        </span>
                         <div class="template-engines">
                             ${template.engines.map(engine =>
                                 `<span class="engine-tag">${this.searchEngines[engine].name}</span>`
@@ -946,7 +1237,7 @@ class DorkAssistant {
         this.updateQuerySyntax(); // This will re-render operators
         this.populateQueryBuilderFromLoadedQuery(queryToUse, document.getElementById('search-engine').value);
 
-
+        this.logAudit('USE_TEMPLATE', { name: template.name, query: queryToUse, originalTemplate: template.query, engine: document.getElementById('search-engine').value });
         this.showNotification(`Template "${template.name}" loaded!`, 'success');
     }
 
@@ -955,6 +1246,11 @@ class DorkAssistant {
         // This method will now primarily trigger re-rendering of templates based on selected filters (engine)
         // Category filtering is handled by `filterTemplatesByCategory`
         this.renderTemplates();
+    }
+
+    // Search templates by name, description, or tags
+    searchTemplates() {
+        this.renderTemplates(); // Rerender templates with the new search term applied
     }
 
     // Show add template modal
@@ -1016,6 +1312,7 @@ class DorkAssistant {
         this.renderTemplateCategories(); // Update categories list
         this.closeAddTemplateModal();
         this.showNotification('Template saved successfully!', 'success');
+        this.logAudit('ADD_TEMPLATE', { name: name, query: query });
     }
 
     // NEW: Edit Template function
@@ -1093,6 +1390,7 @@ class DorkAssistant {
 
         window.open(url, '_blank');
         this.showNotification('Executing previewed query!', 'info');
+        this.logAudit('EXECUTE_PREVIEWED_QUERY', { query: previewQuery, engine: engine.name });
     }
 
     // NEW: Save Edited Template
@@ -1104,6 +1402,8 @@ class DorkAssistant {
             this.showNotification('Error: Template not found for editing.', 'error');
             return;
         }
+
+        const oldTemplate = { ...this.templates[templateIndex] }; // Clone for audit log
 
         const name = document.getElementById('editTemplateName').value.trim();
         const description = document.getElementById('editTemplateDescription').value.trim();
@@ -1138,6 +1438,7 @@ class DorkAssistant {
         this.renderTemplateCategories(); // Re-render sidebar as categories might change
         this.closeEditTemplateModal();
         this.showNotification('Template updated successfully!', 'success');
+        this.logAudit('EDIT_TEMPLATE', { id: templateId, old: oldTemplate, new: this.templates[templateIndex] });
     }
 
     // NEW: Close Edit Template Modal
@@ -1239,7 +1540,7 @@ class DorkAssistant {
         // Attempt to populate operator fields from loaded query for better editing experience
         this.populateQueryBuilderFromLoadedQuery(query.query, query.engine);
 
-
+        this.logAudit('LOAD_SAVED_QUERY', { name: query.name, query: query.query, engine: query.engine });
         this.showNotification(`Query "${query.name}" loaded!`, 'success');
     }
 
@@ -1334,6 +1635,7 @@ class DorkAssistant {
 
         navigator.clipboard.writeText(query.query).then(() => {
             this.showNotification('Query copied to clipboard!', 'success');
+            this.logAudit('COPY_SAVED_QUERY', { name: query.name, query: query.query });
         }).catch(() => {
             this.showNotification('Failed to copy query', 'error');
         });
@@ -1352,6 +1654,7 @@ class DorkAssistant {
         }
 
         window.open(url, '_blank');
+        this.logAudit('TEST_SAVED_QUERY', { name: query.name, query: query.query, engine: query.engine });
     }
 
     // Delete saved query (now uses custom modal)
@@ -1370,9 +1673,13 @@ class DorkAssistant {
         this.itemTypeToDelete = type;
         const messageElement = document.getElementById('deleteMessage');
         if (type === 'template') {
-            messageElement.textContent = 'Are you sure you want to delete this template? This action cannot be undone.';
+            const template = this.templates.find(t => t.id === id);
+            messageElement.textContent = `Are you sure you want to delete the template "${template.name}"? This action cannot be undone.`;
         } else if (type === 'savedQuery') {
-            messageElement.textContent = 'Are you sure you want to delete this saved query? This action cannot be undone.';
+            const savedQuery = this.savedQueries.find(q => q.id === id);
+            messageElement.textContent = `Are you sure you want to delete the saved query "${savedQuery.name}"? This action cannot be undone.`;
+        } else if (type === 'auditLog') {
+            messageElement.textContent = 'Are you sure you want to clear the entire audit log? This action cannot be undone.';
         }
         document.getElementById('deleteModal').style.display = 'flex';
     }
@@ -1387,18 +1694,90 @@ class DorkAssistant {
     // NEW: Perform deletion after confirmation
     performDeletion() {
         if (this.itemTypeToDelete === 'template') {
+            const deletedTemplate = this.templates.find(t => t.id === this.itemToDelete);
             this.templates = this.templates.filter(t => t.id !== this.itemToDelete);
             this.saveTemplates();
             this.renderTemplates();
             this.renderTemplateCategories();
             this.showNotification('Template deleted successfully!', 'success');
+            this.logAudit('DELETE_TEMPLATE', { name: deletedTemplate.name, query: deletedTemplate.query });
         } else if (this.itemTypeToDelete === 'savedQuery') {
+            const deletedQuery = this.savedQueries.find(q => q.id === this.itemToDelete);
             this.savedQueries = this.savedQueries.filter(q => q.id !== this.itemToDelete);
             this.saveSavedQueries();
             this.renderSavedQueries();
             this.showNotification('Saved query deleted successfully!', 'success');
+            this.logAudit('DELETE_SAVED_QUERY', { name: deletedQuery.name, query: deletedQuery.query });
+        } else if (this.itemTypeToDelete === 'auditLog') {
+            this.clearAuditLog();
+            this.showNotification('Audit log cleared successfully!', 'success');
         }
         this.closeDeleteConfirmModal();
+    }
+
+    // Audit Log Methods
+    logAudit(action, details = {}) {
+        const timestamp = new Date().toISOString();
+        const auditEntry = {
+            id: Date.now(),
+            timestamp: timestamp,
+            action: action,
+            details: details,
+            user: 'Admin' // Placeholder for user
+        };
+        this.auditLog.unshift(auditEntry); // Add to the beginning for newest first
+        this.saveAuditLog();
+        // Only re-render if the audit log tab is active
+        if (document.getElementById('audit-log-tab') && document.getElementById('audit-log-tab').classList.contains('active')) {
+            this.renderAuditLog();
+        }
+    }
+
+    renderAuditLog() {
+        const auditLogContainer = document.getElementById('audit-log-list');
+        if (!auditLogContainer) return;
+
+        auditLogContainer.innerHTML = '';
+
+        if (this.auditLog.length === 0) {
+            auditLogContainer.innerHTML = '<p class="no-logs-message">No audit log entries found.</p>';
+            return;
+        }
+
+        this.auditLog.forEach(entry => {
+            const logItem = document.createElement('div');
+            logItem.className = 'audit-log-item';
+            let detailsHtml = '';
+            for (const key in entry.details) {
+                let value = entry.details[key];
+                if (typeof value === 'object' && value !== null) {
+                    value = JSON.stringify(value, null, 2); // Pretty print JSON objects
+                    detailsHtml += `<li><strong>${key}:</strong> <pre><code>${value}</code></pre></li>`;
+                } else {
+                    detailsHtml += `<li><strong>${key}:</strong> ${value}</li>`;
+                }
+            }
+            logItem.innerHTML = `
+                <div class="log-header">
+                    <span class="log-timestamp">${new Date(entry.timestamp).toLocaleString()}</span>
+                    <span class="log-action">${entry.action.replace(/_/g, ' ')}</span>
+                    <span class="log-user">by ${entry.user}</span>
+                </div>
+                <div class="log-details">
+                    <ul>
+                        ${detailsHtml}
+                    </ul>
+                </div>
+            `;
+            auditLogContainer.appendChild(logItem);
+        });
+    }
+
+    clearAuditLog() {
+        this.auditLog = [];
+        this.saveAuditLog();
+        this.renderAuditLog();
+        this.showNotification('Audit log cleared!', 'success');
     }
 
 
@@ -1419,6 +1798,15 @@ class DorkAssistant {
 
     saveSavedQueries() {
         localStorage.setItem('dork-saved-queries', JSON.stringify(this.savedQueries));
+    }
+
+    loadAuditLog() {
+        const stored = localStorage.getItem('dork-audit-log');
+        return stored ? JSON.parse(stored) : [];
+    }
+
+    saveAuditLog() {
+        localStorage.setItem('dork-audit-log', JSON.stringify(this.auditLog));
     }
 
     // Show notification
@@ -1550,6 +1938,24 @@ function saveTemplate() {
 function filterSavedQueries() {
     if (window.dorkAssistant) {
         window.dorkAssistant.filterSavedQueries();
+    }
+}
+
+function clearQuery() { // Added global function for the new button
+    if (window.dorkAssistant) {
+        window.dorkAssistant.clearQuery();
+    }
+}
+
+function searchTemplates() { // Added global function for template search bar
+    if (window.dorkAssistant) {
+        window.dorkAssistant.searchTemplates();
+    }
+}
+
+function clearAuditLog() { // Added global function for clearing audit log
+    if (window.dorkAssistant) {
+        window.dorkAssistant.showDeleteConfirmModal(null, 'auditLog'); // Use the general delete confirm modal
     }
 }
 
