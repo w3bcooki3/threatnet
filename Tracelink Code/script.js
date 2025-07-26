@@ -614,8 +614,7 @@ function showSection(sectionName) {
     if (window.traceLinkManager) {
         const addNodeModal = document.getElementById('tracelink-add-node-modal');
         const editLabelModal = document.getElementById('tracelink-edit-label-modal');
-        const importModal = document.getElementById('tracelink-import-modal');
-        const connectEditModal = document.getElementById('tracelink-connect-edit-modal'); // ADD THIS LINE
+        const importModal = document.getElementById('tracelink-import-modal'); // ADD THIS LINE
         const contextMenu = document.getElementById('tracelink-context-menu');
 
         if (addNodeModal && addNodeModal.style.display === 'flex') {
@@ -624,23 +623,19 @@ function showSection(sectionName) {
         if (editLabelModal && editLabelModal.style.display === 'flex') {
             window.traceLinkManager.closeEditLabelModal();
         }
-        if (importModal && importModal.style.display === 'flex') {
+        if (importModal && importModal.style.display === 'flex') { // ADD THIS BLOCK
             window.traceLinkManager.closeImportModal();
-        }
-        if (connectEditModal && connectEditModal.style.display === 'flex') { // ADD THIS BLOCK
-            window.traceLinkManager.closeConnectEditModal();
         }
         if (contextMenu && contextMenu.style.display === 'block') {
             window.traceLinkManager.hideContextMenu();
         }
         // Also cancel any active connection mode
-        // The new modal approach replaces the "connection mode" listener, but this check is harmless.
-        // if (window.traceLinkManager._isConnecting) { // This state is now managed internally by modal close.
-        //     window.traceLinkManager._cancelConnectionMode();
-        // }
+        if (window.traceLinkManager._isConnecting) {
+            window.traceLinkManager._cancelConnectionMode();
+        }
     }
     // --- END MODAL CLOSING LOGIC ---
-    // Hide all sections
+// Hide all sections
     const sections = document.querySelectorAll('.content-section');
     sections.forEach(section => {
         section.classList.remove('active');
@@ -1609,19 +1604,6 @@ function editTool(toolId) {
     document.getElementById('addToolModal').style.display = 'flex';
 }
 
-// Your existing closeDeleteModal function definition
-function closeDeleteModal() { // This is the generic one
-    document.getElementById('deleteModal').style.display = 'none';
-    deleteTargetId = null;
-    deleteTargetType = 'single'; // Reset to default
-    if (window.dorkAssistant) {
-        window.dorkAssistant.resetDeleteConfirmModal();
-    }
-    if (window.blueTeamPlaybook) {
-        window.blueTeamPlaybook.resetDeleteConfirmation();
-    }
-}
-
 function deleteTool(toolId) {
     deleteTargetId = toolId;
     deleteTargetType = 'single';
@@ -1633,71 +1615,10 @@ function deleteTool(toolId) {
     document.getElementById('deleteModal').style.display = 'flex';
 }
 
-function confirmDelete() { // This is the global confirm function for the `deleteModal`
-    // This function will now ONLY handle deletions from sections *other* than TraceLink.
-    // TraceLink deletions are handled by TraceLinkManager.showConfirmDeleteModal().
-    
-    if (deleteTargetType === 'single' && deleteTargetId) {
-        const toolIndex = intelligenceTools.findIndex(t => t.id === deleteTargetId);
-        if (toolIndex !== -1) {
-            const toolName = intelligenceTools[toolIndex].name;
-            intelligenceTools.splice(toolIndex, 1);
-            showNotification(`"${toolName}" deleted successfully!`, 'success');
-        }
-    } else if (deleteTargetType === 'bulk') {
-        const deletedCount = selectedTools.size;
-        intelligenceTools = intelligenceTools.filter(tool => !selectedTools.has(tool.id));
-        selectedTools.clear();
-        showNotification(`${deletedCount} tools deleted successfully!`, 'success');
-        updateBulkActions();
-    } else if (deleteTargetType === 'vault' && deleteTargetId) {
-        const vaultIndex = vaults.findIndex(v => v.id === deleteTargetId);
-        if (vaultIndex !== -1) {
-            const vaultName = vaults[vaultIndex].name;
-            vaults.splice(vaultIndex, 1);
-            
-            saveVaults();
-            renderVaultTabs();
-            
-            if (vaults.length > 0) {
-                switchToVault(vaults[0].id);
-            } else {
-                currentVaultId = null;
-                document.getElementById('activeVaultContent').style.display = 'none';
-                document.getElementById('emptyVaultState').style.display = 'flex';
-            }
-            
-            // Critical: Here, we specifically call TraceLinkManager's deleteProject if a TraceLink project exists for this vault.
-            if (window.traceLinkManager && window.traceLinkManager.tracelinkProjects[deleteTargetId]) {
-                window.traceLinkManager.deleteProject(deleteTargetId); 
-            }
-
-            showNotification(`Vault "${vaultName}" deleted successfully`, 'success');
-        }
-    } else if (deleteTargetType === 'vault-entry' && deleteTargetId && currentVaultId) {
-        const vault = vaults.find(v => v.id === currentVaultId);
-        if (vault) {
-            const entryIndex = vault.entries.findIndex(e => e.id === deleteTargetId);
-            if (entryIndex !== -1) {
-                const entryName = vault.entries[entryIndex].name;
-                vault.entries.splice(entryIndex, 1);
-                vault.stats.totalEntries = vault.entries.length;
-                vault.stats.lastModified = new Date().toISOString();
-                
-                saveVaults();
-                renderVaultTabs();
-                updateVaultHeader(vault);
-                renderVaultEntries();
-                
-                showNotification(`Entry "${entryName}" deleted successfully`, 'success');
-            }
-        }
-    }
-    closeDeleteModal();
-    // Only apply filters if it's a tool deletion, otherwise it might re-render other sections unexpectedly.
-    if (deleteTargetType === 'single' || deleteTargetType === 'bulk') {
-        applyVaultFilters(); 
-    }
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    deleteTargetId = null;
+    deleteTargetType = 'single';
 }
 
 function confirmDelete() {

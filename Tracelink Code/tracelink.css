@@ -1,0 +1,553 @@
+/* TraceLink Section Styles */
+
+.tracelink-container {
+    display: flex;
+    flex-direction: column;
+    /* Adjust height based on top-bar and section-header - now relative to loaded content */
+    height: calc(100vh - 220px); /* Adjusted for the section's top/bottom padding + header */
+    position: relative;
+}
+
+.tracelink-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: nowrap; /* Keep tabs in a single row */
+}
+
+.tracelink-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap; /* Prevent tab text from wrapping */
+    flex-shrink: 0; /* Prevent tabs from shrinking */
+}
+
+.tracelink-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.tracelink-tab.active {
+    background: linear-gradient(135deg, rgba(0, 204, 204, 0.15), rgba(0, 153, 153, 0.1)); /* TraceLink accent */
+    border-color: rgba(0, 204, 204, 0.3);
+    color: #00cccc; /* TraceLink accent color */
+    box-shadow: 0 4px 16px rgba(0, 204, 204, 0.2);
+}
+
+.tracelink-tab .tab-close-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 0.9em;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.tracelink-tab .tab-close-btn:hover {
+    opacity: 1;
+    color: #ff4757; /* Danger color for close button */
+}
+
+.tracelink-tab-icon { /* New style for tab icons */
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8em;
+}
+
+.tracelink-tab-content { /* New style for tab content */
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-right: auto; /* Push close button to the right */
+}
+
+.tracelink-tab-name { /* Ensure this is distinct */
+    font-weight: 600;
+    font-size: 0.95em; /* Slightly larger or bolder */
+    color: inherit; /* Inherit color from parent active/inactive state */
+}
+
+.tracelink-tab-stats {
+    font-size: 0.75em; /* Keep it smaller */
+    color: rgba(255, 255, 255, 0.6);
+}
+
+
+.tracelink-canvas-container {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(180deg, #161621, #0a0a0f); /* Darker background for canvas */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden; /* Important for Cytoscape.js */
+}
+
+#cy {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.tracelink-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 10;
+    background: rgba(15, 15, 25, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.tracelink-controls button {
+    background: rgba(0, 204, 204, 0.15); /* TraceLink accent */
+    border: 1px solid rgba(0, 204, 204, 0.3);
+    color: #00cccc;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.tracelink-controls button:hover {
+    background: rgba(0, 204, 204, 0.25);
+    color: #00e6e6;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 204, 204, 0.2);
+}
+
+.tracelink-controls button.danger {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+}
+
+.tracelink-controls button.danger:hover {
+    background: rgba(220, 53, 69, 0.25);
+    color: #e74c3c;
+}
+
+.tracelink-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    min-height: 400px;
+    background: linear-gradient(180deg, #161621, #0a0a0f);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    /* Default to flex for initial display, JS will hide/show */
+}
+
+.tracelink-empty-state .empty-icon {
+    font-size: 4rem;
+    color: #00cccc;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.tracelink-empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+}
+
+.tracelink-empty-state p {
+    font-size: 1rem;
+    max-width: 400px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+/* Modals for TraceLink */
+/* NOTE: Modals are global in index.html, so their IDs (e.g., tracelink-add-node-modal)
+   are used by JS. The styling below applies to them. */
+#tracelink-add-node-modal .modal-content,
+#tracelink-edit-label-modal .modal-content {
+    max-width: 450px;
+}
+
+#tracelink-add-node-modal .form-group label,
+#tracelink-edit-label-modal .form-group label {
+    font-size: 0.95rem;
+}
+
+#tracelink-add-node-modal .form-group input,
+#tracelink-edit-label-modal .form-group input,
+#tracelink-add-node-modal .form-group select {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+}
+
+.metadata-pair { /* For dynamic custom fields in modal */
+    display: flex;
+    gap: 0.5rem; /* Reduced gap */
+    align-items: center;
+    margin-bottom: 0.75rem; /* Spacing between pairs */
+    width: 100%; /* Take full width */
+}
+
+.metadata-pair .form-group {
+    flex: 1; /* Make inputs take equal space */
+    margin-bottom: 0; /* Remove default form-group margin */
+}
+
+.metadata-pair .btn-danger-small {
+    width: 30px; /* Fixed width for delete button */
+    height: 30px; /* Fixed height for delete button */
+    padding: 0;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+
+/* Cytoscape.js specific styles */
+/* Base node styles - pulled from TraceLink accent color */
+#cy .cy-node {
+    background-color: #00cccc; /* Base color for nodes */
+    width: 60px;
+    height: 60px;
+    font-size: 10px; /* Adjust font size for small nodes */
+    text-halign: center;
+    text-valign: bottom;
+    color: white;
+    text-wrap: wrap; /* Allow node labels to wrap */
+    text-max-width: 80px; /* Max width for wrapped labels */
+    padding: 5px; /* Padding for text inside node */
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    border-width: 2px;
+    border-color: #00cccc;
+    box-shadow-color: rgba(0, 204, 204, 0.4);
+    box-shadow-blur: 8px;
+    box-shadow-offset-x: 0px;
+    box-shadow-offset-y: 0px;
+    box-shadow-opacity: 0.8;
+}
+
+#cy .cy-node:selected {
+    background-color: #00e6e6; /* Lighter on selection */
+    border-color: #ffffff; /* White border for selected */
+    border-width: 3px;
+    box-shadow-color: rgba(0, 204, 204, 0.8);
+    box-shadow-blur: 15px;
+    z-index: 999; /* Bring selected node to front */
+}
+
+/* Node for connection source highlight */
+#cy .cy-node.connect-source {
+    overlay-padding: 8px;
+    overlay-color: #00cccc;
+    overlay-opacity: 0.3;
+    border-color: #fff; /* White border for emphasis */
+    border-width: 4px; /* Thicker border */
+    box-shadow-blur: 20px;
+}
+
+
+/* Edge styles */
+#cy .cy-edge {
+    line-color: rgba(255, 255, 255, 0.4);
+    target-arrow-shape: triangle;
+    target-arrow-color: rgba(255, 255, 255, 0.4);
+    curve-style: bezier;
+    label: data(label); /* Display edge label */
+    font-size: 8px; /* Smaller font for labels */
+    color: rgba(255, 255, 255, 0.7);
+    text-background-opacity: 1;
+    text-background-color: rgba(15, 15, 25, 0.8);
+    text-background-padding: 3px;
+    text-border-width: 1px;
+    text-border-color: rgba(0, 204, 204, 0.2);
+    text-border-opacity: 1;
+    transition: line-color 0.3s ease, target-arrow-color 0.3s ease;
+}
+
+#cy .cy-edge:selected {
+    line-color: #00cccc; /* Highlight on selection */
+    target-arrow-color: #00cccc;
+    width: 3px; /* Thicker on selection */
+    z-index: 998;
+}
+
+/* Edge styles on hover (optional) */
+#cy .cy-edge:active {
+    line-color: #00e6e6;
+    target-arrow-color: #00e6e6;
+}
+
+/* Context menu */
+.tracelink-context-menu {
+    display: none;
+    position: absolute;
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    z-index: 10001;
+    padding: 0.5rem 0;
+}
+
+.tracelink-context-menu button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1.25rem;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.tracelink-context-menu button:hover {
+    background: rgba(0, 204, 204, 0.1);
+    color: #00cccc;
+}
+
+.tracelink-context-menu button.danger-option:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+/* Cytoscape.js pan/zoom control styles (default for basic white/black) */
+/* The default Cytoscape.js panzoom UI is typically added by a plugin,
+   and these styles will override its default appearance. */
+.cy-panzoom {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    z-index: 10;
+    font-size: 1.5em; /* Make buttons larger */
+}
+
+/* Base style for all panzoom buttons */
+.cy-panzoom-zoom-in,
+.cy-panzoom-zoom-out,
+.cy-panzoom-pan-up,
+.cy-panzoom-pan-down,
+.cy-panzoom-pan-left,
+.cy-panzoom-pan-right,
+.cy-panzoom-reset {
+    background-color: rgba(15, 15, 25, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+    padding: 0.4em !important; /* Adjust padding for button size */
+    transition: all 0.2s ease !important;
+}
+
+/* Hover effect for all panzoom buttons */
+.cy-panzoom-zoom-in:hover,
+.cy-panzoom-zoom-out:hover,
+.cy-panzoom-pan-up:hover,
+.cy-panzoom-pan-down:hover,
+.cy-panzoom-pan-left:hover,
+.cy-panzoom-pan-right:hover,
+.cy-panzoom-reset:hover {
+    background-color: rgba(0, 204, 204, 0.15) !important;
+    border-color: rgba(0, 204, 204, 0.3) !important;
+    color: #00cccc !important;
+    transform: translateY(-1px);
+}
+
+/* Specific spacing for the reset button */
+.cy-panzoom-reset {
+    margin-top: 5px !important;
+}
+
+/* Hide default cytoscape context menu if not needed */
+.cytoscape-context-menu-container {
+    display: none !important;
+}
+
+
+/* Styles for the new TraceLink Import Project Modal */
+#tracelink-import-modal .modal-content {
+    max-width: 600px;
+}
+
+.vault-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    max-height: 300px; /* Limit height for scroll */
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vault-selection-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    border: 1px solid transparent;
+    position: relative; /* For disabled overlay */
+    overflow: hidden; /* Ensure content stays within bounds */
+}
+
+.vault-selection-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.vault-selection-item input[type="checkbox"] {
+    /* Custom checkbox styling for better appearance */
+    -webkit-appearance: none; /* Hide default checkbox */
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px; /* Size of the custom checkbox */
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Prevent checkbox from shrinking */
+}
+
+.vault-selection-item input[type="checkbox"]:checked {
+    background-color: #00cccc; /* Accent color when checked */
+    border-color: #00cccc;
+}
+
+.vault-selection-item input[type="checkbox"]:checked::after {
+    /* Checkmark inside the box */
+    content: '\2713'; /* Unicode checkmark */
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.vault-selection-item input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.vault-selection-item.selected {
+    border-color: #00cccc;
+    box-shadow: 0 0 0 2px rgba(0, 204, 204, 0.5);
+    background: rgba(0, 204, 204, 0.1);
+}
+
+.vault-selection-item.already-imported {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Optional: Add an overlay for disabled/already-imported items */
+.vault-selection-item.already-imported::after {
+    content: 'Already Imported';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
+}
+
+.vault-selection-item .vault-icon {
+    font-size: 1.5rem;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white; /* Icon itself should be white, background is vault color */
+    flex-shrink: 0;
+}
+
+.vault-selection-item .vault-info {
+    flex-grow: 1;
+    color: rgba(255, 255, 255, 0.8);
+    overflow: hidden; /* Prevent text overflow */
+}
+
+.vault-selection-item .vault-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vault-selection-item .vault-entry-count {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-vaults-message {
+    grid-column: 1 / -1; /* Span all columns */
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.5);
+}

@@ -1,0 +1,92 @@
+<div class="section-header">
+    <div class="header-content">
+        <h1>TraceLink Graph Visualization</h1>
+        <p class="header-subtitle">Map and analyze relationships between Multi-Vault entities</p>
+    </div>
+    <div class="header-actions">
+         <button class="btn-primary" id="tracelink-import-from-vault-btn" onclick="window.traceLinkManager.showImportModal()">
+            <i class="fas fa-atlas"></i> Import from Vault
+        </button>
+        <button class="btn-secondary" id="tracelink-save-layout-btn">
+            <i class="fas fa-save"></i> Save Layout
+        </button>
+         <div class="header-filters">
+            <select id="tracelink-layout-select">
+                <option value="cola">Force Directed</option>
+                <option value="grid">Grid</option>
+                <option value="circle">Circle</option>
+                <option value="concentric">Concentric</option>
+                <option value="random">Random</option>
+            </select>
+        </div>
+        <button class="btn-secondary" id="tracelink-export-graph-btn">
+            <i class="fas fa-download"></i> Export Graph
+        </button>
+    </div>
+</div>
+
+<div class="tracelink-container">
+    <div class="tracelink-tabs" id="tracelink-tabs">
+        </div>
+
+    <div class="tracelink-canvas-container" id="tracelink-canvas-container" style="display:none;">
+        <div id="cy"></div> 
+        <div class="tracelink-controls">
+            <button id="tracelink-add-node-btn">
+                <i class="fas fa-plus"></i> Add Node
+            </button>
+            <button id="tracelink-connect-nodes-btn"> <i class="fas fa-link"></i> Connect/Edit Connection
+            </button>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 0;"> 
+            <button id="tracelink-zoom-in-btn">
+                <i class="fas fa-search-plus"></i> Zoom In
+            </button>
+            <button id="tracelink-zoom-out-btn">
+                <i class="fas fa-search-minus"></i> Zoom Out
+            </button>
+            <button id="tracelink-fit-view-btn">
+                <i class="fas fa-compress-arrows-alt"></i> Fit View
+            </button>
+        </div>
+    </div>
+
+    <div class="tracelink-empty-state" id="tracelink-empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <h3>No TraceLink Project Selected</h3>
+        <p>Click "Import from Vault" to create a new visualization project from your Multi-Vault data.</p>
+    </div>
+</div>
+
+<div id="tracelink-connect-edit-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="connect-edit-modal-title">Connect Nodes</h3>
+            <span class="close close-modal-btn">&times;</span> 
+        </div>
+        <form id="tracelink-connect-edit-form">
+            <div class="form-group">
+                <label for="connect-source-node">Source Node *</label>
+                <select id="connect-source-node" required>
+                    <option value="">Select Source Node</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="connect-target-node">Target Node *</label>
+                <select id="connect-target-node" required>
+                    <option value="">Select Target Node</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="connect-edge-label">Relationship Label (Optional)</label>
+                <input type="text" id="connect-edge-label" placeholder="e.g., connected to, owns, observed at">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-secondary close-modal-btn">Cancel</button>
+                <button type="submit" class="btn-primary">Create Connection</button>
+            </div>
+        </form>
+    </div>
+</div>
