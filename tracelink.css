@@ -104,16 +104,16 @@
 
     /* REVISED PROFESSIONAL BACKGROUND STYLES */
     background-color: #0a0a0f; /* Your app's darker background color for the canvas */
-    
+
     /* Subtle grid lines */
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), /* Horizontal lines (very subtle white) */
         linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px); /* Vertical lines (very subtle white) */
-    
+
     background-size: 40px 40px; /* Adjust grid cell size for desired density */
     background-position: 0 0; /* No animation, fixed position */
     background-attachment: fixed; /* Keep background fixed relative to viewport when panning graph */
-    
+
     /* Ensure no animation is applied */
     animation: none; /* Explicitly remove any previous animation */
 }
@@ -521,4 +521,122 @@
 .vault-selection-item .vault-entry-count {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.6);
+}
+
+/* NEW: Edge Details Panel Styles */
+.tracelink-edge-details-panel {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 50%; /* Position roughly in the middle, adjust as needed */
+    right: 1rem;
+    transform: translateY(-50%); /* Vertically center */
+    width: 300px;
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    padding: 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0; /* For fade-in/out */
+}
+
+.tracelink-edge-details-panel.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+.tracelink-edge-details-panel .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tracelink-edge-details-panel .panel-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #00cccc;
+}
+
+.tracelink-edge-details-panel .close-panel-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.tracelink-edge-details-panel .close-panel-btn:hover {
+    color: #00cccc;
+}
+
+.tracelink-edge-details-panel .panel-content .detail-group {
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+}
+
+.tracelink-edge-details-panel .panel-content .detail-group label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.tracelink-edge-details-panel .panel-content .detail-group span {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tracelink-edge-details-panel .panel-content .custom-data-json {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+    color: #e0e0e0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.tracelink-edge-details-panel .panel-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tracelink-edge-details-panel .panel-actions .btn-secondary,
+.tracelink-edge-details-panel .panel-actions .btn-danger-small {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+/* Styles for btn-danger-small (if not defined globally) */
+.btn-danger-small {
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-danger-small:hover {
+    background: rgba(220, 53, 69, 0.25);
+    color: #e74c3c;
+    transform: translateY(-1px);
 }

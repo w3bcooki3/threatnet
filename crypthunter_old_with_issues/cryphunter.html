@@ -1,0 +1,223 @@
+<div class="crypthunter-container">
+    <div class="section-header">
+        <div class="header-content">
+            <h1>CryptHunter Dashboard</h1>
+            <p class="header-subtitle">Advanced threat intelligence for cryptocurrency transactions</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary" id="cryptohunter-refresh-btn">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="crypthunter-tabs-container">
+        <div class="crypthunter-tabs" id="cryphunter-tabs-nav">
+            <button class="crypthunter-tab-btn active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="crypthunter-tab-btn" data-tab="alerts">
+                <i class="fas fa-bell"></i> Alerts (<span id="alerts-count">0</span>)
+            </button>
+            <button class="crypthunter-tab-btn" data-tab="address-search">
+                <i class="fas fa-search"></i> Address Search
+            </button>
+            <button class="crypthunter-tab-btn" data-tab="rule-engine">
+                <i class="fas fa-cogs"></i> Rule Engine
+            </button>
+            <button class="crypthunter-tab-btn" data-tab="watchlist">
+                <i class="fas fa-eye"></i> Watchlist (<span id="watchlist-count">0</span>)
+            </button>
+            <button class="crypthunter-tab-btn" data-tab="reports">
+                <i class="fas fa-file-export"></i> Reports
+            </button>
+            <button class="crypthunter-tab-btn" data-tab="settings">
+                <i class="fas fa-sliders-h"></i> Settings
+            </button>
+        </div>
+    </div>
+
+    <div id="crypthunter-dashboard-tab" class="crypthunter-tab-content active">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon" style="background: rgba(255, 71, 87, 0.1); color: #ff4757; border-color: rgba(255, 71, 87, 0.2);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value" id="total-alerts-count">0</div>
+                    <div class="metric-label">Total Alerts</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon" style="background: rgba(255, 193, 7, 0.1); color: #ffc107; border-color: rgba(255, 193, 7, 0.2);">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value" id="watchlist-total-count">0</div>
+                    <div class="metric-label">Watched Addresses</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon" style="background: rgba(0, 123, 255, 0.1); color: #007bff; border-color: rgba(0, 123, 255, 0.2);">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value" id="suspicious-transactions-count">0</div>
+                    <div class="metric-label">Suspicious Transactions</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon" style="background: rgba(40, 167, 69, 0.1); color: #28a745; border-color: rgba(40, 167, 69, 0.2);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value" id="rules-count">0</div>
+                    <div class="metric-label">Active Rules</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card full-width">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Recent Suspicious Activity</h3>
+                    </div>
+                    <button class="card-action">View All</button>
+                </div>
+                <div class="activity-timeline" id="suspicious-activity-list">
+                    <div class="empty-state-message">No suspicious activity found.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="crypthunter-alerts-tab" class="crypthunter-tab-content">
+        <div class="alerts-filter">
+            <select id="alert-severity-filter">
+                <option value="all">All Severity</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <select id="alert-status-filter">
+                <option value="all">All Status</option>
+                <option value="new">New</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+            </select>
+        </div>
+        <div class="alerts-list" id="alerts-list-container">
+            <div class="empty-state-message">No alerts to display.</div>
+        </div>
+    </div>
+
+    <div id="crypthunter-address-search-tab" class="crypthunter-tab-content">
+        <div class="address-search-container">
+            <div class="search-input-group">
+                <input type="text" id="crypto-address-input" placeholder="Enter a crypto address to investigate...">
+                <button class="btn-primary" id="crypto-address-search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div class="address-search-results" id="address-search-results">
+                <div class="empty-state-message">Search for a crypto address to begin investigation.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="crypthunter-rule-engine-tab" class="crypthunter-tab-content">
+        <div class="rule-engine-header">
+            <h3>Custom Rule Engine</h3>
+            <button class="btn-primary" id="rule-engine-add-rule-btn">
+                <i class="fas fa-plus"></i> Add New Rule
+            </button>
+        </div>
+        <div class="rule-engine-list" id="rule-engine-list">
+            <div class="empty-state-message">No rules defined. Create your first rule to enable automated monitoring.</div>
+        </div>
+    </div>
+
+    <div id="crypthunter-watchlist-tab" class="crypthunter-tab-content">
+        <div class="watchlist-header">
+            <h3>Suspicious Address Watchlist</h3>
+            <div class="watchlist-actions">
+                <input type="text" id="watchlist-add-input" placeholder="Add new address to watchlist...">
+                <button class="btn-primary" id="watchlist-add-btn">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+        </div>
+        <div class="watchlist-table-container">
+            <table class="watchlist-table">
+                <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Risk Score</th>
+                        <th>Tags</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="watchlist-table-body">
+                    </tbody>
+            </table>
+            <div class="empty-state-message" style="display:none;">Your watchlist is empty. Add addresses to monitor them.</div>
+        </div>
+    </div>
+
+    <div id="crypthunter-reports-tab" class="crypthunter-tab-content">
+        <div class="reports-container">
+            <div class="report-card">
+                <h3>Generate a New Report</h3>
+                <p>Select a transaction or alert to generate a detailed report for auditing or law enforcement.</p>
+                <button class="btn-secondary" id="generate-report-btn">
+                    <i class="fas fa-file-pdf"></i> Generate PDF Report (Mock)
+                </button>
+                <button class="btn-secondary" id="export-report-data-btn">
+                    <i class="fas fa-file-alt"></i> Export JSON Data
+                </button>
+            </div>
+            <div class="report-list-container">
+                <h3>Past Reports</h3>
+                <div id="past-reports-list">
+                    <div class="empty-state-message">No reports generated yet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="crypthunter-settings-tab" class="crypthunter-tab-content">
+        <div class="settings-card">
+            <h3>API Key Integration</h3>
+            <p>Add your API keys to enable mock data fetching for different blockchain explorers.</p>
+            <div class="api-key-form">
+                <div class="form-group">
+                    <label for="bitcoin-api-key">Bitcoin Explorer API Key</label>
+                    <input type="text" id="bitcoin-api-key" placeholder="Enter API Key">
+                    <button class="btn-secondary">Save</button>
+                </div>
+                <div class="form-group">
+                    <label for="ethereum-api-key">Ethereum Explorer API Key</label>
+                    <input type="text" id="ethereum-api-key" placeholder="Enter API Key">
+                    <button class="btn-secondary">Save</button>
+                </div>
+                <div class="form-group">
+                    <label for="solana-api-key">Solana Explorer API Key</label>
+                    <input type="text" id="solana-api-key" placeholder="Enter API Key">
+                    <button class="btn-secondary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

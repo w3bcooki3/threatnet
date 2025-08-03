@@ -1,3 +1,4 @@
+//before crypthunter change
 // Enhanced Threat Actor Database with comprehensive profiles
 let threatActors = [
     {

@@ -570,6 +570,7 @@ let vaultEntries = [];
 
 let currentThreatActor = null;
 
+// This is the entire updated showSection function, which will replace your existing one.
 function showSection(sectionName) {
     // --- START MODAL CLOSING LOGIC (refined) ---
     // Centralized modal closing, now robust for all modals
@@ -681,6 +682,45 @@ function showSection(sectionName) {
             } else if (window.traceLinkManager) {
                 // If HTML is already loaded and manager exists, just re-render tabs
                 window.traceLinkManager.renderTraceLinkTabs();
+            }
+        } else if (sectionName === 'crypt-hunter') {
+            const cryptHunterPlaceholder = document.getElementById('crypt-hunter');
+            if (!cryptHunterPlaceholder) {
+                console.error('CryptHunter placeholder element not found.');
+                return;
+            }
+            if (!cryptHunterPlaceholder.dataset.loaded) {
+                fetch('cryphunter.html')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        cryptHunterPlaceholder.innerHTML = html;
+                        cryptHunterPlaceholder.dataset.loaded = 'true';
+                        
+                        // Wait for a slight delay to ensure the browser has fully parsed the new DOM elements.
+                        // Then, and only then, initialize the CryptHunter class.
+                        setTimeout(() => {
+                            if (typeof CryptHunter !== 'undefined' && !window.cryptHunter) {
+                                window.cryptHunter = new CryptHunter();
+                                window.cryptHunter.init();
+                            }
+                        }, 50);
+                    })
+                    .catch(error => {
+                        console.error('Error loading cryphunter.html:', error);
+                        cryptHunterPlaceholder.innerHTML = '<div class="empty-state-message">Failed to load CryptHunter content. Please check console for errors.</div>';
+                    });
+            } else if (window.cryptHunter) {
+                // If the HTML is already loaded and the class is initialized,
+                // just activate the dashboard tab again.
+                const dashboardBtn = document.querySelector('.cryphunter-tab-btn[data-tab="dashboard"]');
+                if (dashboardBtn) {
+                    window.cryptHunter.showTab(dashboardBtn);
+                }
             }
         } else if (sectionName === 'actors') {
             loadActorsSection();

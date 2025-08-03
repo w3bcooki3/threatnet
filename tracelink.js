@@ -19,10 +19,12 @@ class TraceLinkManager {
         this.importModal = null; // New import modal
         this.tracelinkConfirmDeleteModal = null; // New TraceLink specific delete modal
         this.tracelinkConfirmDeleteCallback = null; // Callback for delete confirmation
+        this.edgeDetailsPanel = null; // NEW: Edge details panel
+        this.connectNodesModal = null; // NEW: Connect Nodes Modal
+        this.connectNodesForm = null; // NEW: Connect Nodes Form
 
-        // Internal state for connection mode
-        this._isConnecting = false;
-        this._sourceNodeForConnection = null;
+        // Internal state for connection mode (now only used to track the source node for the modal)
+        this._sourceNodeForConnectionModal = null;
         this._saveStateTimeout = null; // For debouncing graph state saves
 
         // Dynamic Field Definitions for manual node addition
@@ -161,7 +163,10 @@ class TraceLinkManager {
         this.editLabelForm = document.getElementById('tracelink-edit-label-form');
         this.contextMenu = document.getElementById('tracelink-context-menu');
         this.importModal = document.getElementById('tracelink-import-modal');
-        this.tracelinkConfirmDeleteModal = document.getElementById('tracelink-confirm-delete-modal'); // Get the new delete modal
+        this.tracelinkConfirmDeleteModal = document.getElementById('tracelink-confirm-delete-modal');
+        this.edgeDetailsPanel = document.getElementById('tracelink-edge-details-panel'); // NEW
+        this.connectNodesModal = document.getElementById('tracelink-connect-nodes-modal'); // NEW
+        this.connectNodesForm = document.getElementById('tracelink-connect-nodes-form'); // NEW
 
         // Set up event listeners and dynamic modal fields
         this._setupEventListeners();
@@ -182,6 +187,12 @@ class TraceLinkManager {
             if (this.contextMenu && this.contextMenu.style.display === 'block' && !this.contextMenu.contains(e.target)) {
                 this.hideContextMenu();
             }
+            // Only hide edge details panel if click is outside of it AND not on an edge
+            if (this.edgeDetailsPanel && this.edgeDetailsPanel.classList.contains('show') &&
+                !this.edgeDetailsPanel.contains(e.target) &&
+                !e.target.closest('.cy-edge')) { // Ensure clicking on an edge doesn't hide the panel
+                this.hideEdgeDetailsPanel();
+            }
         });
 
         // Global keydown for Escape to close modals
@@ -195,25 +206,26 @@ class TraceLinkManager {
                     this.closeImportModal();
                 } else if (this.tracelinkConfirmDeleteModal && this.tracelinkConfirmDeleteModal.style.display === 'flex') {
                     this.closeConfirmDeleteModal();
+                } else if (this.connectNodesModal && this.connectNodesModal.style.display === 'flex') { // NEW
+                    this.closeConnectNodesModal(); // NEW
                 }
+
                 this.hideContextMenu();
-                this._cancelConnectionMode(); // Cancel connection mode on escape
+                this.hideEdgeDetailsPanel(); // Hide edge details on escape
+                // this._cancelConnectionMode(); // No longer needed for click-to-click connection
             }
         });
 
         // Add node form submission and modal close buttons
         if (this.addNodeForm) {
             this.addNodeForm.onsubmit = (e) => this.handleAddNodeSubmit(e);
-            // Close button for add node modal
             this.addNodeModal.querySelectorAll('.close-modal-btn, .close').forEach(btn => btn.onclick = () => this.closeAddNodeModal());
-
             document.getElementById('add-node-type-select').addEventListener('change', () => this.updateAddNodeDynamicFields());
         }
 
         // Edit label form submission and modal close buttons
         if (this.editLabelForm) {
             this.editLabelForm.onsubmit = (e) => this.handleEditLabelSubmit(e);
-            // Close button for edit label modal
             this.editLabelModal.querySelectorAll('.close-modal-btn, .close').forEach(btn => btn.onclick = () => this.closeEditLabelModal());
         }
 
@@ -235,24 +247,26 @@ class TraceLinkManager {
             this.tracelinkConfirmDeleteModal.querySelector('.close').onclick = () => this.closeConfirmDeleteModal();
         }
 
+        // NEW: Connect Nodes Modal form submission and close buttons
+        if (this.connectNodesForm) {
+            this.connectNodesForm.onsubmit = (e) => this.handleConnectNodesSubmit(e);
+            this.connectNodesModal.querySelectorAll('.close-modal-btn, .close').forEach(btn => btn.onclick = () => this.closeConnectNodesModal());
+        }
 
         // Context Menu button listeners
         if (this.contextMenu) {
             document.getElementById('context-add-node-btn').onclick = () => this.showAddNodeModal();
             document.getElementById('context-edit-label-btn').onclick = () => this.showEditLabelModalForContextTarget();
             document.getElementById('context-delete-btn').onclick = () => this.handleContextDelete();
-            // IMPORTANT: Connect nodes is handled by selecting the source node first, then
-            // listening for a target node click. The context menu will only show this on a node.
-            document.getElementById('context-connect-nodes-btn').onclick = () => this.handleConnectNodesFromContext();
+            document.getElementById('context-connect-nodes-btn').onclick = () => this.showConnectNodesModalFromContext(); // NEW
         }
 
         // General control buttons (from tracelink.html header)
         const addNodeBtn = document.getElementById('tracelink-add-node-btn');
         if (addNodeBtn) addNodeBtn.onclick = () => this.showAddNodeModal();
-        
-        // NEW: Connect/Edit Connection Button
+
         const connectNodesBtn = document.getElementById('tracelink-connect-nodes-btn');
-        if (connectNodesBtn) connectNodesBtn.onclick = () => this.handleConnectNodesViaButton();
+        if (connectNodesBtn) connectNodesBtn.onclick = () => this.showConnectNodesModal(); // Changed to open modal directly
 
         const saveLayoutBtn = document.getElementById('tracelink-save-layout-btn');
         if (saveLayoutBtn) saveLayoutBtn.onclick = () => this.saveCurrentLayout();
@@ -266,7 +280,9 @@ class TraceLinkManager {
         const importFromVaultBtn = document.getElementById('tracelink-import-from-vault-btn');
         if (importFromVaultBtn) importFromVaultBtn.onclick = () => this.showImportModal();
 
-        // New Zoom/Fit Buttons
+        const refreshDataBtn = document.getElementById('tracelink-refresh-data-btn');
+        if (refreshDataBtn) refreshDataBtn.onclick = () => this.importEntitiesToCurrentGraph();
+
         const zoomInBtn = document.getElementById('tracelink-zoom-in-btn');
         if (zoomInBtn) zoomInBtn.onclick = () => this.zoomGraph(0.2);
 
@@ -287,16 +303,23 @@ class TraceLinkManager {
         if (!this.cy) return;
 
         // Right-click on node, edge, or canvas background
-        this.cy.on('cxttap', 'node', (e) => this.showContextMenu(e, 'node'));
-        this.cy.on('cxttap', 'edge', (e) => this.showContextMenu(e, 'edge'));
+        this.cy.on('cxttap', 'node', (e) => {
+            this.showContextMenu(e, 'node');
+            this.hideEdgeDetailsPanel();
+        });
+        this.cy.on('cxttap', 'edge', (e) => {
+            this.showContextMenu(e, 'edge');
+            this.hideEdgeDetailsPanel();
+        });
         this.cy.on('cxttap', (e) => {
-            if (e.target === this.cy) { // Clicked on the canvas background
+            if (e.target === this.cy) {
                 this.showContextMenu(e, 'canvas');
+                this.hideEdgeDetailsPanel();
             }
         });
 
         // Listen for user panning/zooming/node dragging to save state with debounce
-        this.cy.on('zoom pan free', () => { // 'free' event for node dragging
+        this.cy.on('zoom pan free', () => {
              clearTimeout(this._saveStateTimeout);
              this._saveStateTimeout = setTimeout(() => {
                  this.saveGraphState();
@@ -310,16 +333,33 @@ class TraceLinkManager {
             }
         });
 
-        // If a node is selected, store it as the potential source for connection.
-        // This handles cases where a user might select a node first, then click the 'Connect' button.
+        // NEW: Selection event to store source for connection modal
         this.cy.on('select', 'node', (e) => {
-            if (!this._isConnecting) { // Only update if not already in connection mode
-                this._sourceNodeForConnection = e.target;
-            }
+            this._sourceNodeForConnectionModal = e.target;
         });
         this.cy.on('unselect', 'node', (e) => {
-            if (!this._isConnecting && this._sourceNodeForConnection && this._sourceNodeForConnection.id() === e.target.id()) {
-                 this._sourceNodeForConnection = null; // Clear if the currently selected node is unselected
+            // Clear source node if unselected, unless it's the specific source for the active modal
+            if (this._sourceNodeForConnectionModal && this._sourceNodeForConnectionModal.id() === e.target.id()) {
+                this._sourceNodeForConnectionModal = null;
+            }
+        });
+
+
+        // NEW: Show edge details panel when an edge is selected
+        this.cy.on('select', 'edge', (e) => {
+            const selectedEdge = e.target;
+            this.showEdgeDetailsPanel(selectedEdge);
+        });
+
+        // NEW: Hide edge details panel when an edge is unselected
+        this.cy.on('unselect', 'edge', (e) => {
+            this.hideEdgeDetailsPanel();
+        });
+
+        // NEW: Hide edge details panel when clicking on canvas
+        this.cy.on('tap', (e) => {
+            if (e.target === this.cy) {
+                this.hideEdgeDetailsPanel();
             }
         });
     }
@@ -352,10 +392,9 @@ class TraceLinkManager {
             return;
         }
         this.tracelinkTabsContainer.innerHTML = '';
-        
-        // Ensure multiVaultManager is available
+
         if (!window.multiVaultManager || typeof window.multiVaultManager.getVaults !== 'function') {
-            this.showNotification('Multi-Vault manager not found or not initialized. Please ensure the Multi-Vault section is functional.', 'error');
+            window.showNotification('Multi-Vault manager not found or not initialized. Please ensure the Multi-Vault section is functional.', 'error');
             this.showEmptyState('Multi-Vault manager not found or not initialized. Please ensure the Multi-Vault section is functional.');
             return;
         }
@@ -364,10 +403,8 @@ class TraceLinkManager {
         let hasTabsToDisplay = false;
         let firstProjectVaultId = null;
 
-        // Create tabs for each existing TraceLink project
         for (const vaultId in this.tracelinkProjects) {
             const vault = multiVaults.find(v => v.id === vaultId);
-            // Only show tab if the associated Multi-Vault still exists and is not archived
             if (vault && !vault.archived) {
                 if (!firstProjectVaultId) {
                     firstProjectVaultId = vaultId;
@@ -390,7 +427,7 @@ class TraceLinkManager {
                 `;
                 tab.onclick = (e) => {
                     if (e.target.classList.contains('tab-close-btn') || e.target.closest('.tab-close-btn')) {
-                        e.stopPropagation(); // Prevent tab switch
+                        e.stopPropagation();
                         this.confirmDeleteProject(vaultId);
                     } else {
                         this.switchProject(vaultId);
@@ -398,18 +435,15 @@ class TraceLinkManager {
                 };
                 this.tracelinkTabsContainer.appendChild(tab);
             } else {
-                // If associated vault is deleted or archived, remove this tracelink project
                 delete this.tracelinkProjects[vaultId];
                 this.saveTraceLinkProjects();
             }
         }
 
-        // Initial display logic
         if (Object.keys(this.tracelinkProjects).length === 0) {
             this.showEmptyState('No TraceLink projects yet. Click "Import from Vault" to create your first visualization from Multi-Vault data.');
-            this.currentVaultId = null; // Ensure no project is selected
+            this.currentVaultId = null;
         } else if (!this.currentVaultId || !this.tracelinkProjects[this.currentVaultId]) {
-            // If no project is currently selected, or the selected one was deleted/archived, switch to the first available project
             if (firstProjectVaultId) {
                 this.switchProject(firstProjectVaultId);
             } else {
@@ -418,7 +452,7 @@ class TraceLinkManager {
             }
         } else {
             this.hideEmptyState();
-            if (!this.cy) { // If a project is selected but cy isn't initialized (e.g., first load of the section)
+            if (!this.cy) {
                 this.initCytoscape();
                 const projectData = this.tracelinkProjects[this.currentVaultId];
                 this.cy.json({ elements: projectData.elements });
@@ -426,7 +460,7 @@ class TraceLinkManager {
                     this.cy.zoom(projectData.layout.zoom);
                     this.cy.pan(projectData.layout.pan);
                 } else if (this.cy.nodes().length > 0) {
-                    this.applyNewLayout('cola'); // Apply a default layout if no saved positions
+                    this.applyNewLayout('cola');
                 }
             }
         }
@@ -439,41 +473,36 @@ class TraceLinkManager {
      */
     switchProject(vaultId) {
         if (this.currentVaultId === vaultId && this.cy) {
-            return; // Already on this project and graph is initialized
+            return;
         }
 
-        // Save state of current project before switching
         if (this.cy && this.currentVaultId && this.tracelinkProjects[this.currentVaultId]) {
             this.saveGraphState();
         }
 
         this.currentVaultId = vaultId;
-        this.renderTraceLinkTabs(); // Re-render to update active state
+        this.renderTraceLinkTabs();
 
         this.hideEmptyState();
-        if (this.canvasContainer) this.canvasContainer.style.display = 'block'; // Show canvas
+        if (this.canvasContainer) this.canvasContainer.style.display = 'block';
 
-        this.initCytoscape(); // Always re-initialize Cytoscape for a clean start
+        this.initCytoscape();
 
         const projectData = this.tracelinkProjects[vaultId];
         if (projectData) {
             this.cy.json({ elements: projectData.elements });
-            // Apply saved position, zoom, and pan
             if (projectData.layout && projectData.layout.zoom !== undefined && projectData.layout.pan) {
                 this.cy.zoom(projectData.layout.zoom);
                 this.cy.pan(projectData.layout.pan);
             } else if (this.cy.nodes().length > 0) {
-                this.applyNewLayout('cola'); // Apply default layout if no saved state
+                this.applyNewLayout('cola');
             }
-            this.showNotification(`Loaded TraceLink project for vault "${window.multiVaultManager.getVaultById(vaultId)?.name}".`, 'info');
+            window.showNotification(`Loaded TraceLink project for vault "${window.multiVaultManager.getVaultById(vaultId)?.name}".`, 'info');
         } else {
-            // This case should now primarily be handled by showImportModal or project creation
-            // If somehow a project is switched to but not in tracelinkProjects, it's a fresh start
             this.cy.elements().remove();
-            this.applyNewLayout('grid'); // Default layout for truly new projects
-            this.showNotification(`New TraceLink project started for vault "${window.multiVaultManager.getVaultById(vaultId)?.name}". Import entities or add manually!`, 'info');
+            this.applyNewLayout('grid');
+            window.showNotification(`New TraceLink project started for vault "${window.multiVaultManager.getVaultById(vaultId)?.name}". Import entities or add manually!`, 'info');
         }
-        // Reset layout select to default option for new project or loaded one
         const layoutSelect = document.getElementById('tracelink-layout-select');
         if (layoutSelect) layoutSelect.value = 'cola';
     }
@@ -500,18 +529,17 @@ class TraceLinkManager {
     deleteProject(vaultId) {
         delete this.tracelinkProjects[vaultId];
         this.saveTraceLinkProjects();
-        
-        // If the deleted project was the currently active one, clean up
+
         if (this.currentVaultId === vaultId) {
             this.currentVaultId = null;
             if (this.cy) {
-                 this.cy.destroy(); // Destroy current Cytoscape instance
+                 this.cy.destroy();
                  this.cy = null;
             }
             this.showEmptyState('TraceLink project deleted. Select another vault or create a new visualization.');
         }
-        this.renderTraceLinkTabs(); // Update tabs
-        this.showNotification('TraceLink project deleted successfully!', 'success');
+        this.renderTraceLinkTabs();
+        window.showNotification('TraceLink project deleted successfully!', 'success');
     }
 
     /**
@@ -524,9 +552,9 @@ class TraceLinkManager {
             this.emptyState.style.display = 'flex';
             this.emptyState.querySelector('p').textContent = message;
         }
-        if (this.canvasContainer) this.canvasContainer.style.display = 'none'; // Hide canvas
+        if (this.canvasContainer) this.canvasContainer.style.display = 'none';
         if (this.cy) {
-            this.cy.destroy(); // Clean up existing instance
+            this.cy.destroy();
             this.cy = null;
         }
     }
@@ -542,11 +570,10 @@ class TraceLinkManager {
 
      /**
       * Helper to generate a Font Awesome icon as a Data URL for Cytoscape.js nodes.
-      * This allows dynamic, high-quality icons directly in node backgrounds.
-      * @param {string} iconUnicode - The Unicode value of the Font Awesome icon (e.g., 'f007' for fa-user).
-      * @param {string} fontFamily - The font family name (e.g., 'Font Awesome 5 Free').
-      * @param {string} fontWeight - The font weight (e.g., '900' for solid, '400' for regular/brands).
-      * @param {number} fontSize - The desired font size for the icon within the SVG.
+      * @param {string} iconUnicode - The Unicode value of the Font Awesome icon.
+      * @param {string} fontFamily - The font family name.
+      * @param {string} fontWeight - The font weight.
+      * @param {number} fontSize - The desired font size.
       * @param {string} color - The color of the icon.
       * @returns {string} A data URL representing the SVG image of the icon.
       *
@@ -561,7 +588,6 @@ class TraceLinkManager {
                 </text>
             </svg>
         `;
-        // More robust UTF-8 to Base64 encoding for btoa
         const utf8EncodedSvg = new TextEncoder().encode(svg);
         let binaryString = '';
         utf8EncodedSvg.forEach(byte => {
@@ -573,14 +599,11 @@ class TraceLinkManager {
 
     /**
      * Initializes the Cytoscape.js graph instance with enhanced styling.
-     * Destroys existing instance if any.
-     * This now includes advanced node styling with dynamic colors and Font Awesome icons,
-     * and refined edge styling.
      *
      */
     initCytoscape() {
         if (this.cy) {
-            this.cy.destroy(); // Destroy previous instance if it exists
+            this.cy.destroy();
         }
         if (!this.cyContainer) {
             console.error("Cytoscape container (#cy) not found. Cannot initialize graph.");
@@ -589,44 +612,43 @@ class TraceLinkManager {
 
         this.cy = cytoscape({
             container: this.cyContainer,
-            elements: [], // Start with empty elements by default
+            elements: [],
             style: [
                 {
                     selector: 'node',
                     style: {
-                        'background-color': 'data(backgroundColor)', // Dynamic background color
+                        'background-color': 'data(backgroundColor)',
                         'width': '60px',
                         'height': '60px',
                         'label': 'data(label)',
                         'font-size': '10px',
-                        'text-valign': 'bottom', // Label below the node
+                        'text-valign': 'bottom',
                         'text-halign': 'center',
-                        'color': 'white', // Label color
+                        'color': 'white',
                         'text-wrap': 'wrap',
                         'text-max-width': '80px',
                         'padding': '5px',
                         'transition-property': 'background-color, border-color, transform',
                         'transition-duration': '0.3s',
                         'border-width': '2px',
-                        'border-color': 'data(borderColor)', // Dynamic border color
-                        'box-shadow-color': 'data(shadowColor)', // Dynamic shadow color
+                        'border-color': 'data(borderColor)',
+                        'box-shadow-color': 'data(shadowColor)',
                         'box-shadow-blur': '8px',
                         'box-shadow-offset-x': '0px',
                         'box-shadow-offset-y': '0px',
                         'box-shadow-opacity': '0.8',
-                        'shape': 'round-rectangle', // Using round-rectangle for a softer, professional look
+                        'shape': 'round-rectangle',
 
-                        // Icon properties using background-image for Font Awesome
-                        'background-image': 'data(iconDataUrl)', // Use the data URL for the icon
-                        'background-fit': 'contain', // Scale icon to fit node
-                        'background-image-opacity': 0.9, // Opacity of the icon
-                        'background-position-y': '25%', // Adjust vertical position of icon
-                        'background-position-x': '50%', // Center horizontally
-                        'background-width': '50%', // Size of the icon
-                        'background-height': '50%', // Size of the icon
+                        'background-image': 'data(iconDataUrl)',
+                        'background-fit': 'contain',
+                        'background-image-opacity': 0.9,
+                        'background-position-y': '25%',
+                        'background-position-x': '50%',
+                        'background-width': '50%',
+                        'background-height': '50%',
 
-                        'text-margin-y': '5px', // Space between node bottom and label
-                        'text-outline-color': 'rgba(15, 15, 25, 0.8)', // Outline for text readability
+                        'text-margin-y': '5px',
+                        'text-outline-color': 'rgba(15, 15, 25, 0.8)',
                         'text-outline-width': '1px',
                         'overlay-padding': '0px',
                         'overlay-opacity': 0
@@ -644,7 +666,7 @@ class TraceLinkManager {
                     }
                 },
                 {
-                    selector: 'node.connect-source', // For highlighting source node during connection
+                    selector: 'node.connect-source',
                     style: {
                         'overlay-padding': '8px',
                         'overlay-color': '#00cccc',
@@ -659,7 +681,7 @@ class TraceLinkManager {
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': 'rgba(255, 255, 255, 0.4)',
                         'curve-style': 'bezier',
-                        'label': 'data(label)', // Display edge label
+                        'label': 'data(label)',
                         'font-size': '8px',
                         'color': 'rgba(255, 255, 255, 0.7)',
                         'text-background-opacity': 1,
@@ -683,7 +705,7 @@ class TraceLinkManager {
                 }
             ],
             layout: {
-                name: 'random' // Default initial layout
+                name: 'random'
             },
             zoomingEnabled: true,
             userZoomingEnabled: true,
@@ -691,14 +713,12 @@ class TraceLinkManager {
             userPanningEnabled: true,
             boxSelectionEnabled: true,
             autounselectify: false,
-            // Enhanced interaction options
-            selectionType: 'additive', // Allows selecting multiple elements by clicking
-            motionBlur: false, // Turn off motion blur for crisper view during pan/zoom
-            pixelRatio: window.devicePixelRatio || 1, // Use device pixel ratio for sharper rendering
-            textureOnViewport: true // Show background textures when moving viewport
+            selectionType: 'additive',
+            motionBlur: false,
+            pixelRatio: window.devicePixelRatio || 1,
+            textureOnViewport: true
         });
 
-        // Add event listeners to Cytoscape instance
         this._setupCytoscapeEventListeners();
     }
 
@@ -709,7 +729,7 @@ class TraceLinkManager {
      */
     zoomGraph(factor) {
         if (!this.cy) {
-            this.showNotification('Graph not initialized.', 'warning');
+            window.showNotification('Graph not initialized.', 'warning');
             return;
         }
         const currentZoom = this.cy.zoom();
@@ -723,14 +743,14 @@ class TraceLinkManager {
      */
     fitGraphToView() {
         if (!this.cy) {
-            this.showNotification('Graph not initialized.', 'warning');
+            window.showNotification('Graph not initialized.', 'warning');
             return;
         }
         if (this.cy.nodes().length === 0) {
-            this.showNotification('No nodes to fit to view. Add nodes first!', 'warning');
+            window.showNotification('No nodes to fit to view. Add nodes first!', 'warning');
             return;
         }
-        this.cy.fit(); // Fits all elements to the view
+        this.cy.fit();
         this.saveGraphState();
     }
 
@@ -742,22 +762,21 @@ class TraceLinkManager {
      */
     getEntityColor(entityType) {
         const colors = {
-            'person': { bg: '#8b5cf6', border: '#6d28d9', shadow: 'rgba(139, 92, 246, 0.5)' }, // Purple
-            'organization': { bg: '#f97316', border: '#ea580c', shadow: 'rgba(249, 115, 22, 0.5)' }, // Orange
-            'wallet_address': { bg: '#facc15', border: '#eab308', shadow: 'rgba(252, 211, 77, 0.5)' }, // Yellow
-            'ip_address': { bg: '#10b981', border: '#059669', shadow: 'rgba(16, 185, 129, 0.5)' }, // Teal Green
-            'location': { bg: '#ef4444', border: '#dc2626', shadow: 'rgba(239, 68, 68, 0.5)' }, // Red
-            'domain_website': { bg: '#3b82f6', border: '#2563eb', shadow: 'rgba(59, 130, 246, 0.5)' }, // Blue
-            'social_media': { bg: '#06b6d4', border: '#0891b2', shadow: 'rgba(6, 182, 212, 0.5)' }, // Cyan
-            'transaction': { bg: '#c026d3', border: '#a21caf', shadow: 'rgba(192, 38, 211, 0.5)' }, // Magenta
-            'money_amount': { bg: '#be185d', border: '#9d174d', shadow: 'rgba(190, 24, 93, 0.5)' }, // Pink
-            'email_address': { bg: '#22c55e', border: '#16a34a', shadow: 'rgba(34, 197, 94, 0.5)' }, // Green
-            'phone_number': { bg: '#64748b', border: '#475569', shadow: 'rgba(100, 116, 139, 0.5)' }, // Slate Gray
-            'alias': { bg: '#a855f7', border: '#9333ea', shadow: 'rgba(168, 85, 247, 0.5)' }, // Light Purple
-            'file_hash_evidence': { bg: '#78716c', border: '#57534e', shadow: 'rgba(120, 113, 108, 0.5)' }, // Stone Gray
-            'malware_tool': { bg: '#f43f5e', border: '#e11d48', shadow: 'rgba(244, 63, 94, 0.5)' }, // Rose
-            'custom_entity': { bg: '#00cccc', border: '#009999', shadow: 'rgba(0, 204, 204, 0.5)' }, // Default TraceLink Accent
-            // Multi-Vault types (ensure consistency if importing from Multi-Vault and matching here)
+            'person': { bg: '#8b5cf6', border: '#6d28d9', shadow: 'rgba(139, 92, 246, 0.5)' },
+            'organization': { bg: '#f97316', border: '#ea580c', shadow: 'rgba(249, 115, 22, 0.5)' },
+            'wallet_address': { bg: '#facc15', border: '#eab308', shadow: 'rgba(252, 211, 77, 0.5)' },
+            'ip_address': { bg: '#10b981', border: '#059669', shadow: 'rgba(16, 185, 129, 0.5)' },
+            'location': { bg: '#ef4444', border: '#dc2626', shadow: 'rgba(239, 68, 68, 0.5)' },
+            'domain_website': { bg: '#3b82f6', border: '#2563eb', shadow: 'rgba(59, 130, 246, 0.5)' },
+            'social_media': { bg: '#06b6d4', border: '#0891b2', shadow: 'rgba(6, 182, 212, 0.5)' },
+            'transaction': { bg: '#c026d3', border: '#a21caf', shadow: 'rgba(192, 38, 211, 0.5)' },
+            'money_amount': { bg: '#be185d', border: '#9d174d', shadow: 'rgba(190, 24, 93, 0.5)' },
+            'email_address': { bg: '#22c55e', border: '#16a34a', shadow: 'rgba(34, 197, 94, 0.5)' },
+            'phone_number': { bg: '#64748b', border: '#475569', shadow: 'rgba(100, 116, 139, 0.5)' },
+            'alias': { bg: '#a855f7', border: '#9333ea', shadow: 'rgba(168, 85, 247, 0.5)' },
+            'file_hash_evidence': { bg: '#78716c', border: '#57534e', shadow: 'rgba(120, 113, 108, 0.5)' },
+            'malware_tool': { bg: '#f43f5e', border: '#e11d48', shadow: 'rgba(244, 63, 94, 0.5)' },
+            'custom_entity': { bg: '#00cccc', border: '#009999', shadow: 'rgba(0, 204, 204, 0.5)' },
             'tool': { bg: '#28a745', border: '#28a745', shadow: 'rgba(40, 167, 69, 0.5)' },
             'email': { bg: '#007bff', border: '#007bff', shadow: 'rgba(0, 123, 255, 0.5)' },
             'phone': { bg: '#ffc107', border: '#ffc107', shadow: 'rgba(255, 193, 7, 0.5)' },
@@ -799,25 +818,21 @@ class TraceLinkManager {
 
     /**
      * Maps entity types to Font Awesome UNICODE values.
-     * These Unicode values are then converted to SVG data URLs for node icons.
-     * @param {string} entityType - The type of the entity (e.g., 'person', 'email').
+     * @param {string} entityType - The type of the entity.
      * @returns {string} The Font Awesome Unicode hexadecimal string.
      *
      */
     getEntityTypeIcon(entityType) {
-        // You can find Font Awesome Unicode values on their cheatsheet or by inspecting elements
-        // For example, fas fa-user-circle is &#xf2bd; -> 'f2bd'
-        // fab fa-bitcoin is &#xf15a; -> 'f15a'
         const icons = {
             'person': 'f2bd', // fas fa-user-circle
-            'organization': 'f1ad', // fas fa-building (using font awesome 5, building looks more like a business)
+            'organization': 'f1ad', // fas fa-building
             'wallet_address': 'f555', // fas fa-wallet
             'ip_address': 'f0ac', // fas fa-globe
             'location': 'f3c5', // fas fa-map-marker-alt
             'domain_website': 'f0ac', // fas fa-globe
-            'social_media': 'f099', // fab fa-twitter (common social icon)
+            'social_media': 'f099', // fab fa-twitter
             'transaction': 'f0ec', // fas fa-exchange-alt
-            'money_amount': 'f0d6', // fas fa-dollar-sign (or f155 for euro, f156 for yen)
+            'money_amount': 'f0d6', // fas fa-dollar-sign
             'email_address': 'f0e0', // fas fa-envelope
             'phone_number': 'f095', // fas fa-phone
             'alias': 'f2bb', // fas fa-id-badge
@@ -825,22 +840,22 @@ class TraceLinkManager {
             'malware_tool': 'f188', // fas fa-bug
             'custom_entity': 'f1b2', // fas fa-cube
 
-            // Multi-Vault types from script.js (ensure these match your multiVaultManager's entry types)
+            // Multi-Vault types from script.js
             'tool': 'f7d9', // fas fa-tools
             'email': 'f0e0', // fas fa-envelope
             'phone': 'f095', // fas fa-phone
             'crypto': 'f15a', // fab fa-bitcoin
             'location': 'f3c5', // fas fa-map-marker-alt
             'link': 'f0c1', // fas fa-link
-            'media': 'f03e', // fas fa-image (or f03d for photo-video)
-            'password': 'f084', // fas fa-key (for lock)
+            'media': 'f03e', // fas fa-image
+            'password': 'f084', // fas fa-key
             'keyword': 'f02b', // fas fa-tag
             'social': 'f0c0', // fas fa-users
             'domain': 'f0ac', // fas fa-globe
             'username': 'f007', // fas fa-user
             'threat': 'f0e3', // fas fa-shield-alt
             'vulnerability': 'f188', // fas fa-bug
-            'malware': 'f0fa', // fas fa-virus-slash (or f0fb for virus)
+            'malware': 'f0fa', // fas fa-virus-slash
             'breach': 'f071', // fas fa-exclamation-triangle
             'credential': 'f2c2', // fas fa-id-card
             'forum': 'f086', // fas fa-comments
@@ -856,8 +871,8 @@ class TraceLinkManager {
             'audio': 'f028', // fas fa-volume-up
             'facial': 'f06e', // fas fa-eye
             'persona': 'f13d', // fas fa-mask
-            'vpn': 'f6e2', // fas fa-user-secret (more explicit)
-            'honeypot': 'f1b2', // fas fa-spider (or f024 for flag)
+            'vpn': 'f6e2', // fas fa-user-secret
+            'honeypot': 'f1b2', // fas fa-spider
             'exploit': 'f1e0', // fas fa-bomb
             'publicrecord': 'f02d' // fas fa-book
         };
@@ -867,35 +882,34 @@ class TraceLinkManager {
 
     /**
      * Applies a new layout to the graph.
-     * @param {string} layoutName - The name of the layout to apply (e.g., 'cola', 'grid').
+     * @param {string} layoutName - The name of the layout to apply.
      *
      */
     applyNewLayout(layoutName = 'cola') {
         if (!this.cy) {
-            this.showNotification('Graph not initialized.', 'warning');
+            window.showNotification('Graph not initialized.', 'warning');
             return;
         }
 
-        // Ensure nodes exist before applying layout
         if (this.cy.nodes().length === 0) {
-            this.showNotification('No nodes on the graph to apply a layout to. Import or add nodes first!', 'warning');
+            window.showNotification('No nodes on the graph to apply a layout to. Import or add nodes first!', 'warning');
             return;
         }
 
-        this.showNotification(`Applying ${layoutName.charAt(0).toUpperCase() + layoutName.slice(1)} layout...`, 'info', 1500);
+        window.showNotification(`Applying ${layoutName.charAt(0).toUpperCase() + layoutName.slice(1)} layout...`, 'info', 1500);
 
         let layoutOptions = {};
         switch (layoutName) {
             case 'grid':
                 layoutOptions = {
                     name: 'grid',
-                    rows: Math.ceil(Math.sqrt(this.cy.nodes().length)), // More balanced grid
+                    rows: Math.ceil(Math.sqrt(this.cy.nodes().length)),
                     cols: Math.ceil(Math.sqrt(this.cy.nodes().length)),
                     padding: 30,
                     animate: true,
                     animationDuration: 500,
                     nodeDimensionsIncludeLabels: true,
-                    spacingFactor: 1.5 // Increase spacing
+                    spacingFactor: 1.5
                 };
                 break;
             case 'circle':
@@ -904,32 +918,32 @@ class TraceLinkManager {
                     animate: true,
                     animationDuration: 500,
                     nodeDimensionsIncludeLabels: true,
-                    radius: Math.max(150, this.cy.nodes().length * 10), // Adjust radius based on node count, min radius
-                    spacingFactor: 1.5 // Increase spacing
+                    radius: Math.max(150, this.cy.nodes().length * 10),
+                    spacingFactor: 1.5
                 };
                 break;
             case 'concentric':
                 layoutOptions = {
                     name: 'concentric',
                     animate: true,
-                    animationDuration: 800, // Longer animation
+                    animationDuration: 800,
                     nodeDimensionsIncludeLabels: true,
-                    concentric: function(node){ // Group nodes by a numerical priority (example heuristic)
+                    concentric: function(node){
                         const type = node.data('entityType');
-                        const typeOrder = { // Assign arbitrary 'levels' for concentric layout
+                        const typeOrder = {
                             'person': 10, 'organization': 9, 'email_address': 8, 'phone_number': 7,
                             'location': 6, 'ip_address': 5, 'domain_website': 4, 'social_media': 3,
                             'wallet_address': 2, 'malware_tool': 2, 'threat': 2, 'vulnerability': 2,
-                            'custom_entity': 1 // General/Misc innermost
+                            'custom_entity': 1
                         };
                         return typeOrder[type] || 1;
                     },
-                    levelWidth: function(nodes){ return 1; }, // How many concentric circles
-                    minNodeSpacing: 80, // Minimum spacing between nodes
-                    equidistant: true // Evenly space nodes
+                    levelWidth: function(nodes){ return 1; },
+                    minNodeSpacing: 80,
+                    equidistant: true
                 };
                 break;
-            case 'cola': // Force-directed layout
+            case 'cola':
             default:
                 layoutOptions = {
                     name: 'cola',
@@ -937,20 +951,20 @@ class TraceLinkManager {
                     animationDuration: 800,
                     nodeDimensionsIncludeLabels: true,
                     gravity: 1,
-                    edgeLength: 120, // Slightly longer edges for clarity
+                    edgeLength: 120,
                     padding: 30,
                     avoidOverlap: true,
                     randomize: false,
-                    maxSimulationTime: 2000 // Cap simulation time
+                    maxSimulationTime: 2000
                 };
                 break;
         }
 
         const layout = this.cy.layout(layoutOptions);
         layout.run();
-        layout.on('layoutstop', () => { // Listen for layout completion
+        layout.on('layoutstop', () => {
             this.saveGraphState();
-            this.showNotification(`Layout changed to: ${layoutName.charAt(0).toUpperCase() + layoutName.slice(1)}`, 'success');
+            window.showNotification(`Layout changed to: ${layoutName.charAt(0).toUpperCase() + layoutName.slice(1)}`, 'success');
         });
     }
 
@@ -960,12 +974,12 @@ class TraceLinkManager {
      */
     saveCurrentLayout() {
         if (!this.cy || !this.currentVaultId) {
-            this.showNotification('No active project to save layout for.', 'warning');
+            window.showNotification('No active project to save layout for.', 'warning');
             return;
         }
 
         this.saveGraphState();
-        this.showNotification('Current graph layout saved!', 'success');
+        window.showNotification('Current graph layout saved!', 'success');
     }
 
     /**
@@ -974,7 +988,7 @@ class TraceLinkManager {
      */
     exportCurrentGraph() {
         if (!this.cy || !this.currentVaultId) {
-            this.showNotification('No active graph to export.', 'warning');
+            window.showNotification('No active graph to export.', 'warning');
             return;
         }
 
@@ -989,7 +1003,7 @@ class TraceLinkManager {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        this.showNotification('Graph data exported successfully!', 'success');
+        window.showNotification('Graph data exported successfully!', 'success');
     }
 
     /**
@@ -1034,15 +1048,13 @@ class TraceLinkManager {
 
         vaultSelectionGrid.innerHTML = ''; // Clear previous content
         allVaults.forEach(vault => {
-            if (vault.archived) return; // Skip archived vaults
+            if (vault.archived) return;
 
             const isAlreadyImported = this.tracelinkProjects.hasOwnProperty(vault.id);
-            
+
             const vaultItem = document.createElement('div');
             vaultItem.className = `vault-selection-item ${isAlreadyImported ? 'already-imported' : ''}`;
-            // Add 'selected' class directly if checkbox is pre-checked (for future pre-selection logic)
-            // if (isAlreadyImported) { vaultItem.classList.add('selected'); } // Uncomment if you want disabled items to also visually appear 'selected'
-            
+
             vaultItem.innerHTML = `
                 <input type="checkbox" id="vault-select-${vault.id}" value="${vault.id}" ${isAlreadyImported ? 'disabled checked' : ''}>
                 <div class="vault-icon" style="background-color: ${vault.color};">
@@ -1053,22 +1065,19 @@ class TraceLinkManager {
                     <div class="vault-entry-count">${vault.entries.length || 0} elements</div>
                 </div>
             `;
-            
+
             vaultItem.onclick = (e) => {
                 const checkbox = vaultItem.querySelector('input[type="checkbox"]');
-                // Only toggle if not disabled and click is not directly on the checkbox itself
                 if (!checkbox.disabled && e.target !== checkbox) {
                     checkbox.checked = !checkbox.checked;
                     vaultItem.classList.toggle('selected', checkbox.checked);
                 } else if (e.target === checkbox && !checkbox.disabled) {
-                    // If the click was directly on the checkbox, just update the selected class
                     vaultItem.classList.toggle('selected', checkbox.checked);
                 }
             };
-            
+            // REMOVED: this.tracelinkTabsContainer.appendChild(tab); // This line caused the "tab is not defined" error
             vaultSelectionGrid.appendChild(vaultItem);
 
-            // Ensure the 'selected' class is applied for initially checked (disabled) checkboxes
             const checkbox = vaultItem.querySelector('input[type="checkbox"]');
             if (checkbox.checked) {
                 vaultItem.classList.add('selected');
@@ -1090,18 +1099,18 @@ class TraceLinkManager {
                                     .map(cb => cb.value);
 
         if (!projectName) {
-            this.showNotification('Project name is required.', 'warning');
+            window.showNotification('Project name is required.', 'warning');
             return;
         }
 
         if (selectedVaults.length === 0) {
-            this.showNotification('Please select at least one Multi-Vault to import.', 'warning');
+            window.showNotification('Please select at least one Multi-Vault to import.', 'warning');
             return;
         }
-        
+
         let importedCount = 0;
         selectedVaults.forEach(vaultId => {
-            if (!this.tracelinkProjects.hasOwnProperty(vaultId)) { // Only import if not already existing
+            if (!this.tracelinkProjects.hasOwnProperty(vaultId)) {
                 const vault = window.multiVaultManager.getVaultById(vaultId);
                 if (vault) {
                     const elementsToAdd = [];
@@ -1109,7 +1118,7 @@ class TraceLinkManager {
                         const nodeId = `entry-${entry.id}`;
                         const colors = this.getEntityColor(entry.type);
                         const faUnicode = this.getEntityTypeIcon(entry.type);
-                        const iconDataUrl = this._generateIconDataURL(faUnicode, 'Font Awesome 5 Free', '900', 28, 'white'); // Icon color is white
+                        const iconDataUrl = this._generateIconDataURL(faUnicode, 'Font Awesome 5 Free', '900', 28, 'white');
 
                         elementsToAdd.push({
                             group: 'nodes',
@@ -1123,31 +1132,30 @@ class TraceLinkManager {
                                 backgroundColor: colors.bg,
                                 borderColor: colors.border,
                                 shadowColor: colors.shadow,
-                                iconDataUrl: iconDataUrl // Add icon Data URL to node data
+                                iconDataUrl: iconDataUrl
                             }
                         });
                     });
 
                     this.tracelinkProjects[vaultId] = {
-                        name: projectName, // Store the user-provided project name (optional, could derive from vault name)
-                        elements: elementsToAdd, // Directly store the elements
-                        layout: { zoom: 1, pan: { x: 0, y: 0 } } // Initial layout state
+                        name: projectName,
+                        elements: elementsToAdd,
+                        layout: { zoom: 1, pan: { x: 0, y: 0 } }
                     };
                     importedCount++;
                 }
             }
         });
 
-        this.saveTraceLinkProjects(); // Save the updated tracelinkProjects
-        this.renderTraceLinkTabs(); // Re-render tabs to show new projects and updated counts
+        this.saveTraceLinkProjects();
+        this.renderTraceLinkTabs();
 
         if (importedCount > 0) {
-            this.showNotification(`Successfully created ${importedCount} new TraceLink project(s) from selected vaults!`, 'success');
-            // Switch to the first imported vault automatically
+            window.showNotification(`Successfully created ${importedCount} new TraceLink project(s) from selected vaults!`, 'success');
             this.switchProject(selectedVaults[0]);
         }
          else {
-            this.showNotification('No new TraceLink projects created (already imported or invalid vaults selected).', 'info');
+            window.showNotification('No new TraceLink projects created (already imported or invalid vaults selected).', 'info');
         }
         this.closeImportModal();
     }
@@ -1160,42 +1168,51 @@ class TraceLinkManager {
      */
     importEntitiesToCurrentGraph() {
         if (!this.currentVaultId) {
-            this.showNotification('No TraceLink project selected. Create or select a project first.', 'warning');
+            window.showNotification('No TraceLink project selected. Create or select a project first.', 'warning');
             return;
         }
         if (!this.cy) {
-            this.showNotification('Graph not initialized for current project. Switching project...', 'warning');
-            this.switchProject(this.currentVaultId); // Re-initialize graph if not already
-            return; // Exit and let switchProject re-call renderTraceLinkTabs
+            window.showNotification('Graph not initialized for current project. Initializing graph...', 'info');
+            this.initCytoscape();
+            const projectData = this.tracelinkProjects[this.currentVaultId];
+            if (projectData) {
+                this.cy.json({ elements: projectData.elements });
+                if (projectData.layout && projectData.layout.zoom !== undefined && projectData.layout.pan) {
+                    this.cy.zoom(projectData.layout.zoom);
+                    this.cy.pan(projectData.layout.pan);
+                } else if (this.cy.nodes().length > 0) {
+                    this.applyNewLayout('cola');
+                }
+            }
         }
         if (!window.multiVaultManager || typeof window.multiVaultManager.getVaults !== 'function') {
-            this.showNotification('Multi-Vault manager not found. Cannot import entities.', 'error');
+            window.showNotification('Multi-Vault manager not found. Cannot import entities.', 'error');
             return;
         }
 
         const vault = window.multiVaultManager.getVaultById(this.currentVaultId);
         if (!vault) {
-            this.showNotification('Selected Multi-Vault not found or not loaded.', 'error');
+            window.showNotification('Selected Multi-Vault not found or not loaded.', 'error');
             return;
         }
 
         if (vault.entries.length === 0) {
-            this.showNotification(`Vault "${vault.name}" has no entries to import.`, 'info');
+            window.showNotification(`Vault "${vault.name}" has no entries to import.`, 'info');
             return;
         }
 
         let addedCount = 0;
+        let updatedCount = 0;
         const elementsToAdd = [];
-        const currentElementsMap = new Map(); // For quick lookup of existing elements
+        const currentElementsMap = new Map();
         this.cy.elements().forEach(ele => currentElementsMap.set(ele.id(), ele));
 
         vault.entries.forEach(entry => {
-            const nodeId = `entry-${entry.id}`; // Consistent ID
+            const nodeId = `entry-${entry.id}`;
             const existingNode = currentElementsMap.get(nodeId);
 
-            // Determine Font Awesome Unicode and then generate Data URL
             const faUnicode = this.getEntityTypeIcon(entry.type);
-            const iconDataUrl = this._generateIconDataURL(faUnicode, 'Font Awesome 5 Free', '900', 28, 'white'); // Icon color is white
+            const iconDataUrl = this._generateIconDataURL(faUnicode, 'Font Awesome 5 Free', '900', 28, 'white');
 
 
             if (!existingNode) {
@@ -1212,36 +1229,51 @@ class TraceLinkManager {
                         backgroundColor: colors.bg,
                         borderColor: colors.border,
                         shadowColor: colors.shadow,
-                        iconDataUrl: iconDataUrl // Add icon Data URL to node data
+                        iconDataUrl: iconDataUrl
                     },
-                    position: { x: Math.random() * 500, y: Math.random() * 500 } // Random position for new nodes
+                    position: { x: Math.random() * 500, y: Math.random() * 500 }
                 });
                 addedCount++;
             } else {
-                // Update existing node properties from the latest vault data
                 const newColors = this.getEntityColor(entry.type);
-                // Regenerate icon data URL for updates
                 const newIconDataUrl = this._generateIconDataURL(this.getEntityTypeIcon(entry.type), 'Font Awesome 5 Free', '900', 28, 'white');
-                existingNode.data({
-                    label: entry.name || entry.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unnamed Entity',
-                    entityType: entry.type,
-                    fullData: entry,
-                    backgroundColor: newColors.bg,
-                    borderColor: newColors.border,
-                    shadowColor: newColors.shadow,
-                    iconDataUrl: newIconDataUrl // Update icon Data URL in node data
-                });
+                let needsUpdate = false;
+                if (existingNode.data('label') !== (entry.name || 'Unnamed Entity') ||
+                    existingNode.data('entityType') !== entry.type ||
+                    existingNode.data('backgroundColor') !== newColors.bg ||
+                    existingNode.data('iconDataUrl') !== newIconDataUrl) {
+                    needsUpdate = true;
+                }
+                if (JSON.stringify(existingNode.data('fullData')) !== JSON.stringify(entry)) {
+                     needsUpdate = true;
+                }
+
+
+                if (needsUpdate) {
+                    existingNode.data({
+                        label: entry.name || entry.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unnamed Entity',
+                        entityType: entry.type,
+                        fullData: entry,
+                        backgroundColor: newColors.bg,
+                        borderColor: newColors.border,
+                        shadowColor: newColors.shadow,
+                        iconDataUrl: newIconDataUrl
+                    });
+                    updatedCount++;
+                }
             }
         });
 
-        if (elementsToAdd.length > 0) {
-            this.cy.add(elementsToAdd);
-            this.saveGraphState(); // Save after adding/updating elements. This updates `tracelinkProjects[currentVaultId].elements`
-            this.applyNewLayout('cola'); // Re-apply layout to integrate new nodes
-            this.showNotification(`${addedCount} new entities imported from "${vault.name}"! Existing nodes updated.`, 'success');
-            this.renderTraceLinkTabs(); // Re-render tabs to reflect the new count
+        if (elementsToAdd.length > 0 || updatedCount > 0) {
+            if (elementsToAdd.length > 0) {
+                this.cy.add(elementsToAdd);
+            }
+            this.saveGraphState();
+            this.applyNewLayout('cola');
+            window.showNotification(`${addedCount} new entities imported and ${updatedCount} existing nodes updated from "${vault.name}"!`, 'success');
+            this.renderTraceLinkTabs();
         } else {
-            this.showNotification('All entities from this vault are already in the graph, and existing ones were updated.', 'info');
+            window.showNotification('All entities from this vault are already in the graph, and existing ones were up-to-date.', 'info');
         }
     }
 
@@ -1252,13 +1284,12 @@ class TraceLinkManager {
      *
      */
     showContextMenu(event, type) {
-        event.preventDefault(); // Prevent default browser context menu
-        this.hideContextMenu(); // Hide any existing menu
-        this._cancelConnectionMode(); // Cancel any ongoing connection mode
+        event.preventDefault();
+        this.hideContextMenu();
+        this.hideEdgeDetailsPanel();
 
-        this.contextTarget = event.target; // Store the clicked element (node, edge, or cy instance)
+        this.contextTarget = event.target;
 
-        // Reset all buttons to hidden
         document.getElementById('context-add-node-btn').style.display = 'none';
         document.getElementById('context-edit-label-btn').style.display = 'none';
         document.getElementById('context-delete-btn').style.display = 'none';
@@ -1267,7 +1298,7 @@ class TraceLinkManager {
         if (type === 'canvas') {
             document.getElementById('context-add-node-btn').style.display = 'flex';
             // Enable 'Connect Nodes' from canvas only if a node is currently selected
-            if (this._sourceNodeForConnection && this._sourceNodeForConnection.isNode()) {
+            if (this._sourceNodeForConnectionModal && this._sourceNodeForConnectionModal.isNode()) {
                  document.getElementById('context-connect-nodes-btn').style.display = 'flex';
                  document.getElementById('context-connect-nodes-btn').textContent = 'Connect from Selected Node';
             }
@@ -1280,29 +1311,28 @@ class TraceLinkManager {
             document.getElementById('context-delete-btn').style.display = 'flex';
         }
 
-        // Get the position relative to the Cytoscape container
-        // Use renderedPosition for accurate placement within the canvas
-        const menuX = event.renderedPosition.x;
-        const menuY = event.renderedPosition.y;
+        const OFFSET = 2; // 2px offset for menu position
+        let menuX = event.renderedPosition.x + OFFSET;
+        let menuY = event.renderedPosition.y + OFFSET;
 
         this.contextMenu.style.left = `${menuX}px`;
         this.contextMenu.style.top = `${menuY}px`;
         this.contextMenu.style.display = 'block';
 
-        // Optional: Adjust position if it goes off screen (consider the actual menu dimensions)
         const menuRect = this.contextMenu.getBoundingClientRect();
         const cyContainerRect = this.cyContainer.getBoundingClientRect();
-        
+
         // Adjust X if menu goes off right edge of container
-        const currentLeft = parseInt(this.contextMenu.style.left, 10);
-        if (currentLeft + menuRect.width > cyContainerRect.width) {
-            this.contextMenu.style.left = `${currentLeft - menuRect.width - 10}px`; // Shift left by menu width + padding
+        if ((menuX + menuRect.width) > cyContainerRect.width) {
+            menuX = event.renderedPosition.x - menuRect.width - OFFSET;
         }
         // Adjust Y if menu goes off bottom edge of container
-        const currentTop = parseInt(this.contextMenu.style.top, 10);
-        if (currentTop + menuRect.height > cyContainerRect.height) {
-            this.contextMenu.style.top = `${currentTop - menuRect.height - 10}px`; // Shift up by menu height + padding
+        if ((menuY + menuRect.height) > cyContainerRect.height) {
+            menuY = event.renderedPosition.y - menuRect.height - OFFSET;
         }
+
+        this.contextMenu.style.left = `${Math.max(0, menuX)}px`;
+        this.contextMenu.style.top = `${Math.max(0, menuY)}px`;
     }
 
     /**
@@ -1313,171 +1343,209 @@ class TraceLinkManager {
         if (this.contextMenu) {
             this.contextMenu.style.display = 'none';
         }
-        // No longer clear contextTarget here, as it might be needed for ongoing connection mode.
     }
 
     /**
-     * Initiates the node connection mode from a context menu right-click on a node.
-     *
-     */
-    handleConnectNodesFromContext() {
-        this.hideContextMenu(); // Hide context menu immediately
-        
-        if (!this.contextTarget || !this.contextTarget.isNode()) {
-            this.showNotification('Error: No valid source node selected for connection. Right-click a node to start.', 'error');
-            return;
-        }
-        // If already connecting, and new context click is on a node, treat it as starting a new connection from this node.
-        if (this._isConnecting) {
-             this._cancelConnectionMode(); // Cancel previous mode if active
-        }
-
-        // Start connection mode
-        this._initiateConnectionMode(this.contextTarget);
-    }
-
-    /**
-     * Initiates the node connection mode from the main "Connect/Edit Connection" button.
-     *
-     */
-    handleConnectNodesViaButton() {
-        this.hideContextMenu();
-        this._cancelConnectionMode(); // Always cancel any prior connection mode when button is clicked
-
-        if (this.cy.nodes(':selected').empty()) {
-            this.showNotification('No node selected. Please click on a node on the graph, then click "Connect/Edit Connection" again, or right-click a node.', 'info', 5000);
-            return;
-        }
-
-        const selectedNodes = this.cy.nodes(':selected');
-        if (selectedNodes.length > 1) {
-             this.showNotification('Please select only ONE node to start a connection from. Deselect others or choose one.', 'warning', 5000);
-             return;
-        }
-
-        const sourceNode = selectedNodes[0];
-        if (!sourceNode) {
-            this.showNotification('Could not identify selected node. Please try selecting a node again.', 'error');
-            return;
-        }
-
-        // Initiate connection mode with the single selected node
-        this._initiateConnectionMode(sourceNode);
-    }
-
-    /**
-     * Internal helper to start the connection mode.
-     * @param {object} sourceNode - The Cytoscape.js node element that is the source of the connection.
-     * @private
-     */
-    _initiateConnectionMode(sourceNode) {
-        if (!this.cy) {
-            this.showNotification('Graph not initialized. Cannot connect nodes.', 'error');
-            return;
-        }
-        this._sourceNodeForConnection = sourceNode;
-        this._sourceNodeForConnection.addClass('connect-source'); // Highlight the source node
-        this.showNotification(`Connection mode: Click on a TARGET node to connect to "${this._sourceNodeForConnection.data('label')}". Right-click CANVAS background to cancel.`, 'info', 7000);
-        this._isConnecting = true;
-
-        // Attach one-time listeners for the connection process
-        this.cy.on('tap', 'node', this._handleTargetNodeClick.bind(this));
-        this.cy.on('cxttap', this._handleCanvasRightClickToCancel.bind(this));
-    }
-
-
-    /**
-     * Handles the click on a target node during connection mode.
-     * @param {Event} e - The tap event.
-     * @private
-     */
-    _handleTargetNodeClick(e) {
-        if (!this._isConnecting || !this._sourceNodeForConnection) return;
-
-        const targetNode = e.target;
-        if (targetNode.isNode() && targetNode.id() !== this._sourceNodeForConnection.id()) {
-            // Check if edge already exists between these two nodes (in either direction)
-            const existingEdge = this.cy.elements(`edge[source = '${this._sourceNodeForConnection.id()}'][target = '${targetNode.id()}'], edge[source = '${targetNode.id()}'][target = '${this._sourceNodeForConnection.id()}']`);
-
-            if (existingEdge.length === 0) {
-                const newEdge = this.cy.add({
-                    group: 'edges',
-                    data: {
-                        id: `edge-${this._sourceNodeForConnection.id()}-${targetNode.id()}-${Date.now()}`, // Unique ID for edge
-                        source: this._sourceNodeForConnection.id(),
-                        target: targetNode.id(),
-                        label: '' // Default empty label, user can edit
-                    }
-                });
-                this.saveGraphState();
-                this.showNotification('Nodes connected successfully!', 'success');
-                this._promptForEdgeLabel(newEdge); // Prompt user to label the new edge
-                this._cancelConnectionMode(); // End connection mode after successful connection
-            } else {
-                this.showNotification('Nodes are already connected. Connection cancelled.', 'warning');
-                this._cancelConnectionMode(); // End connection mode even if already connected
-            }
-        } else if (targetNode.isNode() && targetNode.id() === this._sourceNodeForConnection.id()) {
-            this.showNotification('Cannot connect a node to itself. Click a different node or right-click background to cancel.', 'warning');
-        }
-    }
-
-    /**
-     * Handles right-click on canvas to cancel connection mode.
-     * @param {Event} e - The cxttap event.
-     * @private
-     */
-    _handleCanvasRightClickToCancel(e) {
-        if (e.target === this.cy) { // Only if clicked on the canvas background
-            this.showNotification('Connection cancelled.', 'info');
-            this._cancelConnectionMode();
-        }
-    }
-
-
-    /**
-     * Helper to cancel connection mode and clean up.
-     * @private
-     *
-     */
-    _cancelConnectionMode() {
-        if (this._isConnecting) {
-            if (this._sourceNodeForConnection) {
-                this._sourceNodeForConnection.removeClass('connect-source');
-                this._sourceNodeForConnection = null; // Clear source node reference
-            }
-            // Remove specific listeners to avoid affecting other graph interactions
-            this.cy.off('tap', 'node', this._handleTargetNodeClick); // Remove specific 'tap' listener for nodes
-            this.cy.off('cxttap', this._handleCanvasRightClickToCancel); // Remove specific 'cxttap' listener for canvas
-            this._isConnecting = false;
-        }
-    }
-
-    /**
-     * Prompts the user to add a label to a newly created edge.
+     * Shows the edge details panel with information about the selected edge.
      * @param {object} edge - The Cytoscape.js edge element.
-     * @private
      *
      */
-    _promptForEdgeLabel(edge) {
-        if (!this.editLabelModal || !this.editLabelForm) return;
+    showEdgeDetailsPanel(edge) {
+        if (!this.edgeDetailsPanel) return;
 
-        this.contextTarget = edge; // Set the context target to the new edge
-        document.getElementById('edit-label-input').value = edge.data('label') || '';
-        this.editLabelModal.style.display = 'flex';
-        document.getElementById('edit-label-input').focus();
+        this.hideContextMenu();
 
-        // Temporarily override the form submission to handle this specific edge
-        const originalOnSubmit = this.editLabelForm.onsubmit;
-        this.editLabelForm.onsubmit = (e) => {
-            e.preventDefault();
-            const newLabel = document.getElementById('edit-label-input').value.trim();
-            edge.data('label', newLabel);
+        const sourceNode = edge.source();
+        const targetNode = edge.target();
+
+        document.getElementById('edge-detail-source').textContent = sourceNode.data('label') || sourceNode.id();
+        document.getElementById('edge-detail-target').textContent = targetNode.data('label') || targetNode.id();
+        document.getElementById('edge-detail-label').textContent = edge.data('label') || '[No Label]';
+        document.getElementById('edge-detail-id').textContent = edge.id();
+
+        const createdTimestamp = edge.data('created') ? new Date(edge.data('created')).toLocaleString() : 'N/A';
+        document.getElementById('edge-detail-created').textContent = createdTimestamp;
+
+        const customData = edge.data('customData');
+        const customDataContainer = document.getElementById('edge-detail-custom-data');
+        const customDataContent = document.getElementById('edge-detail-custom-data-content');
+
+        if (customData && Object.keys(customData).length > 0) {
+            customDataContent.textContent = JSON.stringify(customData, null, 2);
+            customDataContainer.style.display = 'block';
+        } else {
+            customDataContainer.style.display = 'none';
+            customDataContent.textContent = '';
+        }
+
+        this.edgeDetailsPanel.classList.add('show');
+    }
+
+    /**
+     * Hides the edge details panel.
+     *
+     */
+    hideEdgeDetailsPanel() {
+        if (this.edgeDetailsPanel) {
+            this.edgeDetailsPanel.classList.remove('show');
+        }
+    }
+
+    /**
+     * NEW: Shows the Connect Nodes Modal when triggered from context menu.
+     * Pre-fills the source node based on the right-clicked node.
+     *
+     */
+    showConnectNodesModalFromContext() {
+        this.hideContextMenu();
+        if (!this.contextTarget || !this.contextTarget.isNode()) {
+            window.showNotification('Error: No valid source node selected. Please right-click a node.', 'error');
+            return;
+        }
+        this._sourceNodeForConnectionModal = this.contextTarget; // Set the source node
+
+        this.showConnectNodesModal(); // Open the general connection modal
+    }
+
+    /**
+     * NEW: Shows the Connect Nodes Modal.
+     * Populates source and target dropdowns.
+     *
+     */
+    showConnectNodesModal() {
+        if (!this.connectNodesModal || !this.cy) {
+            window.showNotification('Graph not initialized or connection modal not found.', 'error');
+            return;
+        }
+
+        this.connectNodesForm.reset();
+        this.hideContextMenu(); // Ensure context menu is hidden
+        this.hideEdgeDetailsPanel(); // Ensure edge details panel is hidden
+
+        const sourceSelect = document.getElementById('connect-source-node-select');
+        const targetSelect = document.getElementById('connect-target-node-select');
+
+        sourceSelect.innerHTML = '';
+        targetSelect.innerHTML = '<option value="">Select Target Entity</option>';
+
+        const allNodes = this.cy.nodes().sort((a, b) => a.data('label').localeCompare(b.data('label')));
+
+        if (!allNodes.length) {
+            window.showNotification('No nodes available to connect. Add nodes to the graph first!', 'warning');
+            return;
+        }
+
+        // Populate Source Node dropdown
+        let preSelectedSourceNode = null;
+        if (this._sourceNodeForConnectionModal && this._sourceNodeForConnectionModal.isNode()) {
+            preSelectedSourceNode = this._sourceNodeForConnectionModal;
+        } else {
+            // If button was clicked without a specific context target or selected node
+            const selectedNodes = this.cy.nodes(':selected');
+            if (selectedNodes.length === 1) {
+                preSelectedSourceNode = selectedNodes[0];
+            }
+        }
+
+        if (preSelectedSourceNode) {
+            const option = document.createElement('option');
+            option.value = preSelectedSourceNode.id();
+            option.textContent = preSelectedSourceNode.data('label');
+            sourceSelect.appendChild(option);
+            sourceSelect.value = preSelectedSourceNode.id();
+            sourceSelect.disabled = true; // Disable source selection if pre-filled
+            this._sourceNodeForConnectionModal = preSelectedSourceNode; // Confirm internal state
+        } else {
+            // If no single selected node or context node, prompt user to select one manually, though disabled implies pre-fill.
+            // For this design, we expect a source node. If none, inform user.
+            window.showNotification('Please select a source node first (click on it) or right-click a node to initiate connection.', 'warning');
+            return;
+        }
+
+        // Populate Target Node dropdown (exclude the source node)
+        allNodes.forEach(node => {
+            if (preSelectedSourceNode && node.id() === preSelectedSourceNode.id()) {
+                return; // Skip source node in target list
+            }
+            const option = document.createElement('option');
+            option.value = node.id();
+            option.textContent = node.data('label');
+            targetSelect.appendChild(option);
+        });
+
+        this.connectNodesModal.style.display = 'flex';
+    }
+
+    /**
+     * NEW: Closes the Connect Nodes Modal.
+     *
+     */
+    closeConnectNodesModal() {
+        if (this.connectNodesModal) {
+            this.connectNodesModal.style.display = 'none';
+            this.connectNodesForm.reset();
+            this._sourceNodeForConnectionModal = null; // Clear source selection
+            if (this.cy) { // Unselect any selected nodes on modal close
+                this.cy.nodes().unselect();
+            }
+        }
+    }
+
+    /**
+     * NEW: Handles the submission of the Connect Nodes form.
+     * Creates a new edge or notifies if already connected.
+     * @param {Event} event - The form submission event.
+     *
+     */
+    handleConnectNodesSubmit(event) {
+        event.preventDefault();
+
+        const sourceNodeId = document.getElementById('connect-source-node-select').value;
+        const targetNodeId = document.getElementById('connect-target-node-select').value;
+        const relationshipLabel = document.getElementById('connect-relationship-label').value.trim();
+
+        if (!sourceNodeId || !targetNodeId) {
+            window.showNotification('Source and Target nodes are required.', 'warning');
+            return;
+        }
+
+        if (sourceNodeId === targetNodeId) {
+            window.showNotification('Cannot connect a node to itself.', 'warning');
+            return;
+        }
+
+        const sourceNode = this.cy.$id(sourceNodeId);
+        const targetNode = this.cy.$id(targetNodeId);
+
+        if (!sourceNode || !targetNode) {
+            window.showNotification('Selected source or target node not found on graph.', 'error');
+            return;
+        }
+
+        const existingEdge = this.cy.collection().add(sourceNode.edgesWith(targetNode));
+
+        if (existingEdge.length === 0) {
+            this.cy.add({
+                group: 'edges',
+                data: {
+                    id: `edge-${sourceNodeId}-${targetNodeId}-${Date.now()}`,
+                    source: sourceNodeId,
+                    target: targetNodeId,
+                    label: relationshipLabel,
+                    created: new Date().toISOString()
+                }
+            });
             this.saveGraphState();
-            this.showNotification('Edge label updated successfully!', 'success');
-            this.closeEditLabelModal();
-            this.editLabelForm.onsubmit = originalOnSubmit; // Restore original handler
-        };
+            window.showNotification('Nodes connected successfully!', 'success');
+        } else {
+            // Optionally, you could allow editing the label of an existing edge here
+            window.showNotification('Nodes are already connected. Existing connection updated if you provided a new label.', 'info');
+            // If you want to update label of existing edge when already connected:
+            existingEdge.data('label', relationshipLabel);
+            this.saveGraphState();
+        }
+
+        this.closeConnectNodesModal();
     }
 
 
@@ -1487,17 +1555,17 @@ class TraceLinkManager {
      */
     showAddNodeModal() {
         this.hideContextMenu();
-        this._cancelConnectionMode(); // Ensure connection mode is off
-        
-        if (!this.currentVaultId) { // Ensure a vault tab (project) is selected
-            this.showNotification('Please select a TraceLink project (a Multi-Vault tab) first to add nodes.', 'warning');
+        this.hideEdgeDetailsPanel();
+
+        if (!this.currentVaultId) {
+            window.showNotification('Please select a TraceLink project (a Multi-Vault tab) first to add nodes.', 'warning');
             return;
         }
         if (this.addNodeModal) this.addNodeModal.style.display = 'flex';
         if (document.getElementById('add-node-label')) document.getElementById('add-node-label').value = '';
-        if (document.getElementById('add-node-type-select')) document.getElementById('add-node-type-select').value = ''; // Reset type dropdown
+        if (document.getElementById('add-node-type-select')) document.getElementById('add-node-type-select').value = '';
         if (document.getElementById('add-node-label')) document.getElementById('add-node-label').focus();
-        this.updateAddNodeDynamicFields(); // Clear dynamic fields initially
+        this.updateAddNodeDynamicFields();
     }
 
     /**
@@ -1507,9 +1575,8 @@ class TraceLinkManager {
     closeAddNodeModal() {
         if (this.addNodeModal) this.addNodeModal.style.display = 'none';
         if (this.addNodeForm) this.addNodeForm.reset();
-        if (document.getElementById('add-node-dynamic-fields')) document.getElementById('add-node-dynamic-fields').innerHTML = ''; // Clear dynamic fields
-        if (document.getElementById('add-node-custom-metadata-fields')) document.getElementById('add-node-custom-metadata-fields').innerHTML = ''; // Clear custom metadata
-        // Ensure "Add Custom Field" button container is hidden when modal closes and no type is selected
+        if (document.getElementById('add-node-dynamic-fields')) document.getElementById('add-node-dynamic-fields').innerHTML = '';
+        if (document.getElementById('add-node-custom-metadata-fields')) document.getElementById('add-node-custom-metadata-fields').innerHTML = '';
         const addCustomMetadataBtnContainer = document.getElementById('add-custom-metadata-btn-container');
         if (addCustomMetadataBtnContainer) {
             addCustomMetadataBtnContainer.style.display = 'none';
@@ -1524,27 +1591,21 @@ class TraceLinkManager {
         const typeSelect = document.getElementById('add-node-type-select');
         const addCustomMetadataBtnContainer = document.getElementById('add-custom-metadata-btn-container');
 
-        if (!typeSelect) return; // Exit if element not found
+        if (!typeSelect) return;
 
-        // Clear existing options, but keep "Select Type" if it exists
         typeSelect.innerHTML = '<option value="">Select Type</option>';
 
-        // Populate type dropdown options dynamically from entityTypeDefinitions
         for (const typeKey in this.entityTypeDefinitions) {
             const definition = this.entityTypeDefinitions[typeKey];
             const option = document.createElement('option');
             option.value = typeKey;
-            // Format typeKey to be more readable (e.g., 'wallet_address' -> 'Wallet Address')
             option.textContent = typeKey.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             typeSelect.appendChild(option);
         }
 
-        // Add "Add Custom Field" button for manual nodes if it's not already there
-        // This button should *always* be available in the HTML (even if hidden by default CSS)
-        // and its event listener set up here.
         if (addCustomMetadataBtnContainer) {
             let existingButton = addCustomMetadataBtnContainer.querySelector('.add-custom-metadata-button');
-            if (!existingButton) { // Create only if it doesn't exist
+            if (!existingButton) {
                 const addCustomFieldButton = document.createElement('button');
                 addCustomFieldButton.type = 'button';
                 addCustomFieldButton.className = 'btn-secondary btn-small add-custom-metadata-button';
@@ -1567,8 +1628,8 @@ class TraceLinkManager {
 
         if (!dynamicFieldsContainer || !customMetadataContainer || !addCustomMetadataBtnContainer) return;
 
-        dynamicFieldsContainer.innerHTML = ''; // Clear previous fields
-        customMetadataContainer.innerHTML = ''; // Clear custom metadata fields
+        dynamicFieldsContainer.innerHTML = '';
+        customMetadataContainer.innerHTML = '';
         addCustomMetadataBtnContainer.style.display = 'none';
 
 
@@ -1600,7 +1661,7 @@ class TraceLinkManager {
                 formGroup.innerHTML = `<label for="add-node-field-${field.id}">${field.label}${field.required ? ' *' : ''}</label>${inputHtml}`;
                 dynamicFieldsContainer.appendChild(formGroup);
             });
-            addCustomMetadataBtnContainer.style.display = 'block'; // Show custom metadata button
+            addCustomMetadataBtnContainer.style.display = 'block';
         }
     }
 
@@ -1610,7 +1671,7 @@ class TraceLinkManager {
      *
      */
     addCustomMetadataPair(container) {
-        if (!container) return; // Ensure container exists
+        if (!container) return;
         const pairDiv = document.createElement('div');
         pairDiv.className = 'form-row metadata-pair';
         pairDiv.innerHTML = `
@@ -1641,19 +1702,18 @@ class TraceLinkManager {
 
 
         if (!label) {
-            this.showNotification('Node label is required.', 'warning');
+            window.showNotification('Node label is required.', 'warning');
             return;
         }
         if (!selectedType) {
-            this.showNotification('Node type is required.', 'warning');
+            window.showNotification('Node type is required.', 'warning');
             return;
         }
 
-        if (!this.cy) { // If for some reason the graph isn't initialized for this project
+        if (!this.cy) {
             this.initCytoscape();
         }
 
-        // Collect dynamic field values
         const dynamicData = {};
         if (this.entityTypeDefinitions[selectedType] && dynamicFieldsContainer) {
             this.entityTypeDefinitions[selectedType].fields.forEach(field => {
@@ -1668,7 +1728,6 @@ class TraceLinkManager {
             });
         }
 
-        // Collect custom metadata fields
         const customMetadata = {};
         if (customMetadataContainer) {
             customMetadataContainer.querySelectorAll('.metadata-pair').forEach(pair => {
@@ -1680,15 +1739,11 @@ class TraceLinkManager {
             });
         }
 
-        // Determine position for new node relative to current view
-        // If the context click was on the canvas, use that position, otherwise default to center.
         let positionX, positionY;
-        if (this.contextTarget && this.contextTarget === this.cy && this.contextTarget.pointerData) {
-            // Using pointerData for canvas click context
-            positionX = (this.contextTarget.pointerData.current.x - this.cy.pan().x) / this.cy.zoom();
-            positionY = (this.contextTarget.pointerData.current.y - this.cy.pan().y) / this.cy.zoom();
+        if (this.contextTarget && this.contextTarget === this.cy && event.renderedPosition) { // Use event.renderedPosition for canvas clicks
+            positionX = (event.renderedPosition.x - this.cy.pan().x) / this.cy.zoom();
+            positionY = (event.renderedPosition.y - this.cy.pan().y) / this.cy.zoom();
         } else {
-            // Default to center of the current view
             positionX = (this.cy.width() / 2 - this.cy.pan().x) / this.cy.zoom();
             positionY = (this.cy.height() / 2 - this.cy.pan().y) / this.cy.zoom();
         }
@@ -1696,27 +1751,27 @@ class TraceLinkManager {
 
         const colors = this.getEntityColor(selectedType);
         const faUnicode = this.getEntityTypeIcon(selectedType);
-        const iconDataUrl = this._generateIconDataURL(faUnicode, 'Font Awesome 5 Free', '900', 28, 'white'); // Icon color is white
+        const iconDataUrl = this._generateIconDataURL(faUnicode, 'Font Awesome 5 Free', '900', 28, 'white');
 
 
         this.cy.add({
             group: 'nodes',
             data: {
-                id: `manual-${Date.now()}`, // Ensure unique ID for manual nodes
+                id: `manual-${Date.now()}`,
                 label: label,
                 entityType: selectedType,
                 isManual: true,
-                dynamicData: dynamicData, // Store dynamic fields
-                customMetadata: customMetadata, // Store custom fields
+                dynamicData: dynamicData,
+                customMetadata: customMetadata,
                 backgroundColor: colors.bg,
                 borderColor: colors.border,
                 shadowColor: colors.shadow,
-                iconDataUrl: iconDataUrl // Add icon Data URL to node data
+                iconDataUrl: iconDataUrl
             },
             position: { x: positionX, y: positionY }
         });
         this.saveGraphState();
-        this.showNotification('Node added successfully!', 'success');
+        window.showNotification('Node added successfully!', 'success');
         this.closeAddNodeModal();
     }
 
@@ -1726,6 +1781,8 @@ class TraceLinkManager {
      */
     showEditLabelModalForContextTarget() {
         this.hideContextMenu();
+        this.hideEdgeDetailsPanel();
+
         if (this.contextTarget && this.contextTarget.isEdge()) {
             if (this.editLabelModal) this.editLabelModal.style.display = 'flex';
             if (document.getElementById('edit-label-input')) {
@@ -1733,7 +1790,7 @@ class TraceLinkManager {
                 document.getElementById('edit-label-input').focus();
             }
         } else {
-            this.showNotification('No edge selected for editing label.', 'warning');
+            window.showNotification('No edge selected for editing label.', 'warning');
         }
     }
 
@@ -1758,7 +1815,7 @@ class TraceLinkManager {
         if (this.contextTarget && this.contextTarget.isEdge()) {
             this.contextTarget.data('label', newLabel);
             this.saveGraphState();
-            this.showNotification('Edge label updated successfully!', 'success');
+            window.showNotification('Edge label updated successfully!', 'success');
         }
         this.closeEditLabelModal();
     }
@@ -1769,6 +1826,8 @@ class TraceLinkManager {
      */
     handleContextDelete() {
         this.hideContextMenu();
+        this.hideEdgeDetailsPanel();
+
         if (!this.contextTarget) return;
 
         if (this.contextTarget.isNode()) {
@@ -1779,7 +1838,7 @@ class TraceLinkManager {
                 () => {
                     this.contextTarget.remove();
                     this.saveGraphState();
-                    this.showNotification('Node and its edges deleted.', 'success');
+                    window.showNotification('Node and its edges deleted.', 'success');
                 }
             );
         } else if (this.contextTarget.isEdge()) {
@@ -1790,7 +1849,7 @@ class TraceLinkManager {
                 () => {
                     this.contextTarget.remove();
                     this.saveGraphState();
-                    this.showNotification('Edge deleted.', 'success');
+                    window.showNotification('Edge deleted.', 'success');
                 }
             );
         }
@@ -1802,19 +1861,17 @@ class TraceLinkManager {
      */
     saveGraphState() {
         if (!this.cy || !this.currentVaultId || !this.tracelinkProjects[this.currentVaultId]) {
-            // Cannot save if no graph, no current project, or project was deleted
             return;
         }
 
-        // Get elements, including their current positions if they've been moved
         const elements = this.cy.json().elements;
         const currentZoom = this.cy.zoom();
         const currentPan = this.cy.pan();
 
         this.tracelinkProjects[this.currentVaultId] = {
-            name: this.tracelinkProjects[this.currentVaultId]?.name || window.multiVaultManager.getVaultById(this.currentVaultId)?.name || 'Unnamed Project', // Ensure name is preserved
+            name: this.tracelinkProjects[this.currentVaultId]?.name || window.multiVaultManager.getVaultById(this.currentVaultId)?.name || 'Unnamed Project',
             elements: elements,
-            layout: { // Store current view state
+            layout: {
                 zoom: currentZoom,
                 pan: currentPan
             }
@@ -1822,109 +1879,35 @@ class TraceLinkManager {
         this.saveTraceLinkProjects();
     }
 
-    // --- TraceLink Specific Notification System ---
-    /**
-     * Displays a TraceLink-specific notification message.
-     * @param {string} message - The message to display.
-     * @param {string} type - The type of notification ('info', 'success', 'warning', 'error').
-     * @param {number} duration - How long the notification should be displayed in milliseconds.
-     *
-     */
-    showNotification(message, type = 'info', duration = 3000) {
-        const container = document.getElementById('notificationContainer'); // Use the global container
-        if (!container) {
-            console.warn('Notification container not found for TraceLink notifications.');
-            return;
-        }
-
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`; // Apply type class for styling
-        
-        const iconClass = {
-            success: 'fas fa-check-circle',
-            error: 'fas fa-exclamation-circle',
-            warning: 'fas fa-exclamation-triangle',
-            info: 'fas fa-info-circle'
-        }[type] || 'fas fa-info-circle';
-
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="${iconClass} notification-icon"></i>
-                <span>${message}</span>
-            </div>
-            <button class="notification-close">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-        // Add to container and trigger slide-in animation
-        container.appendChild(notification);
-        // Use a small timeout to allow CSS transition to take effect
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
-
-        // Auto-remove after duration
-        const autoRemoveTimeout = setTimeout(() => {
-            if (notification.parentNode) {
-                notification.classList.remove('show'); // Trigger slide-out
-                notification.classList.add('slide-out');
-                notification.addEventListener('transitionend', function handler() {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                    notification.removeEventListener('transitionend', handler);
-                });
-            }
-        }, duration);
-
-        // Manual close button listener
-        notification.querySelector('.notification-close').onclick = () => {
-            clearTimeout(autoRemoveTimeout); // Prevent auto-removal if manually closed
-            notification.classList.remove('show');
-            notification.classList.add('slide-out');
-            notification.addEventListener('transitionend', function handler() {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-                notification.removeEventListener('transitionend', handler);
-            });
-        };
-    }
-
-    // --- TraceLink Specific Confirmation Modal ---
     /**
      * Shows a customized confirmation modal for TraceLink-specific deletions.
+     * Now delegates to the global `showConfirmDeleteModal` in `script.js`.
      * @param {string} title - The title of the confirmation modal.
      * @param {string} message - The message to display in the modal body.
      * @param {Function} confirmCallback - The function to execute if the user confirms.
      *
      */
     showConfirmDeleteModal(title, message, confirmCallback) {
-        if (!this.tracelinkConfirmDeleteModal) {
-            console.error('TraceLink delete confirmation modal not found.');
-            // Fallback to native confirm if modal element is missing
+        if (typeof window.showConfirmDeleteModal === 'function') {
+            window.showConfirmDeleteModal(title, message, confirmCallback);
+        } else {
+            console.error('window.showConfirmDeleteModal is not defined. Falling back to native confirm.');
             if (confirm(message)) {
                 confirmCallback();
             }
-            return;
         }
-
-        document.getElementById('tracelink-confirm-delete-title').textContent = title;
-        document.getElementById('tracelink-confirm-delete-message').textContent = message;
-        this.tracelinkConfirmDeleteCallback = confirmCallback; // Store the callback
-
-        this.tracelinkConfirmDeleteModal.style.display = 'flex';
     }
 
     /**
      * Closes the TraceLink specific confirmation modal.
+     * Now delegates to the global `closeDeleteModal` in `script.js`.
      *
      */
     closeConfirmDeleteModal() {
-        if (this.tracelinkConfirmDeleteModal) {
-            this.tracelinkConfirmDeleteModal.style.display = 'none';
-            this.tracelinkConfirmDeleteCallback = null; // Clear callback
+        if (typeof window.closeDeleteModal === 'function') {
+            window.closeDeleteModal();
+        } else {
+            console.warn('window.closeDeleteModal is not defined.');
         }
     }
 }
@@ -1932,15 +1915,10 @@ class TraceLinkManager {
 // Global initialization when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // We defer TraceLinkManager instantiation and init.
-    // It will be instantiated *only* when showSection('tracelink') is called
-    // for the first time, ensuring its HTML is in the DOM.
-    // The `init()` method will then be called on that instance.
-    // So, we do NOT `window.traceLinkManager = new TraceLinkManager();` here.
 });
 
 // Listener for multiVaultManagerReady event
 document.addEventListener('multiVaultManagerReady', () => {
-    // Check if Cytoscape.js is loaded before initializing TraceLinkManager
     if (typeof cytoscape === 'undefined') {
         console.error("Cytoscape.js is not loaded. TraceLink feature will not work.");
         return;
@@ -1948,7 +1926,6 @@ document.addEventListener('multiVaultManagerReady', () => {
     if (!window.traceLinkManager) {
         window.traceLinkManager = new TraceLinkManager();
     }
-    // Only call init if the tracelink section is currently active
     const tracelinkSection = document.getElementById('tracelink');
     if (tracelinkSection && tracelinkSection.classList.contains('active')) {
         window.traceLinkManager.init();
