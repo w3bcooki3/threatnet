@@ -3019,7 +3019,7 @@ function renderVaultEntries() {
     vaultEntriesGrid.innerHTML = entries.map(entry => createVaultEntryCard(entry)).join('');
 }
 
-// Create vault entry card
+// New function to create an entry card with the Intelligence Vault's visual style
 function createVaultEntryCard(entry) {
     const priorityColors = {
         low: '#10b981',
@@ -3029,20 +3029,9 @@ function createVaultEntryCard(entry) {
     };
     
     const typeIcons = {
-        tool: 'fas fa-tools',
-        email: 'fas fa-envelope',
-        phone: 'fas fa-phone',
-        crypto: 'fab fa-bitcoin',
-        location: 'fas fa-map-marker-alt',
-        link: 'fas fa-link',
-        media: 'fas fa-photo-video',
-        social: 'fas fa-users',
-        domain: 'fas fa-globe',
-        username: 'fas fa-user',
-        threat: 'fas fa-shield-alt',
-        document: 'fas fa-file-alt'
+        tool: 'fas fa-tools', email: 'fas fa-envelope', phone: 'fas fa-phone', crypto: 'fab fa-bitcoin', location: 'fas fa-map-marker-alt', link: 'fas fa-link', media: 'fas fa-photo-video', social: 'fas fa-users', domain: 'fas fa-globe', username: 'fas fa-user', threat: 'fas fa-shield-alt', document: 'fas fa-file-alt', password: 'fas fa-key', keyword: 'fas fa-tag', breach: 'fas fa-exclamation-triangle', credential: 'fas fa-id-card', forum: 'fas fa-comments', vendor: 'fas fa-store', telegram: 'fab fa-telegram-plane', paste: 'fas fa-clipboard', network: 'fas fa-network-wired', metadata: 'fas fa-info-circle', archive: 'fas fa-archive', messaging: 'fas fa-comment-dots', dating: 'fas fa-heart', audio: 'fas fa-volume-up', facial: 'fas fa-eye', persona: 'fas fa-mask', vpn: 'fas fa-user-secret', honeypot: 'fas fa-spider', exploit: 'fas fa-bomb', publicrecord: 'fas fa-file-contract', malware: 'fas fa-bug', vulnerability: 'fas fa-bug'
     };
-    
+
     return `
         <div class="vault-entry-card" data-entry-id="${entry.id}">
             <div class="entry-card-header">
