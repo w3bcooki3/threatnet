@@ -1688,21 +1688,29 @@ function closeDeleteModal() {
 }
 window.closeDeleteModal = closeDeleteModal; // Make it globally accessible
 
+// Updated deleteTool function
 function deleteTool(toolId) {
-    deleteTargetId = toolId;
-    deleteTargetType = 'single';
-    
     const tool = intelligenceTools.find(t => t.id === toolId);
-    document.getElementById('deleteMessage').textContent = 
-        `Are you sure you want to delete "${tool.name}"? This action cannot be undone.`;
-    
-    document.getElementById('deleteModal').style.display = 'flex';
+    if (!tool) return;
+
+    showConfirmDeleteModal(
+        'Confirm Tool Deletion',
+        `Are you sure you want to delete the tool "${tool.name}"? This action cannot be undone.`,
+        () => {
+            const toolIndex = intelligenceTools.findIndex(t => t.id === toolId);
+            if (toolIndex !== -1) {
+                const toolName = intelligenceTools[toolIndex].name;
+                intelligenceTools.splice(toolIndex, 1);
+                showNotification(`"${toolName}" deleted successfully!`, 'success');
+                applyVaultFilters();
+            }
+        }
+    );
 }
 
-function confirmDelete() { // This is the global confirm function for the `deleteModal`
-    // This function will now ONLY handle deletions from sections *other* than TraceLink.
-    // TraceLink deletions are handled by TraceLinkManager.showConfirmDeleteModal().
-    
+// This is the updated generic confirmDelete() function at the bottom of the file
+function confirmDelete() {
+    // This is the new, multi-purpose confirmDelete function
     if (deleteTargetType === 'single' && deleteTargetId) {
         const toolIndex = intelligenceTools.findIndex(t => t.id === deleteTargetId);
         if (toolIndex !== -1) {
@@ -1721,10 +1729,8 @@ function confirmDelete() { // This is the global confirm function for the `delet
         if (vaultIndex !== -1) {
             const vaultName = vaults[vaultIndex].name;
             vaults.splice(vaultIndex, 1);
-            
             saveVaults();
             renderVaultTabs();
-            
             if (vaults.length > 0) {
                 switchToVault(vaults[0].id);
             } else {
@@ -1732,15 +1738,12 @@ function confirmDelete() { // This is the global confirm function for the `delet
                 document.getElementById('activeVaultContent').style.display = 'none';
                 document.getElementById('emptyVaultState').style.display = 'flex';
             }
-            
-            // Critical: Here, we specifically call TraceLinkManager's deleteProject if a TraceLink project exists for this vault.
             if (window.traceLinkManager && window.traceLinkManager.tracelinkProjects[deleteTargetId]) {
-                window.traceLinkManager.deleteProject(deleteTargetId); 
+                window.traceLinkManager.deleteProject(deleteTargetId);
             }
-
             showNotification(`Vault "${vaultName}" deleted successfully`, 'success');
         }
-    } else if (deleteTargetType === 'vault-entry' && deleteTargetId && currentVaultId) {
+    } else if (deleteTargetType === 'vault-entry' && deleteTargetId) {
         const vault = vaults.find(v => v.id === currentVaultId);
         if (vault) {
             const entryIndex = vault.entries.findIndex(e => e.id === deleteTargetId);
@@ -1749,41 +1752,18 @@ function confirmDelete() { // This is the global confirm function for the `delet
                 vault.entries.splice(entryIndex, 1);
                 vault.stats.totalEntries = vault.entries.length;
                 vault.stats.lastModified = new Date().toISOString();
-                
                 saveVaults();
                 renderVaultTabs();
                 updateVaultHeader(vault);
                 renderVaultEntries();
-                
                 showNotification(`Entry "${entryName}" deleted successfully`, 'success');
             }
         }
     }
     closeDeleteModal();
-    // Only apply filters if it's a tool deletion, otherwise it might re-render other sections unexpectedly.
     if (deleteTargetType === 'single' || deleteTargetType === 'bulk') {
-        applyVaultFilters(); 
+        applyVaultFilters();
     }
-}
-
-function confirmDelete() {
-    if (deleteTargetType === 'single' && deleteTargetId) {
-        const toolIndex = intelligenceTools.findIndex(t => t.id === deleteTargetId);
-        if (toolIndex !== -1) {
-            const toolName = intelligenceTools[toolIndex].name;
-            intelligenceTools.splice(toolIndex, 1);
-            showNotification(`"${toolName}" deleted successfully!`, 'success');
-        }
-    } else if (deleteTargetType === 'bulk') {
-        const deletedCount = selectedTools.size;
-        intelligenceTools = intelligenceTools.filter(tool => !selectedTools.has(tool.id));
-        selectedTools.clear();
-        showNotification(`${deletedCount} tools deleted successfully!`, 'success');
-        updateBulkActions();
-    }
-    
-    closeDeleteModal();
-    applyVaultFilters();
 }
 
 function togglePin(toolId) {
@@ -1885,12 +1865,22 @@ function bulkUnStar() {
     applyVaultFilters();
 }
 
+// Updated bulkDelete function
 function bulkDelete() {
-    deleteTargetType = 'bulk';
-    document.getElementById('deleteMessage').textContent = 
-        `Are you sure you want to delete ${selectedTools.size} selected tools? This action cannot be undone.`;
-    
-    document.getElementById('deleteModal').style.display = 'flex';
+    if (selectedTools.size === 0) return;
+
+    showConfirmDeleteModal(
+        'Confirm Bulk Deletion',
+        `Are you sure you want to delete all ${selectedTools.size} selected tools? This action cannot be undone.`,
+        () => {
+            const deletedCount = selectedTools.size;
+            intelligenceTools = intelligenceTools.filter(tool => !selectedTools.has(tool.id));
+            selectedTools.clear();
+            showNotification(`${deletedCount} tools deleted successfully!`, 'success');
+            updateBulkActions();
+            applyVaultFilters();
+        }
+    );
 }
 
 function clearSelection() {
@@ -3482,45 +3472,64 @@ function archiveVault() {
     );
 }
 
-// Delete vault
+// Updated deleteVault function
 function deleteVault() {
+    // Close the management modal first
+    closeVaultManagementModal();
+
     const vault = vaults.find(v => v.id === currentVaultId);
     if (!vault) return;
     
-    // Show confirmation
-    document.getElementById('deleteMessage').textContent = 
-        `Are you sure you want to delete the vault "${vault.name}" and all its ${vault.entries.length} entries? This action cannot be undone.`;
-    
-    // Override confirm delete to handle vault deletion
-    const originalConfirmDelete = window.confirmDelete;
-    window.confirmDelete = function() {
-        const vaultIndex = vaults.findIndex(v => v.id === currentVaultId);
-        if (vaultIndex !== -1) {
-            const vaultName = vaults[vaultIndex].name;
-            vaults.splice(vaultIndex, 1);
-            
-            saveVaults();
-            renderVaultTabs();
-            
-            // Reset current vault if deleted
-            if (vaults.length > 0) {
-                switchToVault(vaults[0].id);
-            } else {
-                currentVaultId = null;
+    // Use the generic confirm modal
+    showConfirmDeleteModal(
+        'Confirm Vault Deletion',
+        `Are you sure you want to delete the vault "${vault.name}" and all its ${vault.entries.length} entries? This action cannot be undone.`,
+        () => {
+            const vaultIndex = vaults.findIndex(v => v.id === currentVaultId);
+            if (vaultIndex !== -1) {
+                const vaultName = vaults[vaultIndex].name;
+                vaults.splice(vaultIndex, 1);
+                saveVaults();
+                renderVaultTabs();
+                if (vaults.length > 0) {
+                    switchToVault(vaults[0].id);
+                } else {
+                    currentVaultId = null;
+                    document.getElementById('activeVaultContent').style.display = 'none';
+                    document.getElementById('emptyVaultState').style.display = 'flex';
+                }
+                showNotification(`Vault "${vaultName}" deleted successfully`, 'success');
             }
-            
-            showNotification(`Vault "${vaultName}" deleted successfully`, 'success');
         }
-        
-        closeDeleteModal();
-        closeVaultManagementModal();
-        
-        // Restore original function
-        window.confirmDelete = originalConfirmDelete;
-    };
-    
-    closeVaultManagementModal();
-    document.getElementById('deleteModal').style.display = 'flex';
+    );
+}
+
+// Updated deleteVaultEntry function
+function deleteVaultEntry(entryId) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    // Use the generic confirm modal
+    showConfirmDeleteModal(
+        'Confirm Entry Deletion',
+        `Are you sure you want to delete the entry "${entry.name}"? This action cannot be undone.`,
+        () => {
+            const entryIndex = vault.entries.findIndex(e => e.id === entryId);
+            if (entryIndex !== -1) {
+                const entryName = vault.entries[entryIndex].name;
+                vault.entries.splice(entryIndex, 1);
+                vault.stats.totalEntries = vault.entries.length;
+                vault.stats.lastModified = new Date().toISOString();
+                saveVaults();
+                renderVaultTabs();
+                updateVaultHeader(vault);
+                renderVaultEntries();
+                showNotification(`Entry "${entryName}" deleted successfully`, 'success');
+            }
+        }
+    );
 }
 
 // Save custom vault entry
