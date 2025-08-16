@@ -852,6 +852,19 @@ function goBackToActors() {
     });
 }
 
+// Function to save intelligence tools to local storage
+function saveTools() {
+    localStorage.setItem('intelligenceTools', JSON.stringify(intelligenceTools));
+}
+
+// Function to load intelligence tools from local storage
+function loadTools() {
+    const savedTools = localStorage.getItem('intelligenceTools');
+    if (savedTools) {
+        intelligenceTools = JSON.parse(savedTools);
+    }
+}
+
 // Dashboard Functions
 function loadDashboard() {
     loadRecentActivity();
@@ -1701,6 +1714,8 @@ function deleteTool(toolId) {
             if (toolIndex !== -1) {
                 const toolName = intelligenceTools[toolIndex].name;
                 intelligenceTools.splice(toolIndex, 1);
+                // Save the new state after deletion
+                saveTools();
                 showNotification(`"${toolName}" deleted successfully!`, 'success');
                 applyVaultFilters();
             }
@@ -1876,6 +1891,8 @@ function bulkDelete() {
             const deletedCount = selectedTools.size;
             intelligenceTools = intelligenceTools.filter(tool => !selectedTools.has(tool.id));
             selectedTools.clear();
+            // Save the new state after bulk deletion
+            saveTools();
             showNotification(`${deletedCount} tools deleted successfully!`, 'success');
             updateBulkActions();
             applyVaultFilters();
@@ -3814,6 +3831,7 @@ function showNotification(message, type = 'info') {
 
 // Initialize the application
 function initializeApp() {
+    loadTools();
     if (typeof loadThreatActorsFromStorage === 'function') {
         loadThreatActorsFromStorage();
     }
