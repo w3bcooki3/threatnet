@@ -1499,41 +1499,104 @@
                 </div>
             </section>
 
+            <div id="iocModal" class="modal">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 id="iocModalTitle">Indicators of Compromise</h3>
+                        <button class="modal-close" onclick="window.threatIntel.closeIocModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="ioc-info-container">
+                            <p id="iocModalArticleTitle" class="ioc-modal-article-title"></p>
+                            <div id="iocContent">
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" onclick="window.threatIntel.closeIocModal()">
+                                Close
+                            </button>
+                            <button class="btn-primary">
+                                <i class="fas fa-atlas"></i> Save to Multi-Vault
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!--------Threat Intel Start ------->
             <section id="threat-intel" class="content-section">
                 <div class="section-header">
                     <div class="header-content">
-                        <h1>Threat Intelligence Feeds</h1>
-                        <p class="header-subtitle">Real-time updates from leading cybersecurity sources</p>
+                        <h1>Threat Intelligence Platform</h1>
+                        <p class="header-subtitle">A unified view of global threat data, news, and IOC investigation tools</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-primary" onclick="threatIntel.showAddFeedModal()">
-                            <i class="fas fa-plus"></i> Add New Feed
+                        <button class="btn-secondary" onclick="window.threatIntel.showAddFeedModal()">
+                            <i class="fas fa-plus"></i> Manage Feeds
                         </button>
+                        <button class="btn-primary" onclick="window.threatIntel.fetchFeeds()">
+                            <i class="fas fa-sync-alt"></i> Refresh Feeds
+                        </button>
+                        <div class="threat-intel-view-toggle">
+                            <button class="view-btn active grid-btn" onclick="window.threatIntel.toggleView('grid')">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="view-btn list-btn" onclick="window.threatIntel.toggleView('list')">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                        </div>
+                </div>
+
+                <div class="ioc-main-search-bar">
+                    <input type="text" id="ioc-search-input" placeholder="Enter IP, Domain, or Hash to investigate...">
+                    <div id="ioc-platform-selector" class="ioc-platform-selector">
+                        <button class="selector-toggle-btn" onclick="window.threatIntel.togglePlatformDropdown(event)">
+                            Platforms <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="platform-dropdown" class="platform-dropdown-content">
+                            <div class="platform-actions">
+                                <button class="btn-secondary btn-small" onclick="window.threatIntel.toggleAllPlatforms(true)">Select All</button>
+                                <button class="btn-secondary btn-small" onclick="window.threatIntel.toggleAllPlatforms(false)">Deselect All</button>
+                            </div>
+                            <div id="platform-checkboxes" class="platform-checkboxes">
+                                </div>
+                        </div>
                     </div>
+                    <button class="btn-primary" onclick="window.threatIntel.multiSearchIOC(document.getElementById('ioc-search-input').value)">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
 
                 <div class="threat-intel-controls">
-                    <input type="text" id="threat-intel-search" placeholder="Search articles..." onkeyup="threatIntel.filterArticles()">
-                    <select id="threat-intel-source-filter" onchange="threatIntel.filterArticles()">
+                    <input type="text" id="threat-intel-search" placeholder="Search articles..." onkeyup="window.threatIntel.filterArticles()">
+                    <select id="threat-intel-source-filter" onchange="window.threatIntel.filterArticles()">
                         <option value="all">All Sources</option>
                         </select>
-                    <select id="threat-intel-sort" onchange="threatIntel.sortArticles()">
+                    <select id="threat-intel-sort" onchange="window.threatIntel.sortArticles()">
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
                         <option value="title-asc">Title A-Z</option>
                         <option value="title-desc">Title Z-A</option>
                     </select>
+                    <select id="news-count-select" onchange="window.threatIntel.updatePageSize()">
+                        <option value="20">20 News</option>
+                        <option value="50">50 News</option>
+                        <option value="100">100 News</option>
+                    </select>
                 </div>
 
                 <div class="threat-intel-grid" id="threat-intel-grid">
-                    <div class="no-articles-state" id="no-articles-state">
+                    <div class="no-articles-state" id="no-articles-state" style="display: none;">
                         <i class="fas fa-newspaper"></i>
                         <h3>No Articles Found</h3>
                         <p>No articles match your current filters. Try adjusting your search or add new feeds.</p>
                     </div>
                 </div>
             </section>
+            <!--------Threat Intel End -->
 
 
             <!--------------------Cheatsheet Start--------------->
@@ -2285,6 +2348,8 @@
                 </div>
             </div>
             <!--------------------cryptohunter End --------------->
+
+            
 
 
 

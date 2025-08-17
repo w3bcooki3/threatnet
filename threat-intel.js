@@ -8,6 +8,7 @@ class ThreatIntel {
             source: 'all',
             sort: 'newest'
         };
+        this.pageSize = 20;
 
         this.addFeedModal = document.getElementById('addFeedModal');
         this.addFeedForm = document.getElementById('addFeedForm');
@@ -41,6 +42,44 @@ class ThreatIntel {
         if (sortSelect) {
             sortSelect.onchange = () => this.sortArticles();
         }
+        const newsCountSelect = document.getElementById('news-count-select');
+        if (newsCountSelect) {
+            newsCountSelect.onchange = () => this.updatePageSize();
+        }
+    }
+    
+    updatePageSize() {
+        const select = document.getElementById('news-count-select');
+        this.pageSize = parseInt(select.value);
+        this.renderArticles(this.articles.slice(0, this.pageSize));
+    }
+
+    renderDashboard() {
+        this.populateSourceFilter();
+        this.renderArticles(this.articles.slice(0, this.pageSize));
+    }
+
+    multiSearchIOC(ioc) {
+        ioc = ioc.trim();
+        if (!ioc) {
+            this.showNotification("Please enter an IP, Domain, or Hash to search.", "warning");
+            return;
+        }
+
+        const encodedIoc = encodeURIComponent(ioc);
+
+        const platforms = [
+            { name: "VirusTotal", url: `https://www.virustotal.com/gui/search/${encodedIoc}` },
+            { name: "Shodan", url: `https://www.shodan.io/search?query=${encodedIoc}` },
+            { name: "AbuseIPDB", url: `https://www.abuseipdb.com/check/${encodedIoc}` },
+            { name: "Censys", url: `https://search.censys.io/search?q=${encodedIoc}&resource=hosts` }
+        ];
+
+        platforms.forEach(platform => {
+            window.open(platform.url, '_blank');
+        });
+
+        this.showNotification(`Searching for "${ioc}" on multiple platforms...`, 'info', 4000);
     }
 
     loadFeeds() {
@@ -54,9 +93,6 @@ class ThreatIntel {
                 { name: 'SANS Internet Storm Center', url: 'https://isc.sans.edu/rssfeed.xml' },
                 { name: 'Microsoft Security Blog', url: 'https://www.microsoft.com/en-us/security/blog/feed/' },
                 { name: 'Google Cybersecurity Blog', url: 'https://security.googleblog.com/feeds/posts/default' }
-                // Add more feeds, but test them first on rss2json.com!
-                // { name: 'Cybersecurity Dive', url: 'https://www.cybersecuritydive.com/feeds/news/' },
-                // { name: 'ThreatConnect Blog', url: 'https://threatconnect.com/blog/feed/' }
             ];
         } catch (e) {
             console.error("Error loading feeds from local storage:", e);
@@ -69,6 +105,13 @@ class ThreatIntel {
     }
 
     renderFeedList() {
+        if (!this.addFeedModal) {
+            this.createAddFeedModal();
+            this.addFeedModal = document.getElementById('addFeedModal');
+            this.addFeedForm = document.getElementById('addFeedForm');
+            this.feedListContainer = document.getElementById('feedListContainer');
+            this.addFeedForm.onsubmit = (e) => this.addFeed(e);
+        }
         if (!this.feedListContainer) return;
 
         if (this.feeds.length === 0) {
@@ -184,7 +227,7 @@ class ThreatIntel {
         await Promise.allSettled(fetchPromises);
         this.articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         this.populateSourceFilter();
-        this.filterArticles();
+        this.renderArticles(this.articles.slice(0, this.pageSize));
     }
 
     async fetchSingleFeed(feed) {
@@ -279,16 +322,16 @@ class ThreatIntel {
                 break;
         }
 
-        this.renderArticles(filtered);
+        this.renderArticles(filtered.slice(0, this.pageSize));
     }
 
     sortArticles() {
         this.filterArticles();
     }
-
-    // --- Article Rendering for Magazine Style ---
+    
     renderArticles(articlesToRender) {
-        if (!this.threatIntelGrid) return;
+        const newsListContainer = this.threatIntelGrid;
+        if (!newsListContainer) return;
 
         if (articlesToRender.length === 0) {
             this.noArticlesState.style.display = 'flex';
@@ -298,59 +341,64 @@ class ThreatIntel {
             this.noArticlesState.style.display = 'none';
         }
 
-        const articleHtml = articlesToRender.map((article, index) => {
+        const allArticlesHtml = articlesToRender.map((article) => {
+            const highlightedTitle = this.highlightKeywords(this.stripHtml(article.title));
+            const highlightedDescription = this.highlightKeywords(this.stripHtml(article.description || '')).substring(0, 200) + '...';
             const hasImage = article.thumbnail && article.thumbnail !== '';
-            let articleTypeClass = 'type-card'; // Default to a standard grid card
-
-            if (index === 0) {
-                // Main featured article
-                articleTypeClass = 'type-main-featured';
-            } else if (index >= 1 && index <= 4 && hasImage) {
-                // Next few articles with images: list item style
-                articleTypeClass = 'type-list-item';
-            } else if (index >= 5 && index <= 8 && !hasImage) {
-                // Some text-only articles after the list items
-                articleTypeClass = 'type-text-only';
-            }
-            // All others will default to 'type-card'
+            
+            const firstIoc = this.stripHtml(article.title + ' ' + article.description).match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b|\b([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6})\b|\b[A-Fa-f0-9]{32}\b|\b[A-Fa-f0-9]{40}\b|\b[A-Fa-f0-9]{64}\b/);
+            const viewIocButton = firstIoc ? `
+                <button class="news-item-action" onclick="event.preventDefault(); event.stopPropagation(); window.threatIntel.multiSearchIOC('${firstIoc[0]}');" title="Multi-platform Search">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+            ` : '';
 
             return `
-                <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="threat-intel-article-link ${articleTypeClass} fade-in" style="animation-delay: ${index * 0.05}s;">
+                <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="threat-intel-article-card fade-in ${hasImage ? '' : 'no-image-card'}">
                     ${hasImage ? `
                         <div class="article-image-container">
-                            <img src="${article.thumbnail}" alt="${this.stripHtml(article.title)} thumbnail" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x225?text=Image+Not+Found';">
+                            <img src="${article.thumbnail}" alt="${this.stripHtml(article.title)} thumbnail" onerror="this.style.display='none';">
                         </div>` : ''}
                     <div class="article-content">
                         <div class="article-meta-info">
-                            <strong>${article.source}</strong> / ${this.formatDate(article.pubDate)}
+                            <strong>${article.source}</strong> • ${this.formatDate(article.pubDate)}
                         </div>
-                        <h3 class="article-title">${article.title}</h3>
-                        ${!articleTypeClass.includes('type-list-item') && !articleTypeClass.includes('type-text-only') ? // Show description for main-featured and standard cards
-                            `<p class="article-description">${this.stripHtml(article.description).substring(0, 150)}...</p>` : ''}
-                        ${articleTypeClass.includes('type-text-only') ? // Show description explicitly for text-only
-                            `<p class="article-description">${this.stripHtml(article.description).substring(0, 200)}...</p>` : ''}
-                        
+                        <h3 class="article-title">${highlightedTitle}</h3>
+                        <p class="article-description">${highlightedDescription}</p>
                         <div class="card-footer">
                             <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
+                            ${viewIocButton}
                         </div>
                     </div>
                 </a>
             `;
         }).join('');
 
-        this.threatIntelGrid.innerHTML = articleHtml;
+        newsListContainer.innerHTML = allArticlesHtml;
     }
-
-    formatDate(dateString) {
-        const options = { year: 'numeric', month: 'short', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
-    }
-
+    
     stripHtml(html) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
     }
-
+    
+    highlightKeywords(text) {
+        const keywords = {
+            'apt': 'APT', 'ransomware': 'Ransomware', 'malware': 'Malware', 'phishing': 'Phishing', 'zero-day': 'Zero-Day', 'exploit': 'Exploit', 'cve-': 'CVE', 'lazarus': 'Lazarus Group', 'fancy bear': 'Fancy Bear', 'sandworm': 'Sandworm', 'revil': 'REvil'
+        };
+        let result = text;
+        for (const key in keywords) {
+            const regex = new RegExp(`\\b(${key})\\b`, 'gi');
+            result = result.replace(regex, `<span class="intel-badge">${keywords[key]}</span>`);
+        }
+        return result;
+    }
+    
+    formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
+    
     showNotification(message, type = 'info') {
         if (typeof window.showNotification === 'function') {
             window.showNotification(message, type);
@@ -359,8 +407,158 @@ class ThreatIntel {
             alert(message);
         }
     }
+
+    loadFeeds() {
+        try {
+            const storedFeeds = localStorage.getItem('threatIntelFeeds');
+            return storedFeeds ? JSON.parse(storedFeeds) : [
+                { name: 'Hacker News (Feedburner)', url: 'https://feeds.feedburner.com/TheHackersNews' },
+                { name: 'BleepingComputer', url: 'https://www.bleepingcomputer.com/feed/' },
+                { name: 'KrebsOnSecurity', url: 'https://krebsonsecurity.com/feed/' },
+                { name: 'SecurityWeek', url: 'https://www.securityweek.com/feed/' },
+                { name: 'SANS Internet Storm Center', url: 'https://isc.sans.edu/rssfeed.xml' },
+                { name: 'Microsoft Security Blog', url: 'https://www.microsoft.com/en-us/security/blog/feed/' },
+                { name: 'Google Cybersecurity Blog', url: 'https://security.googleblog.com/feeds/posts/default' }
+            ];
+        } catch (e) {
+            console.error("Error loading feeds from local storage:", e);
+            return [];
+        }
+    }
+
+    saveFeeds() {
+        localStorage.setItem('threatIntelFeeds', JSON.stringify(this.feeds));
+    }
+
+    renderFeedList() {
+        if (!this.addFeedModal) {
+            this.createAddFeedModal();
+            this.addFeedModal = document.getElementById('addFeedModal');
+            this.addFeedForm = document.getElementById('addFeedForm');
+            this.feedListContainer = document.getElementById('feedListContainer');
+            this.addFeedForm.onsubmit = (e) => this.addFeed(e);
+        }
+        if (!this.feedListContainer) return;
+
+        if (this.feeds.length === 0) {
+            this.feedListContainer.innerHTML = '<p style="color: rgba(255,255,255,0.6);">No feeds added yet.</p>';
+            return;
+        }
+
+        this.feedListContainer.innerHTML = this.feeds.map(feed => `
+            <div class="feed-item">
+                <span>${feed.name}</span>
+                <button type="button" onclick="threatIntel.removeFeed('${feed.url}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    addFeed(event) {
+        event.preventDefault();
+        const feedNameInput = document.getElementById('feedName');
+        const feedUrlInput = document.getElementById('feedUrl');
+
+        const name = feedNameInput.value.trim();
+        const url = feedUrlInput.value.trim();
+
+        if (!name || !url) {
+            this.showNotification('Please enter both feed name and URL.', 'error');
+            return;
+        }
+
+        if (this.feeds.some(feed => feed.url === url)) {
+            this.showNotification('This feed URL already exists.', 'warning');
+            return;
+        }
+
+        this.feeds.push({ name, url });
+        this.saveFeeds();
+        this.renderFeedList();
+        this.fetchFeeds();
+        this.showNotification('Feed added successfully!', 'success');
+        this.closeAddFeedModal();
+    }
+
+    removeFeed(urlToRemove) {
+        this.feeds = this.feeds.filter(feed => feed.url !== urlToRemove);
+        this.saveFeeds();
+        this.renderFeedList();
+        this.fetchFeeds();
+        this.showNotification('Feed removed.', 'info');
+    }
+
+    showAddFeedModal() {
+        if (!this.addFeedModal) {
+            this.createAddFeedModal();
+            this.addFeedModal = document.getElementById('addFeedModal');
+            this.addFeedForm = document.getElementById('addFeedForm');
+            this.feedListContainer = document.getElementById('feedListContainer');
+            this.addFeedForm.onsubmit = (e) => this.addFeed(e);
+        }
+        this.addFeedModal.style.display = 'flex';
+        this.renderFeedList();
+    }
+
+    closeAddFeedModal() {
+        if (this.addFeedModal) {
+            this.addFeedModal.style.display = 'none';
+            document.getElementById('addFeedForm').reset();
+        }
+    }
+
+    createAddFeedModal() {
+        const modalHtml = `
+            <div id="addFeedModal" class="modal">
+                <div class="modal-content feed-modal-content">
+                    <div class="modal-header">
+                        <h3>Manage Threat Feeds</h3>
+                        <button class="modal-close" onclick="threatIntel.closeAddFeedModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addFeedForm">
+                            <div class="form-group">
+                                <label for="feedName">Feed Name *</label>
+                                <input type="text" id="feedName" name="feedName" required placeholder="e.g., Hacker News RSS">
+                            </div>
+                            <div class="form-group">
+                                <label for="feedUrl">Feed URL *</label>
+                                <input type="url" id="feedUrl" name="feedUrl" required placeholder="e.g., https://news.ycombinator.com/rss">
+                                <small>Ensure the URL points to an RSS or Atom feed.</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-plus"></i> Add Feed
+                                </button>
+                            </div>
+                        </form>
+                        <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
+                        <h4>Current Feeds</h4>
+                        <div class="feed-list-container" id="feedListContainer">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
 }
 
+window.showSection = (() => {
+    const originalShowSection = window.showSection;
+    return (sectionName) => {
+        originalShowSection(sectionName);
+        if (sectionName === 'threat-intel' && window.threatIntel) {
+            window.threatIntel.renderArticles(window.threatIntel.articles);
+        }
+    };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
-    window.threatIntel = new ThreatIntel();
+    if (typeof ThreatIntel !== 'undefined') {
+        window.threatIntel = new ThreatIntel();
+    }
 });

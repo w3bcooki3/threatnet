@@ -1,449 +1,674 @@
-/* Threat Intelligence Feed Section */
-.threat-intel-controls {
+/* Threat Intelligence Dashboard Styles */
+
+.threat-intel-dashboard {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.threat-intel-widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    align-items: stretch;
+}
+
+/* Base card for widgets */
+.dashboard-card {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
-    padding: 1.5rem;
-}
-
-.threat-intel-controls input,
-.threat-intel-controls select {
-    flex: 1;
-    min-width: 180px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    outline: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.4%20292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2C197.8L159.2%2C68.9c-2.8-2.8-7.7-2.8-10.5%2C0L5.3%2C197.8c-3.1%2C3.1-3.1%2C8.2%2C0%2C11.3c3.1%2C3.1%2C8.2%2C3.1%2C11.3%2C0l137.4-137.4l137.4%2C137.4c3.1%2C3.1%2C8.2%2C3.1%2C11.3%2C0C290.1%2C206%2C290.1%2C200.9%2C287%2C197.8z%22%2F%3E%3C%2Fsvg%3E');
-    background-repeat: no-repeat;
-    background-position: right 1rem top 50%;
-    background-size: 0.65em auto;
-}
-
-.threat-intel-controls input:focus,
-.threat-intel-controls select:focus {
-    border-color: #ff4757;
-    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.threat-intel-controls select option {
-    background: #1a1a2e;
-    color: #ffffff;
-}
-
-/* Base styling for all article links/cards */
-.threat-intel-article-link {
+    padding: 2rem;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    border-color: rgba(255, 71, 87, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-card .card-header h4 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ff4757;
+}
+
+.dashboard-card .card-header .view-all {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-weight: 500;
     text-decoration: none;
-    color: inherit;
+    transition: color 0.3s ease;
+}
+
+.dashboard-card .card-header .view-all:hover {
+    color: #fff;
+}
+
+.dashboard-card .widget-content {
+    flex-grow: 1;
+}
+
+/* Actor Summary Widget */
+.actor-summary-widget .widget-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+
+.actor-summary-widget .metric-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.actor-summary-widget .metric-value {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ff4757;
+    line-height: 1;
+}
+
+.actor-summary-widget .metric-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+/* IOC Search Widget */
+.ioc-search-widget .search-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.ioc-search-widget .search-container input {
+    flex-grow: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+}
+
+.ioc-search-widget .ioc-help-text {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 1rem;
+}
+
+/* News Feed Widget */
+.news-feed-widget .news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.news-feed-widget .news-list a.news-feed-item {
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.news-feed-widget .news-list a.news-feed-item:hover {
+    transform: translateX(5px);
+    color: #ff6b7a;
+}
+
+.news-feed-widget .news-item-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.news-feed-widget .news-item-source {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Vulnerability Trends Widget */
+.vulnerability-trends-widget .trend-chart-placeholder {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+}
+
+.vulnerability-trends-widget .widget-footer {
+    padding-top: 1rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vulnerability-trends-widget .badge {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* --- IOC Results Styling --- */
+
+.ioc-results-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.ioc-loading-state,
+.ioc-error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.ioc-loading-state h4,
+.ioc-error-state h4 {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.ioc-error-state i {
+    font-size: 2rem;
+    color: #dc3545;
+}
+
+.ioc-spinner {
+    border: 4px solid rgba(255, 71, 87, 0.3);
+    border-top: 4px solid #ff4757;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.ioc-result-card {
     background: linear-gradient(145deg, #1e1e2d, #1a1a25);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    overflow: hidden;
-    position: relative;
+    padding: 2rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
 }
 
-.threat-intel-article-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #ff4757, #6a0572, #3c009d);
-    opacity: 0;
-    transition: all 0.5s ease-out;
-    transform: scaleX(0);
-    transform-origin: left;
-    z-index: 2;
+.ioc-result-card .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.threat-intel-article-link::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 71, 87, 0.05);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    border-radius: 16px;
-    z-index: 1;
-}
-
-.threat-intel-article-link:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(255, 71, 87, 0.5);
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 71, 87, 0.3);
-    z-index: 1;
-}
-
-.threat-intel-article-link:hover::before {
-    opacity: 1;
-    transform: scaleX(1);
-}
-
-.threat-intel-article-link:hover::after {
-    opacity: 1;
-}
-
-/* Common image container for all types */
-.article-image-container {
-    width: 100%;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    position: relative;
-    overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.05);
+.ioc-result-card .ioc-type-icon {
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    border-radius: 16px 16px 0 0; /* Default rounded top corners for cards */
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff4757;
+    font-size: 1.8rem;
+    border-radius: 12px;
 }
 
-.article-image-container img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease, opacity 0.5s ease;
-}
-
-.threat-intel-article-link:hover .article-image-container img {
-    transform: scale(1.05);
-    opacity: 0.9;
-}
-
-.article-image-container .placeholder-icon {
-    font-size: 3rem;
-    color: rgba(255, 255, 255, 0.2);
-}
-
-/* Common content styles */
-.article-content {
+.ioc-result-card .ioc-meta {
     flex-grow: 1;
+    margin-left: 1.5rem;
+}
+
+.ioc-result-card .ioc-meta h4 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ioc-result-card .ioc-type {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.ioc-result-card .threat-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ioc-result-card .score-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.ioc-result-card .score-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff4757, #ff6b7a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Conditional coloring for threat score */
+.ioc-result-card .score-value[data-score^="0"] {
+    background: linear-gradient(135deg, #28a745, #1d953b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.ioc-result-card .score-value[data-score^="1"] {
+    background: linear-gradient(135deg, #ffc107, #d39e00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.ioc-result-card .analysis-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.ioc-result-card .stat-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.ioc-result-card .stat-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.ioc-result-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.ioc-result-card .stat-value.malicious { color: #dc3545; }
+.ioc-result-card .stat-value.suspicious { color: #ffc107; }
+.ioc-result-card .stat-value.undetected { color: #28a745; }
+.ioc-result-card .stat-value.timeout { color: #6c757d; }
+
+.ioc-result-card .last-analysis-info {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.ioc-result-card .result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* News feed list for the widget */
+.news-feed-item {
+    text-decoration: none;
+    color: #fff;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.news-feed-item:last-child {
+    border-bottom: none;
+}
+
+.news-feed-item:hover {
+    color: #ff6b7a;
+    transform: translateX(5px);
+}
+
+.news-item-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.news-item-source {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* NEW CSS for unified threat intel grid */
+.threat-intel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    align-items: stretch;
+}
+
+.threat-intel-article-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    text-decoration: none;
+    color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 1.5rem 1.8rem; /* Default padding for content */
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.threat-intel-article-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.threat-intel-article-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff4757, #ff6b7a);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.threat-intel-article-card:hover::before {
+    opacity: 1;
+}
+
+.article-image-container {
+    height: 200px;
+    margin: -2rem -2rem 2rem -2rem;
+    overflow: hidden;
+    border-radius: 16px 16px 0 0;
+}
+
+.article-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .article-meta-info {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.6);
-    font-weight: 500;
-    margin-bottom: 0.5rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.article-meta-info strong {
-    color: #ff4757;
+    margin-bottom: 1rem;
 }
 
 .article-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: #e0e0e0;
+    color: #fff;
     line-height: 1.3;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    margin-bottom: 0.8rem;
-    padding-right: 0.5rem; /* Small right padding to ensure text doesn't touch very edge */
+    margin-bottom: 1rem;
 }
 
 .article-description {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.6;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    margin-bottom: 1rem;
-    padding-right: 0.5rem; /* Small right padding */
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 1.5rem;
     padding-top: 1rem;
-    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .read-more {
-    background: rgba(255, 71, 87, 0.1);
-    border: 1px solid rgba(255, 71, 87, 0.3);
     color: #ff4757;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
+}
+
+.read-more i {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.threat-intel-article-card:hover .read-more i {
+    transform: translateX(5px);
+}
+
+.no-image-card {
+    padding-top: 2rem;
+}
+
+/* Badge styling for highlighted keywords */
+.intel-badge {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    display: inline-block;
+    margin-right: 0.4rem;
+    white-space: nowrap;
+}
+
+/* News item styling for list view in the threat intel section */
+.news-feed-item {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.news-feed-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 71, 87, 0.3);
+    transform: translateX(5px);
+}
+
+.news-item-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.news-item-source {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+}
+
+.news-item-actions {
+    flex-shrink: 0;
+}
+
+.news-item-action {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ff4757;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.news-item-action:hover {
+    background: #ff4757;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Modals */
+.feed-modal-content {
+    max-width: 700px;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.feed-list-container {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
 }
 
-.read-more:hover {
-    background: rgba(255, 71, 87, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+.feed-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
 }
 
-
-/* --- Grid Layouts --- */
-.threat-intel-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Default to 3 columns */
-    gap: 2rem;
-    align-items: stretch;
+.feed-item span {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-@media (min-width: 1201px) { /* On larger screens, aim for 3 columns primarily */
-    .threat-intel-grid {
-        grid-template-columns: 2fr 1fr; /* Two main columns, the left wider */
-    }
-    .threat-intel-grid .type-main-featured:first-child {
-        grid-column: 1 / 2; /* Main featured article takes the left wider column */
-        grid-row: 1 / 3; /* Spans two rows */
-    }
-    .threat-intel-grid .type-main-featured:first-child .article-image-container {
-        padding-bottom: 60%; /* More generous image height for main feature */
-        border-radius: 16px 16px 0 0; /* Keep top corners rounded */
-    }
-    .threat-intel-grid .type-main-featured:first-child .article-content {
-        padding: 2rem; /* Increased padding for main featured */
-    }
-    .threat-intel-grid .type-main-featured:first-child .article-title {
-        font-size: 2.2rem;
-        -webkit-line-clamp: 4;
-    }
-    .threat-intel-grid .type-main-featured:first-child .article-description {
-        font-size: 1.1rem;
-        -webkit-line-clamp: 6;
-    }
-
-    .threat-intel-grid .type-list-item:nth-child(2),
-    .threat-intel-grid .type-list-item:nth-child(3),
-    .threat-intel-grid .type-list-item:nth-child(4),
-    .threat-intel-grid .type-list-item:nth-child(5) {
-        grid-column: 2 / 3; /* These take the right narrower column */
-    }
-    .threat-intel-grid .type-list-item:nth-child(2) {
-        grid-row: 1 / 2;
-    }
-    .threat-intel-grid .type-list-item:nth-child(3) {
-        grid-row: 2 / 3;
-    }
-    /* Subsequent list items will just flow under the previous ones */
-
-    /* After the first 5, revert to smaller cards, maybe spanning 3 columns in total or just 1 */
-    .threat-intel-grid .type-card:nth-child(n+6) {
-        grid-column: span 1; /* These take 1 column each */
-        /* Will auto-arrange under the main featured and list items */
-    }
+.feed-item button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
 }
 
-
-/* --- Component Specific Styles --- */
-
-/* Standard Card (Default) */
-.threat-intel-card.type-card .article-content {
-    padding: 1.5rem 1.8rem; /* Ensure consistent padding */
+.feed-item button:hover {
+    color: #ff4757;
 }
 
-/* List Item Style (Image Left, Text Right) */
-.threat-intel-card.type-list-item {
-    flex-direction: row; /* Horizontal layout */
-    padding: 1rem; /* Padding for the entire horizontal item */
-    align-items: flex-start; /* Align content to the top */
-    background: rgba(255, 255, 255, 0.02); /* Lighter background */
-    border-color: rgba(255, 255, 255, 0.08); /* Slightly less prominent border */
+.ioc-main-search-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
-.threat-intel-card.type-list-item .article-image-container {
-    width: 100px; /* Fixed width for list item images */
-    height: 100px; /* Fixed height for list item images */
-    padding-bottom: 0; /* No aspect ratio trick here */
-    border-radius: 12px; /* Slightly smaller border radius */
-    margin-right: 1rem;
-    flex-shrink: 0; /* Prevent shrinking */
+.ioc-main-search-bar input {
+    flex-grow: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
 }
 
-.threat-intel-card.type-list-item .article-image-container img {
-    position: static; /* Override absolute positioning */
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px; /* Apply border-radius directly to image */
+.threat-intel-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
-.threat-intel-card.type-list-item .article-content {
-    padding: 0; /* No internal padding here, main card provides it */
+.threat-intel-controls input,
+.threat-intel-controls select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.threat-intel-card.type-list-item .article-meta-info {
-    margin-bottom: 0.3rem; /* Tighter spacing */
+.threat-intel-controls input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
-.threat-intel-card.type-list-item .article-title {
-    font-size: 1.1rem; /* Smaller title */
-    -webkit-line-clamp: 2;
-    margin-bottom: 0; /* No margin bottom, as description is usually hidden */
-    padding-right: 0; /* Remove extra right padding */
+.no-articles-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    grid-column: 1 / -1;
 }
 
-.threat-intel-card.type-list-item .article-description {
-    display: none; /* Hide description in list view */
-}
-
-.threat-intel-card.type-list-item .card-footer {
-    display: none; /* Hide footer in list view */
-}
-
-
-/* Text-Only Card */
-.threat-intel-card.type-text-only {
-    background: rgba(255, 255, 255, 0.03); /* Slightly brighter background for text-only */
-    padding: 1.8rem; /* Consistent padding */
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-.threat-intel-card.type-text-only .article-image-container {
-    display: none; /* Hide image container entirely */
-}
-
-.threat-intel-card.type-text-only .article-title {
-    font-size: 1.5rem; /* Larger title for text-only */
-    -webkit-line-clamp: 3; /* More lines for title */
-    color: #ffc2c2; /* Accent color */
+.no-articles-state i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.2);
     margin-bottom: 1rem;
 }
 
-.threat-intel-card.type-text-only .article-description {
-    font-size: 0.95rem;
-    -webkit-line-clamp: 4; /* More lines for description */
-    margin-bottom: 1.5rem;
-}
-
-.threat-intel-card.type-text-only .card-footer {
-    border-top: 1px dashed rgba(255, 255, 255, 0.1);
-}
-
-
-/* Responsive Adjustments */
-@media (max-width: 1200px) {
-    .threat-intel-grid {
-        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on medium screens */
-        gap: 1.5rem;
-    }
-
-    .threat-intel-grid .type-main-featured:first-child {
-        grid-column: 1 / -1; /* Featured spans full width of 2 columns */
-        grid-row: auto; /* Reset row span */
-    }
-    .threat-intel-grid .type-list-item:nth-child(2),
-    .threat-intel-grid .type-list-item:nth-child(3),
-    .threat-intel-grid .type-list-item:nth-child(4),
-    .threat-intel-grid .type-list-item:nth-child(5) {
-        grid-column: span 1; /* List items go back to single column, will flow */
-        grid-row: auto;
-    }
-
-    .threat-intel-card.type-main-featured .article-title {
-        font-size: 1.8rem; /* Adjust font size for featured on medium screens */
-    }
-    .threat-intel-card.type-main-featured .article-description {
-        font-size: 1rem;
-        -webkit-line-clamp: 5;
-    }
-
-    .threat-intel-card.type-list-item {
-        flex-direction: row; /* Keep horizontal for list items */
-    }
-    .threat-intel-card.type-list-item .article-image-container {
-        width: 80px; /* Slightly smaller image on medium screens for list items */
-        height: 80px;
-    }
-}
-
-@media (max-width: 768px) {
-    .threat-intel-grid {
-        grid-template-columns: 1fr; /* Single column on mobile */
-        gap: 1.5rem;
-    }
-
-    .threat-intel-grid .threat-intel-article-link { /* Target all article links */
-        grid-column: auto; /* Reset grid column spans */
-        grid-row: auto;
-        flex-direction: column; /* Ensure all cards stack vertically on mobile */
-        padding: 1.5rem; /* Consistent padding for all types */
-    }
-
-    /* Reset specific component styles that conflict with mobile column stacking */
-    .threat-intel-card.type-main-featured .article-image-container,
-    .threat-intel-card.type-list-item .article-image-container {
-        width: 100%;
-        height: auto;
-        padding-bottom: 56.25%; /* Restore aspect ratio for images on mobile */
-        border-radius: 16px 16px 0 0; /* Rounded top corners */
-        margin-bottom: 1.2rem;
-        margin-right: 0; /* Remove right margin */
-    }
-    .threat-intel-card.type-main-featured .article-image-container img,
-    .threat-intel-card.type-list-item .article-image-container img {
-        position: absolute; /* Revert to absolute positioning for aspect ratio trick */
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        border-radius: 16px 16px 0 0;
-    }
-
-    .threat-intel-card.type-main-featured .article-title {
-        font-size: 1.6rem;
-        -webkit-line-clamp: 4;
-    }
-    .threat-intel-card.type-main-featured .article-description {
-        font-size: 0.95rem;
-        -webkit-line-clamp: 5;
-    }
-    .threat-intel-card.type-list-item .article-title {
-        font-size: 1.3rem;
-        -webkit-line-clamp: 3;
-    }
-    .threat-intel-card.type-text-only .article-title {
-        font-size: 1.4rem;
-    }
-
-    /* Ensure descriptions/footers are visible on mobile where they were hidden */
-    .threat-intel-card.type-list-item .article-description,
-    .threat-intel-card.type-list-item .card-footer {
-        display: block; /* Show description and footer on mobile for list items */
-    }
+.no-articles-state h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
 }
