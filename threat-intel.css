@@ -613,14 +613,21 @@
 
 .threat-intel-controls input,
 .threat-intel-controls select {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
+    /* Base dark theme and border from your variables */
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    
+    /* Set padding, border-radius, and font to match other UI elements */
     padding: 0.75rem 1rem;
     border-radius: 12px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-family: inherit;
+    position: relative;
 }
 
 .threat-intel-controls input::placeholder {
@@ -655,6 +662,7 @@
     position: relative;
     min-width: 150px;
 }
+
 
 .selector-toggle-btn {
     background: rgba(255, 255, 255, 0.05);

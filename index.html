@@ -2652,9 +2652,19 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="customMetadata">Custom Metadata (JSON)</label>
-                    <textarea id="customMetadata" name="customMetadata" rows="3" placeholder='{"key": "value", "additional_info": "data"}'></textarea>
-                    <small>Optional: Add custom metadata in JSON format</small>
+                    <label>Custom Metadata</label>
+                    <div id="metadataContainer">
+                        <div class="metadata-pair">
+                            <input type="text" class="metadata-key" placeholder="Key">
+                            <input type="text" class="metadata-value" placeholder="Value">
+                            <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary btn-small" onclick="addMetadataPair()">
+                        <i class="fas fa-plus"></i> Add Metadata
+                    </button>
                 </div>
                 
                 <div class="form-actions">
@@ -2665,6 +2675,49 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="imageViewModal" class="modal">
+        <div class="modal-content image-viewer-modal">
+            <div class="modal-header">
+                <h3 id="imageViewerTitle">Media Viewer</h3>
+                <button class="modal-close" onclick="closeMediaViewer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body image-viewer-body">
+                <div id="imageViewerContainer">
+                    </div>
+            </div>
+            <div class="modal-footer image-viewer-footer">
+                <span id="imageViewerCaption"></span>
+                <div class="footer-actions">
+                    <button class="btn-secondary" onclick="downloadFile()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!----To view the details of evidence in multi-vault-->
+    <div id="entryDetailsModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="entryDetailsModalTitle">Entry Details</h3>
+                <button class="modal-close" onclick="closeEntryDetailsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="entryDetailsModalBody">
+                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeEntryDetailsModal()">Close</button>
+                <button type="button" class="btn-primary" id="editEntryButton" onclick="">
+                    <i class="fas fa-edit"></i> Edit Entry
+                </button>
+            </div>
         </div>
     </div>
 

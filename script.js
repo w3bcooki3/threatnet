@@ -1276,18 +1276,48 @@ function loadVaultSection() {
     setupVaultSearch();
 }
 
+// Function to count tools per parent category
+function countToolsByParentCategory(parentCategory) {
+    if (parentCategory === 'general') {
+        return intelligenceTools.length;
+    }
+    return intelligenceTools.filter(tool => tool.parentCategory === parentCategory).length;
+}
+
+// Function to count tools per child category
+function countToolsByChildCategory(childCategory) {
+    if (currentParentTab === 'general') {
+        if (childCategory === 'all-tools') {
+            return intelligenceTools.length;
+        } else if (childCategory === 'favorites') {
+            return intelligenceTools.filter(tool => tool.isStarred).length;
+        } else if (childCategory === 'recently-added') {
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return intelligenceTools.filter(tool => new Date(tool.dateAdded) > weekAgo).length;
+        } else if (childCategory === 'most-used') {
+            return intelligenceTools.filter(tool => tool.isPinned).length;
+        }
+    }
+    return intelligenceTools.filter(tool => tool.parentCategory === currentParentTab && tool.childCategory === childCategory).length;
+}
+
 function renderParentTabs() {
     const parentTabsContainer = document.querySelector('.parent-tabs');
     if (!parentTabsContainer) return;
-    
-    parentTabsContainer.innerHTML = Object.entries(categoryMapping).map(([key, category]) => `
-        <div class="parent-tab ${key === currentParentTab ? 'active' : ''}" 
-             data-parent="${key}" onclick="switchParentTab('${key}')">
-            <i class="${category.icon}"></i>
-            <span>${category.name}</span>
-        </div>
-    `).join('');
+
+    parentTabsContainer.innerHTML = Object.entries(categoryMapping).map(([key, category]) => {
+        const toolCount = countToolsByParentCategory(key);
+        return `
+            <div class="parent-tab ${key === currentParentTab ? 'active' : ''}" 
+                 data-parent="${key}" onclick="switchParentTab('${key}')">
+                <i class="${category.icon}"></i>
+                <span>${category.name} (${toolCount})</span>
+            </div>
+        `;
+    }).join('');
 }
+
 
 function renderChildTabs() {
     const childTabsContainer = document.getElementById('childTabs');
@@ -1296,13 +1326,17 @@ function renderChildTabs() {
     const currentCategory = categoryMapping[currentParentTab];
     if (!currentCategory) return;
     
-    childTabsContainer.innerHTML = Object.entries(currentCategory.children).map(([key, name]) => `
-        <div class="child-tab ${key === currentChildTab ? 'active' : ''}" 
-             data-child="${key}" onclick="switchChildTab('${key}')">
-            ${name}
-        </div>
-    `).join('');
+    childTabsContainer.innerHTML = Object.entries(currentCategory.children).map(([key, name]) => {
+        const toolCount = countToolsByChildCategory(key);
+        return `
+            <div class="child-tab ${key === currentChildTab ? 'active' : ''}" 
+                 data-child="${key}" onclick="switchChildTab('${key}')">
+                ${name} (${toolCount})
+            </div>
+        `;
+    }).join('');
 }
+
 
 function switchParentTab(parentTab) {
     currentParentTab = parentTab;
@@ -1609,6 +1643,7 @@ function updateChildCategories() {
     }
 }
 
+// Save tool form
 function saveToolForm(event) {
     event.preventDefault();
     
@@ -1664,7 +1699,13 @@ function saveToolForm(event) {
     
     closeAddToolModal();
     applyVaultFilters();
+    
+    // Call rendering functions to update the counts in real time
+    renderParentTabs();
+    renderChildTabs();
+    saveTools();
 }
+
 
 function editTool(toolId) {
     const tool = intelligenceTools.find(t => t.id === toolId);
@@ -1714,10 +1755,12 @@ function deleteTool(toolId) {
             if (toolIndex !== -1) {
                 const toolName = intelligenceTools[toolIndex].name;
                 intelligenceTools.splice(toolIndex, 1);
-                // Save the new state after deletion
                 saveTools();
                 showNotification(`"${toolName}" deleted successfully!`, 'success');
                 applyVaultFilters();
+                // Call rendering functions to update the counts in real time
+                renderParentTabs();
+                renderChildTabs();
             }
         }
     );
@@ -1781,21 +1824,30 @@ function confirmDelete() {
     }
 }
 
+// Updated togglePin function
 function togglePin(toolId) {
     const tool = intelligenceTools.find(t => t.id === toolId);
     if (tool) {
         tool.isPinned = !tool.isPinned;
+        saveTools(); // Save immediately after state change
         showNotification(`Tool ${tool.isPinned ? 'pinned' : 'unpinned'}!`, 'info');
         applyVaultFilters();
+        // Call rendering functions to update the counts in real time
+        renderParentTabs();
+        renderChildTabs();
     }
 }
-
+// Updated toggleStar function
 function toggleStar(toolId) {
     const tool = intelligenceTools.find(t => t.id === toolId);
     if (tool) {
         tool.isStarred = !tool.isStarred;
+        saveTools(); // Save immediately after state change
         showNotification(`Tool ${tool.isStarred ? 'starred' : 'unstarred'}!`, 'info');
         applyVaultFilters();
+        // Call rendering functions to update the counts in real time
+        renderParentTabs();
+        renderChildTabs();
     }
 }
 
@@ -1837,25 +1889,30 @@ function updateBulkActions() {
     }
 }
 
+// Updated bulkPin, bulkStar, bulkDelete, etc. functions
 function bulkPin() {
     selectedTools.forEach(toolId => {
         const tool = intelligenceTools.find(t => t.id === toolId);
         if (tool) tool.isPinned = true;
     });
-    
+    saveTools();
     showNotification(`${selectedTools.size} tools pinned!`, 'success');
     clearSelection();
     applyVaultFilters();
+    renderParentTabs();
+    renderChildTabs();
 }
 function bulkUnPin() {
     selectedTools.forEach(toolId => {
         const tool = intelligenceTools.find(t => t.id === toolId);
         if (tool) tool.isPinned = false;
     });
-    
-    showNotification(`${selectedTools.size} tools pinned!`, 'success');
+    saveTools();
+    showNotification(`${selectedTools.size} tools unpinned!`, 'success');
     clearSelection();
     applyVaultFilters();
+    renderParentTabs();
+    renderChildTabs();
 }
 
 function bulkStar() {
@@ -1863,10 +1920,12 @@ function bulkStar() {
         const tool = intelligenceTools.find(t => t.id === toolId);
         if (tool) tool.isStarred = true;
     });
-    
+    saveTools();
     showNotification(`${selectedTools.size} tools starred!`, 'success');
     clearSelection();
     applyVaultFilters();
+    renderParentTabs();
+    renderChildTabs();
 }
 
 function bulkUnStar() {
@@ -1874,12 +1933,13 @@ function bulkUnStar() {
         const tool = intelligenceTools.find(t => t.id === toolId);
         if (tool) tool.isStarred = false;
     });
-    
-    showNotification(`${selectedTools.size} tools starred!`, 'success');
+    saveTools();
+    showNotification(`${selectedTools.size} tools unstarred!`, 'success');
     clearSelection();
     applyVaultFilters();
+    renderParentTabs();
+    renderChildTabs();
 }
-
 // Updated bulkDelete function
 function bulkDelete() {
     if (selectedTools.size === 0) return;
@@ -1891,11 +1951,12 @@ function bulkDelete() {
             const deletedCount = selectedTools.size;
             intelligenceTools = intelligenceTools.filter(tool => !selectedTools.has(tool.id));
             selectedTools.clear();
-            // Save the new state after bulk deletion
             saveTools();
             showNotification(`${deletedCount} tools deleted successfully!`, 'success');
             updateBulkActions();
             applyVaultFilters();
+            renderParentTabs();
+            renderChildTabs();
         }
     );
 }
@@ -2468,7 +2529,9 @@ const entryTypeFields = {
     },
     media: {
         fields: [
-            { name: 'url', label: 'Media URL', type: 'url', required: true },
+            { name: 'url', label: 'Media URL', type: 'url', required: false },
+            { name: 'existingMedia', type: 'placeholder', label: 'Existing Media' }, // Placeholder for existing media
+            { name: 'file', label: 'Or Upload New File(s)', type: 'file', required: false }, // New file upload option
             { name: 'type', label: 'Media Type', type: 'select', options: ['Image', 'Video', 'Audio', 'Document'] },
             { name: 'resolution', label: 'Resolution', type: 'text' },
             { name: 'filesize', label: 'File Size', type: 'text' }
@@ -2507,8 +2570,8 @@ const entryTypeFields = {
     },
     document: {
         fields: [
-            { name: 'filename', label: 'File Name', type: 'text', required: true },
-            { name: 'url', label: 'Document URL', type: 'url' },
+            { name: 'url', label: 'Document URL', type: 'url', required: false },
+            { name: 'file', label: 'Or Upload File', type: 'file', required: false },
             { name: 'type', label: 'Document Type', type: 'select', options: ['PDF', 'DOC', 'XLS', 'TXT', 'Other'] },
             { name: 'hash', label: 'File Hash', type: 'text' }
         ]
@@ -2715,11 +2778,57 @@ function updateVaultHeader(vault) {
     `;
 }
 
-// Update vault parent tabs
+// Function to count entries per vault parent category
+function countEntriesByVaultParentCategory(parentCategory) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return 0;
+    
+    if (parentCategory === 'general') {
+        return vault.entries.length;
+    }
+    
+    // Get all entry types in this parent category
+    const childCategories = Object.keys(vaultTabStructure[parentCategory].children);
+    const entryTypesInParent = childCategories.filter(child => child !== 'all-entries');
+    
+    return vault.entries.filter(entry => entryTypesInParent.includes(entry.type)).length;
+}
+
+// Function to count entries per vault child category
+function countEntriesByVaultChildCategory(childCategory) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return 0;
+    
+    if (childCategory === 'all-entries') {
+        return vault.entries.length;
+    } else if (childCategory === 'recent') {
+        return vault.entries.sort((a, b) => new Date(b.created) - new Date(a.created)).slice(0, 20).length;
+    } else if (childCategory === 'priority') {
+        return vault.entries.filter(entry => entry.priority === 'high' || entry.priority === 'critical').length;
+    } else if (childCategory === 'starred') {
+        return vault.entries.filter(entry => entry.starred).length;
+    } else if (childCategory === 'notes') {
+        return vault.entries.filter(entry => entry.investigationNotes).length;
+    }
+    
+    // Default to filtering by entry type
+    return vault.entries.filter(entry => entry.type === childCategory).length;
+}
+
 function updateVaultParentTabs() {
-    document.querySelectorAll('.vault-parent-tabs .parent-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.parent === currentVaultParentTab);
-    });
+    const parentTabsContainer = document.querySelector('.vault-parent-tabs');
+    if (!parentTabsContainer) return;
+
+    parentTabsContainer.innerHTML = Object.entries(vaultTabStructure).map(([key, category]) => {
+        const entryCount = countEntriesByVaultParentCategory(key);
+        return `
+            <div class="parent-tab ${key === currentVaultParentTab ? 'active' : ''}" 
+                 data-parent="${key}" onclick="switchVaultParentTab('${key}')">
+                <i class="${category.icon}"></i>
+                <span>${category.name} (${entryCount})</span>
+            </div>
+        `;
+    }).join('');
 }
 
 // Switch vault parent tab
@@ -2732,17 +2841,20 @@ function switchVaultParentTab(parentTab) {
     renderVaultEntries();
 }
 
-// Update vault child tabs
+
 function updateVaultChildTabs() {
     const vaultChildTabs = document.getElementById('vaultChildTabs');
     const children = vaultTabStructure[currentVaultParentTab].children;
     
-    vaultChildTabs.innerHTML = Object.entries(children).map(([key, name]) => `
-        <div class="child-tab ${key === currentVaultChildTab ? 'active' : ''}" 
-             onclick="switchVaultChildTab('${key}')">
-            ${name}
-        </div>
-    `).join('');
+    vaultChildTabs.innerHTML = Object.entries(children).map(([key, name]) => {
+        const entryCount = countEntriesByVaultChildCategory(key);
+        return `
+            <div class="child-tab ${key === currentVaultChildTab ? 'active' : ''}" 
+                 onclick="switchVaultChildTab('${key}')">
+                ${name} (${entryCount})
+            </div>
+        `;
+    }).join('');
 }
 
 // Switch vault child tab
@@ -2810,7 +2922,20 @@ function updateEntryFields() {
                     </label>
                 </div>
             `;
-        } else {
+        } else if (field.type === 'file') {
+             // This is the file upload field with the 'multiple' attribute for all media and documents
+            return `
+                <div class="form-group">
+                    <label for="field_${field.name}">${field.label}</label>
+                    <input type="file" id="field_${field.name}" name="field_${field.name}" accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple>
+                    <small>Supports common images, videos, PDFs, Word, and text files.</small>
+                </div>
+            `;
+        } else if (field.type === 'placeholder') {
+            // This is the new placeholder for existing media
+            return `<div id="mediaPlaceholder" class="form-group"></div>`;
+        }
+        else {
             return `
                 <div class="form-group">
                     <label for="field_${field.name}">${field.label}${field.required ? ' *' : ''}</label>
@@ -2849,25 +2974,26 @@ function removeMetadataPair(button) {
 // Save vault entry
 function saveVaultEntry(event) {
     event.preventDefault();
-    
+
     const vault = vaults.find(v => v.id === currentVaultId);
     if (!vault) return;
-    
+
     const formData = new FormData(event.target);
     const entryType = formData.get('entryType');
     
-    // Collect dynamic fields
+    const existingEntry = isEditingEntry ? vault.entries.find(e => e.id === editingEntryId) : null;
+
     const dynamicData = {};
     if (entryTypeFields[entryType]) {
         entryTypeFields[entryType].fields.forEach(field => {
+            if (field.type === 'file' || field.type === 'placeholder') return;
             const value = formData.get(`field_${field.name}`);
             if (value !== null) {
                 dynamicData[field.name] = field.type === 'checkbox' ? !!value : value;
             }
         });
     }
-    
-    // Collect metadata from key-value pairs
+
     const customMetadata = {};
     const metadataPairs = document.querySelectorAll('.metadata-pair');
     metadataPairs.forEach(pair => {
@@ -2877,7 +3003,7 @@ function saveVaultEntry(event) {
             customMetadata[key] = value;
         }
     });
-    
+
     const entryData = {
         id: isEditingEntry ? editingEntryId : Date.now().toString(),
         type: entryType,
@@ -2889,13 +3015,63 @@ function saveVaultEntry(event) {
         priority: formData.get('entryPriority'),
         dynamicData: dynamicData,
         customMetadata: customMetadata,
-        created: isEditingEntry ? vault.entries.find(e => e.id === editingEntryId)?.created : new Date().toISOString(),
+        created: isEditingEntry ? existingEntry.created : new Date().toISOString(),
         modified: new Date().toISOString(),
-        starred: isEditingEntry ? vault.entries.find(e => e.id === editingEntryId)?.starred || false : false,
-        pinned: isEditingEntry ? vault.entries.find(e => e.id === editingEntryId)?.pinned || false : false
+        starred: isEditingEntry ? existingEntry.starred || false : false,
+        pinned: isEditingEntry ? existingEntry.pinned || false : false
     };
+
+    if (entryType === 'media' || entryType === 'document') {
+        const fileInput = document.getElementById('field_file');
+        const files = fileInput.files;
+        const urlValue = entryData.dynamicData.url;
+        
+        if (files.length === 0 && !urlValue && (!existingEntry || !existingEntry.dynamicData.fileDataUrls)) {
+            showNotification('Please provide either a URL or upload at least one file.', 'error');
+            return;
+        }
+
+        if (files.length > 0) {
+            const filePromises = Array.from(files).map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(filePromises).then(newFileDataUrls => {
+                const newFileNames = Array.from(files).map(f => f.name);
+                const newFileSizes = Array.from(files).map(f => f.size);
+
+                // Concatenate new files with existing ones
+                const combinedUrls = existingEntry && existingEntry.dynamicData.fileDataUrls ? existingEntry.dynamicData.fileDataUrls.concat(newFileDataUrls) : newFileDataUrls;
+                const combinedNames = existingEntry && existingEntry.dynamicData.fileNames ? existingEntry.dynamicData.fileNames.concat(newFileNames) : newFileNames;
+                const combinedSizes = existingEntry && existingEntry.dynamicData.fileSizes ? existingEntry.dynamicData.fileSizes.concat(newFileSizes) : newFileSizes;
+
+                entryData.dynamicData.fileDataUrls = combinedUrls;
+                entryData.dynamicData.fileNames = combinedNames;
+                entryData.dynamicData.fileSizes = combinedSizes;
+                
+                delete entryData.dynamicData.url;
+                finalizeSave(vault, entryData);
+            });
+            return;
+        } else if (existingEntry && existingEntry.dynamicData.fileDataUrls) {
+            entryData.dynamicData.fileDataUrls = existingEntry.dynamicData.fileDataUrls;
+            entryData.dynamicData.fileNames = existingEntry.dynamicData.fileNames;
+            entryData.dynamicData.fileSizes = existingEntry.dynamicData.fileSizes;
+        }
+    }
     
-    // Check for duplicates (only for new entries)
+    finalizeSave(vault, entryData);
+}
+
+
+// New helper function to finalize the save process
+function finalizeSave(vault, entryData) {
     if (!isEditingEntry) {
         const duplicate = vault.entries.find(entry => 
             entry.name.toLowerCase() === entryData.name.toLowerCase() && 
@@ -2909,17 +3085,14 @@ function saveVaultEntry(event) {
     }
     
     if (isEditingEntry) {
-        // Update existing entry
         const index = vault.entries.findIndex(e => e.id === editingEntryId);
         if (index !== -1) {
             vault.entries[index] = entryData;
         }
     } else {
-        // Add new entry
         vault.entries.push(entryData);
     }
     
-    // Update vault stats
     vault.stats.totalEntries = vault.entries.length;
     vault.stats.lastModified = new Date().toISOString();
     
@@ -2933,7 +3106,333 @@ function saveVaultEntry(event) {
         isEditingEntry ? 'Entry updated successfully' : 'Entry added successfully', 
         'success'
     );
+    
+    updateVaultParentTabs();
+    updateVaultChildTabs();
 }
+
+// Make the new helper function globally available if it needs to be called from other modules
+window.finalizeSave = finalizeSave;
+
+// New helper function to remove a media file from an entry
+function removeMediaFromEntry(entryId, indexToRemove) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (!entry || !entry.dynamicData.fileDataUrls) return;
+
+    entry.dynamicData.fileDataUrls.splice(indexToRemove, 1);
+    entry.dynamicData.fileNames.splice(indexToRemove, 1);
+    entry.dynamicData.fileSizes.splice(indexToRemove, 1);
+
+    if (entry.dynamicData.fileDataUrls.length === 0) {
+        delete entry.dynamicData.fileDataUrls;
+        delete entry.dynamicData.fileNames;
+        delete entry.dynamicData.fileSizes;
+    }
+
+    // Re-render the edit form to reflect the change
+    showNotification('Media file removed from entry. Click "Update Entry" to save changes.', 'info');
+    editVaultEntry(entryId);
+}
+
+let currentMediaViewerEntry = null;
+let currentMediaViewerIndex = 0;
+
+function showMediaViewer(entryId, mediaIndex) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (!entry || !entry.dynamicData.fileDataUrls || entry.dynamicData.fileDataUrls.length === 0) return;
+
+    currentMediaViewerEntry = entry;
+    currentMediaViewerIndex = mediaIndex;
+
+    const modal = document.getElementById('imageViewModal');
+    const mediaContainer = document.getElementById('imageViewerContainer');
+    const viewerTitle = document.getElementById('imageViewerTitle');
+    const caption = document.getElementById('imageViewerCaption');
+    
+    const fileUrl = currentMediaViewerEntry.dynamicData.fileDataUrls[currentMediaViewerIndex];
+    const fileType = getMediaType(fileUrl);
+    
+    // Clear previous media content
+    mediaContainer.innerHTML = '';
+    viewerTitle.textContent = currentMediaViewerEntry.name;
+
+    let mediaContent = '';
+    if (fileType === 'image') {
+        mediaContent = `<img id="viewerMedia" src="${fileUrl}" alt="Uploaded Image">`;
+    } else if (fileType === 'video') {
+        mediaContent = `<video id="viewerMedia" src="${fileUrl}" controls autoplay></video>`;
+    } else if (fileType === 'audio') {
+        mediaContent = `<audio id="viewerMedia" src="${fileUrl}" controls autoplay></audio>`;
+    } else if (fileType === 'pdf') {
+        mediaContent = `<embed id="viewerMedia" src="${fileUrl}" type="application/pdf" width="100%" height="100%"/>`;
+    } else { // Handle other documents by providing a download link
+        mediaContent = `
+            <div class="unsupported-preview">
+                <i class="fas fa-file-alt"></i>
+                <h3>File Preview Not Available</h3>
+                <p>This file type cannot be displayed in the browser. Please use the download button below.</p>
+            </div>
+        `;
+    }
+
+    mediaContainer.innerHTML = mediaContent + `
+        <div id="viewerControls" style="display: ${fileType === 'image' && currentMediaViewerEntry.dynamicData.fileDataUrls.length > 1 ? 'flex' : 'none'};">
+            <button class="nav-btn prev-btn" onclick="event.stopPropagation(); navigateMediaViewer('prev')"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-btn next-btn" onclick="event.stopPropagation(); navigateMediaViewer('next')"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    `;
+    
+    caption.textContent = currentMediaViewerEntry.dynamicData.fileNames[currentMediaViewerIndex];
+
+    modal.style.display = 'flex';
+}
+
+function closeMediaViewer() {
+    document.getElementById('imageViewModal').style.display = 'none';
+    currentMediaViewerEntry = null;
+    currentMediaViewerIndex = 0;
+    
+    // Pause any playing media
+    const mediaElement = document.getElementById('viewerMedia');
+    if (mediaElement && typeof mediaElement.pause === 'function') {
+        mediaElement.pause();
+    }
+}
+
+function navigateMediaViewer(direction) {
+    if (!currentMediaViewerEntry || currentMediaViewerEntry.dynamicData.fileDataUrls.length <= 1) {
+        return;
+    }
+    
+    const totalMedia = currentMediaViewerEntry.dynamicData.fileDataUrls.length;
+    let newIndex;
+    if (direction === 'next') {
+        newIndex = (currentMediaViewerIndex + 1) % totalMedia;
+    } else if (direction === 'prev') {
+        newIndex = (currentMediaViewerIndex - 1 + totalMedia) % totalMedia;
+    }
+    
+    const fileUrl = currentMediaViewerEntry.dynamicData.fileDataUrls[newIndex];
+    const fileType = getMediaType(fileUrl);
+    
+    const mediaContainer = document.getElementById('imageViewerContainer');
+    const viewerTitle = document.getElementById('imageViewerTitle');
+    const caption = document.getElementById('imageViewerCaption');
+
+    // Pause current media before changing it
+    const oldMediaElement = document.getElementById('viewerMedia');
+    if(oldMediaElement && typeof oldMediaElement.pause === 'function') {
+        oldMediaElement.pause();
+    }
+
+    let mediaContent = '';
+    if (fileType === 'image') {
+        mediaContent = `<img id="viewerMedia" src="${fileUrl}" alt="Uploaded Image">`;
+    } else if (fileType === 'video') {
+        mediaContent = `<video id="viewerMedia" src="${fileUrl}" controls autoplay></video>`;
+    } else if (fileType === 'audio') {
+        mediaContent = `<audio id="viewerMedia" src="${fileUrl}" controls autoplay></audio>`;
+    } else if (fileType === 'pdf') {
+        mediaContent = `<embed id="viewerMedia" src="${fileUrl}" type="application/pdf" width="100%" height="100%"/>`;
+    } else { // Handle other documents by providing a download link
+        mediaContent = `
+            <div class="unsupported-preview">
+                <i class="fas fa-file-alt"></i>
+                <h3>File Preview Not Available</h3>
+                <p>This file type cannot be displayed in the browser. Please use the download button below.</p>
+            </div>
+        `;
+    }
+
+    mediaContainer.innerHTML = mediaContent + `
+        <div id="viewerControls" style="display: ${fileType === 'image' && currentMediaViewerEntry.dynamicData.fileDataUrls.length > 1 ? 'flex' : 'none'};">
+            <button class="nav-btn prev-btn" onclick="event.stopPropagation(); navigateMediaViewer('prev')"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-btn next-btn" onclick="event.stopPropagation(); navigateMediaViewer('next')"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    `;
+
+    currentMediaViewerIndex = newIndex;
+    caption.textContent = currentMediaViewerEntry.dynamicData.fileNames[currentMediaViewerIndex];
+}
+
+function downloadFile() {
+    if (!currentMediaViewerEntry) return;
+
+    const currentMedia = currentMediaViewerEntry.dynamicData.fileDataUrls[currentMediaViewerIndex];
+    const fileName = currentMediaViewerEntry.dynamicData.fileNames[currentMediaViewerIndex];
+    
+    const link = document.createElement('a');
+    link.href = currentMedia;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+
+function getMediaType(dataUrl) {
+    if (dataUrl.startsWith('data:image')) {
+        return 'image';
+    } else if (dataUrl.startsWith('data:video')) {
+        return 'video';
+    } else if (dataUrl.startsWith('data:audio')) {
+        return 'audio';
+    } else if (dataUrl.startsWith('data:application/pdf')) {
+        return 'pdf';
+    } else if (dataUrl.startsWith('data:text')) {
+        return 'text';
+    } else {
+        return 'unknown';
+    }
+}
+
+//To show popup of entries when clicked on the entry in the multi-vault tab
+function showEntryDetailsModal(entryId) {
+    const vault = vaults.find(v => v.id === currentVaultId);
+    if (!vault) return;
+    const entry = vault.entries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    const modal = document.getElementById('entryDetailsModal');
+    const modalTitle = document.getElementById('entryDetailsModalTitle');
+    const modalBody = document.getElementById('entryDetailsModalBody');
+    const editButton = document.getElementById('editEntryButton');
+
+    modalTitle.textContent = entry.name;
+    
+    // --- Start Media Gallery Rendering ---
+    let mediaGalleryHtml = '';
+    if (entry.dynamicData.fileDataUrls && entry.dynamicData.fileDataUrls.length > 0) {
+        const fileType = getMediaType(entry.dynamicData.fileDataUrls[0]);
+
+        if (fileType === 'image') {
+            mediaGalleryHtml = `
+                <div class="entry-details-gallery">
+                    ${entry.dynamicData.fileDataUrls.map((url, index) => `
+                        <img src="${url}" alt="${entry.dynamicData.fileNames[index]}" onclick="openMediaViewerFromDetails('${entry.id}', ${index})">
+                    `).join('')}
+                </div>
+            `;
+        } else if (fileType === 'video' || fileType === 'audio') {
+            mediaGalleryHtml = `
+                <div class="entry-details-gallery">
+                    <div class="media-preview-placeholder" onclick="openMediaViewerFromDetails('${entry.id}', 0)">
+                        <i class="fas fa-play"></i>
+                        <span>Click to Play ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            mediaGalleryHtml = `
+                <div class="entry-details-gallery">
+                    <div class="media-preview-placeholder" onclick="openMediaViewerFromDetails('${entry.id}', 0)">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Click to View Document</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    // --- End Media Gallery Rendering ---
+
+    // --- Start Dynamic Data Rendering (Bug Fix) ---
+    const filteredDynamicData = Object.fromEntries(
+        Object.entries(entry.dynamicData || {}).filter(([key, value]) => 
+            key !== 'file' && key !== 'fileDataUrls' && key !== 'fileNames' && key !== 'fileSizes' && typeof value !== 'object'
+        )
+    );
+    let dynamicDataHtml = Object.entries(filteredDynamicData).map(([key, value]) => 
+        value ? `<div class="dynamic-field">
+            <strong>${key}:</strong> 
+            ${key.includes('url') || key.includes('link') ? 
+                `<a href="${value}" target="_blank" rel="noopener noreferrer">${value}</a>` : 
+                value}
+        </div>` : ''
+    ).join('');
+    // --- End Dynamic Data Rendering ---
+    
+    // Generate the tags HTML
+    const tagsHtml = entry.tags.length > 0 ? `
+        <div class="details-section">
+            <h4>Tags</h4>
+            <div class="entry-tags">
+                ${entry.tags.map(tag => `<span class="entry-tag">${tag}</span>`).join('')}
+            </div>
+        </div>
+    ` : '';
+    
+    // Generate the metadata HTML
+    const metadataHtml = `
+        <div class="details-section">
+            <h4>Metadata</h4>
+            <div class="entry-metadata-list">
+                <span><strong>Created:</strong> ${new Date(entry.created).toLocaleDateString()}</span>
+                <span><strong>Modified:</strong> ${new Date(entry.modified).toLocaleDateString()}</span>
+                ${entry.source ? `<span><strong>Source:</strong> ${entry.source}</span>` : ''}
+            </div>
+        </div>
+    `;
+
+    let bodyHtml = `
+        <div class="entry-details-container">
+            <div class="entry-type-header">
+                <span class="entry-type-badge">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</span>
+                <span class="entry-priority-badge">${entry.priority.charAt(0).toUpperCase() + entry.priority.slice(1)}</span>
+            </div>
+            
+            ${entry.description ? `
+                <div class="details-section">
+                    <h4>Description</h4>
+                    <p>${entry.description}</p>
+                </div>
+            ` : ''}
+
+            ${mediaGalleryHtml ? `<div class="details-section"><h4>Media</h4>${mediaGalleryHtml}</div>` : ''}
+
+            ${dynamicDataHtml ? `
+                <div class="details-section">
+                    <h4>Additional Data</h4>
+                    <div class="dynamic-data-list">
+                        ${dynamicDataHtml}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${entry.investigationNotes ? `
+                <div class="details-section">
+                    <h4>Investigation Notes</h4>
+                    <p>${entry.investigationNotes}</p>
+                </div>
+            ` : ''}
+            
+            ${tagsHtml}
+            ${metadataHtml}
+        </div>
+    `;
+
+    modalBody.innerHTML = bodyHtml;
+    
+    editButton.onclick = () => {
+        closeEntryDetailsModal();
+        editVaultEntry(entryId);
+    };
+
+    modal.style.display = 'flex';
+}
+
+function openMediaViewerFromDetails(entryId, index) {
+    closeEntryDetailsModal();
+    showMediaViewer(entryId, index);
+}
+
+function closeEntryDetailsModal() {
+    document.getElementById('entryDetailsModal').style.display = 'none';
+}
+
 
 // Render vault entries
 function renderVaultEntries() {
@@ -3031,6 +3530,90 @@ function createVaultEntryCard(entry) {
     const typeIcons = {
         tool: 'fas fa-tools', email: 'fas fa-envelope', phone: 'fas fa-phone', crypto: 'fab fa-bitcoin', location: 'fas fa-map-marker-alt', link: 'fas fa-link', media: 'fas fa-photo-video', social: 'fas fa-users', domain: 'fas fa-globe', username: 'fas fa-user', threat: 'fas fa-shield-alt', document: 'fas fa-file-alt', password: 'fas fa-key', keyword: 'fas fa-tag', breach: 'fas fa-exclamation-triangle', credential: 'fas fa-id-card', forum: 'fas fa-comments', vendor: 'fas fa-store', telegram: 'fab fa-telegram-plane', paste: 'fas fa-clipboard', network: 'fas fa-network-wired', metadata: 'fas fa-info-circle', archive: 'fas fa-archive', messaging: 'fas fa-comment-dots', dating: 'fas fa-heart', audio: 'fas fa-volume-up', facial: 'fas fa-eye', persona: 'fas fa-mask', vpn: 'fas fa-user-secret', honeypot: 'fas fa-spider', exploit: 'fas fa-bomb', publicrecord: 'fas fa-file-contract', malware: 'fas fa-bug', vulnerability: 'fas fa-bug'
     };
+    
+    const fileDataUrls = entry.dynamicData.fileDataUrls;
+    const fileNames = entry.dynamicData.fileNames;
+    const fileSizes = entry.dynamicData.fileSizes;
+    let mediaDisplayHtml = '';
+    
+    if (fileDataUrls && fileDataUrls.length > 0) {
+        const fileType = getMediaType(fileDataUrls[0]);
+        const isSingleFile = fileDataUrls.length === 1;
+
+        if (isSingleFile) {
+            if (fileType === 'image') {
+                mediaDisplayHtml = `
+                    <div class="media-preview-container">
+                        <img src="${fileDataUrls[0]}" alt="${fileNames[0]}">
+                        <button class="media-popout-btn" onclick="event.stopPropagation(); showMediaViewer('${entry.id}', 0)">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                `;
+            } else if (fileType === 'video') {
+                mediaDisplayHtml = `
+                    <div class="media-preview-container">
+                        <video src="${fileDataUrls[0]}" controls></video>
+                        <button class="media-popout-btn" onclick="event.stopPropagation(); showMediaViewer('${entry.id}', 0)">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                `;
+            } else if (fileType === 'audio') {
+                mediaDisplayHtml = `
+                    <div class="media-preview-container">
+                        <audio src="${fileDataUrls[0]}" controls></audio>
+                        <button class="media-popout-btn" onclick="event.stopPropagation(); showMediaViewer('${entry.id}', 0)">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                `;
+            } else { // Documents and Unknown
+                mediaDisplayHtml = `
+                    <div class="media-preview-container document-preview">
+                        <div class="document-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="document-details">
+                            <strong>${fileNames[0]}</strong>
+                            <small>${(fileSizes[0] / 1024).toFixed(2)} KB</small>
+                        </div>
+                        <button class="media-popout-btn" onclick="event.stopPropagation(); showMediaViewer('${entry.id}', 0)">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                `;
+            }
+        } else { // Multiple files - always show carousel
+             mediaDisplayHtml = `
+                <div class="media-gallery-carousel">
+                    ${fileDataUrls.map((url, index) => {
+                        const fileTypeForThumb = getMediaType(url);
+                        if (fileTypeForThumb === 'image') {
+                            return `<img src="${url}" alt="${fileNames[index]}" class="${index === 0 ? 'active' : ''}">`;
+                        } else if (fileTypeForThumb === 'video') {
+                            return `<div class="media-thumbnail-placeholder ${index === 0 ? 'active' : ''}" data-file-type="video"><i class="fas fa-video"></i></div>`;
+                        } else if (fileTypeForThumb === 'audio') {
+                            return `<div class="media-thumbnail-placeholder ${index === 0 ? 'active' : ''}" data-file-type="audio"><i class="fas fa-headphones"></i></div>`;
+                        } else {
+                            return `<div class="media-thumbnail-placeholder ${index === 0 ? 'active' : ''}" data-file-type="document"><i class="fas fa-file-alt"></i></div>`;
+                        }
+                    }).join('')}
+                    <button class="media-gallery-nav-btn prev" onclick="event.stopPropagation(); navigateMediaGallery('${entry.id}', 'prev')"><i class="fas fa-chevron-left"></i></button>
+                    <button class="media-gallery-nav-btn next" onclick="event.stopPropagation(); navigateMediaGallery('${entry.id}', 'next')"><i class="fas fa-chevron-right"></i></button>
+                    <button class="media-gallery-popout-btn" onclick="event.stopPropagation(); showMediaViewer('${entry.id}', 0)">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    const filteredDynamicData = Object.fromEntries(
+        Object.entries(entry.dynamicData || {}).filter(([key, value]) => 
+            key !== 'fileDataUrls' && key !== 'fileNames' && key !== 'fileSizes' && typeof value !== 'object'
+        )
+    );
 
     return `
         <div class="vault-entry-card" data-entry-id="${entry.id}">
@@ -3040,6 +3623,9 @@ function createVaultEntryCard(entry) {
                 </div>
                 <div class="entry-priority" style="background-color: ${priorityColors[entry.priority]}"></div>
                 <div class="entry-actions">
+                    <button class="entry-action-btn" onclick="showEntryDetailsModal('${entry.id}')" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
                     <button class="entry-action-btn ${entry.starred ? 'active' : ''}" 
                             onclick="toggleEntryStarred('${entry.id}')" title="Star">
                         <i class="fas fa-star"></i>
@@ -3062,9 +3648,11 @@ function createVaultEntryCard(entry) {
                 <div class="entry-type">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</div>
                 
                 ${entry.description ? `<p class="entry-description">${entry.description}</p>` : ''}
+
+                ${mediaDisplayHtml}
                 
                 <div class="entry-dynamic-data">
-                    ${Object.entries(entry.dynamicData || {}).map(([key, value]) => 
+                    ${Object.entries(filteredDynamicData || {}).map(([key, value]) => 
                         value ? `<div class="dynamic-field">
                             <strong>${key}:</strong> 
                             ${key.includes('url') || key.includes('link') ? 
@@ -3073,19 +3661,6 @@ function createVaultEntryCard(entry) {
                         </div>` : ''
                     ).join('')}
                 </div>
-                
-                ${entry.investigationNotes ? `
-                    <div class="entry-notes">
-                        <strong>Investigation Notes:</strong>
-                        <p>${entry.investigationNotes}</p>
-                    </div>
-                ` : ''}
-                
-                ${entry.tags.length > 0 ? `
-                    <div class="entry-tags">
-                        ${entry.tags.map(tag => `<span class="entry-tag">${tag}</span>`).join('')}
-                    </div>
-                ` : ''}
                 
                 <div class="entry-metadata">
                     <span class="entry-date">
@@ -3102,6 +3677,30 @@ function createVaultEntryCard(entry) {
             </div>
         </div>
     `;
+}
+
+// Add this new function to handle the carousel navigation
+function navigateMediaGallery(entryId, direction) {
+    const card = document.querySelector(`.vault-entry-card[data-entry-id="${entryId}"]`);
+    if (!card) return;
+
+    const images = card.querySelectorAll('.media-gallery-carousel img');
+    let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+    
+    images[currentIndex].classList.remove('active');
+
+    let newIndex;
+    if (direction === 'next') {
+        newIndex = (currentIndex + 1) % images.length;
+    } else {
+        newIndex = (currentIndex - 1 + images.length) % images.length;
+    }
+
+    images[newIndex].classList.add('active');
+    
+    // Update the popout button to show the correct image
+    const popoutBtn = card.querySelector('.media-gallery-popout-btn');
+    popoutBtn.onclick = () => { event.stopPropagation(); showMediaViewer(entryId, newIndex); };
 }
 
 // Toggle entry starred
@@ -3144,7 +3743,6 @@ function toggleEntryPinned(entryId) {
     }
 }
 
-// Edit vault entry
 function editVaultEntry(entryId) {
     const vault = vaults.find(v => v.id === currentVaultId);
     if (!vault) return;
@@ -3155,7 +3753,7 @@ function editVaultEntry(entryId) {
     isEditingEntry = true;
     editingEntryId = entryId;
     
-    // Show modal
+    // Show modal and set title
     document.getElementById('addEntryModal').style.display = 'flex';
     document.getElementById('entryModalTitle').textContent = 'Edit Entry';
     document.getElementById('saveEntryButtonText').textContent = 'Update Entry';
@@ -3169,30 +3767,24 @@ function editVaultEntry(entryId) {
     document.getElementById('entrySource').value = entry.source;
     document.getElementById('entryPriority').value = entry.priority;
     
-    // Populate metadata pairs
+    // Reset metadata container
     const metadataContainer = document.getElementById('metadataContainer');
     if (metadataContainer) {
         metadataContainer.innerHTML = '';
-    }
-    
-    if (Object.keys(entry.customMetadata || {}).length > 0) {
-        Object.entries(entry.customMetadata).forEach(([key, value]) => {
-            const pairDiv = document.createElement('div');
-            pairDiv.className = 'metadata-pair';
-            pairDiv.innerHTML = `
-                <input type="text" class="metadata-key" placeholder="Key" value="${key}">
-                <input type="text" class="metadata-value" placeholder="Value" value="${value}">
-                <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
-                    <i class="fas fa-minus"></i>
-                </button>
-            `;
-            if (metadataContainer) {
+        if (Object.keys(entry.customMetadata || {}).length > 0) {
+            Object.entries(entry.customMetadata).forEach(([key, value]) => {
+                const pairDiv = document.createElement('div');
+                pairDiv.className = 'metadata-pair';
+                pairDiv.innerHTML = `
+                    <input type="text" class="metadata-key" placeholder="Key" value="${key}">
+                    <input type="text" class="metadata-value" placeholder="Value" value="${value}">
+                    <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                `;
                 metadataContainer.appendChild(pairDiv);
-            }
-        });
-    } else {
-        // Add one empty pair
-        if (metadataContainer) {
+            });
+        } else {
             addMetadataPair();
         }
     }
@@ -3200,18 +3792,61 @@ function editVaultEntry(entryId) {
     // Update dynamic fields
     updateEntryFields();
     
-    // Populate dynamic fields
+    // Populate dynamic fields with a slight delay
     setTimeout(() => {
         Object.entries(entry.dynamicData || {}).forEach(([key, value]) => {
-            const field = document.getElementById(`field_${key}`);
-            if (field) {
-                if (field.type === 'checkbox') {
-                    field.checked = value;
-                } else {
-                    field.value = value;
+            // Fix: Do not set the value for file input fields
+            if (key !== 'fileDataUrls' && key !== 'fileNames' && key !== 'fileSizes' && key !== 'file') {
+                const field = document.getElementById(`field_${key}`);
+                if (field) {
+                    if (field.type === 'checkbox') {
+                        field.checked = value;
+                    } else {
+                        field.value = value;
+                    }
                 }
             }
         });
+
+        // --- New Logic for Existing Media ---
+        const existingMediaContainer = document.getElementById('mediaPlaceholder');
+        if (existingMediaContainer && entry.dynamicData.fileDataUrls && entry.dynamicData.fileDataUrls.length > 0) {
+            existingMediaContainer.innerHTML = `
+                <label>Existing Media</label>
+                <div class="existing-media-gallery">
+                    ${entry.dynamicData.fileDataUrls.map((url, index) => {
+                        const fileName = entry.dynamicData.fileNames[index];
+                        const mediaType = getMediaType(url);
+                        let mediaHtml;
+
+                        if (mediaType === 'image') {
+                            mediaHtml = `<img src="${url}" alt="${fileName}" onclick="openMediaViewerFromDetails('${entry.id}', ${index})">`;
+                        } else if (mediaType === 'video' || mediaType === 'audio') {
+                            mediaHtml = `<div class="media-icon-placeholder" onclick="openMediaViewerFromDetails('${entry.id}', ${index})"><i class="fas fa-play"></i></div>`;
+                        } else {
+                            mediaHtml = `<div class="media-icon-placeholder" onclick="openMediaViewerFromDetails('${entry.id}', ${index})"><i class="fas fa-file"></i></div>`;
+                        }
+
+                        return `
+                            <div class="media-preview-item">
+                                ${mediaHtml}
+                                <span class="file-name">${fileName}</span>
+                                <button type="button" class="media-delete-btn" onclick="removeMediaFromEntry('${entry.id}', ${index})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <small>Click a file to view, or use the X to delete it. Uploading new files will replace these.</small>
+            `;
+        } else {
+            // Clear the placeholder if there's no media
+            if (existingMediaContainer) {
+                existingMediaContainer.innerHTML = '';
+            }
+        }
+        // --- End New Logic ---
     }, 100);
 }
 
@@ -3219,16 +3854,30 @@ function editVaultEntry(entryId) {
 function deleteVaultEntry(entryId) {
     const vault = vaults.find(v => v.id === currentVaultId);
     if (!vault) return;
-    
     const entry = vault.entries.find(e => e.id === entryId);
     if (!entry) return;
-    
-    entryToDelete = entryId;
-    
-    // Show custom delete modal
-    document.getElementById('deleteMessage').textContent = 
-        `Are you sure you want to delete the entry "${entry.name}"? This action cannot be undone.`;
-    document.getElementById('deleteModal').style.display = 'flex';
+
+    showConfirmDeleteModal(
+        'Confirm Entry Deletion',
+        `Are you sure you want to delete the entry "${entry.name}"? This action cannot be undone.`,
+        () => {
+            const entryIndex = vault.entries.findIndex(e => e.id === entryId);
+            if (entryIndex !== -1) {
+                const entryName = vault.entries[entryIndex].name;
+                vault.entries.splice(entryIndex, 1);
+                vault.stats.totalEntries = vault.entries.length;
+                vault.stats.lastModified = new Date().toISOString();
+                saveVaults();
+                renderVaultTabs();
+                updateVaultHeader(vault);
+                renderVaultEntries();
+                showNotification(`Entry "${entryName}" deleted successfully`, 'success');
+                // Call rendering functions to update counts in real time
+                updateVaultParentTabs();
+                updateVaultChildTabs();
+            }
+        }
+    );
 }
 
 // Confirm delete entry
@@ -3510,33 +4159,6 @@ function deleteVault() {
     );
 }
 
-// Updated deleteVaultEntry function
-function deleteVaultEntry(entryId) {
-    const vault = vaults.find(v => v.id === currentVaultId);
-    if (!vault) return;
-    const entry = vault.entries.find(e => e.id === entryId);
-    if (!entry) return;
-
-    // Use the generic confirm modal
-    showConfirmDeleteModal(
-        'Confirm Entry Deletion',
-        `Are you sure you want to delete the entry "${entry.name}"? This action cannot be undone.`,
-        () => {
-            const entryIndex = vault.entries.findIndex(e => e.id === entryId);
-            if (entryIndex !== -1) {
-                const entryName = vault.entries[entryIndex].name;
-                vault.entries.splice(entryIndex, 1);
-                vault.stats.totalEntries = vault.entries.length;
-                vault.stats.lastModified = new Date().toISOString();
-                saveVaults();
-                renderVaultTabs();
-                updateVaultHeader(vault);
-                renderVaultEntries();
-                showNotification(`Entry "${entryName}" deleted successfully`, 'success');
-            }
-        }
-    );
-}
 
 // Save custom vault entry
 function saveCustomVaultEntry(event) {

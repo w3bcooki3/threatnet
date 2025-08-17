@@ -5569,3 +5569,426 @@ select:focus {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
+
+/*------------------------------------------
+   Multi-vault image handling styles
+   ----------------------------------------- */
+
+   /* Styling for the compact image gallery on the card */
+.media-gallery-carousel {
+    position: relative;
+    width: 100%;
+    height: 250px; /* Fixed height for consistency */
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    background: #1a1a2e; /* Dark placeholder background */
+}
+
+.media-gallery-carousel img {
+    display: none; /* Hide all images by default */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Contain image within the fixed height */
+    transition: opacity 0.3s ease;
+}
+
+.media-gallery-carousel img.active {
+    display: block; /* Show only the active image */
+    opacity: 1;
+}
+
+.media-gallery-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.media-gallery-nav-btn:hover {
+    opacity: 1;
+}
+
+.media-gallery-nav-btn.prev { left: 10px; }
+.media-gallery-nav-btn.next { right: 10px; }
+.media-gallery-popout-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+.media-gallery-popout-btn:hover {
+    opacity: 1;
+}
+
+/* Modal for the full image viewer */
+.image-viewer-modal {
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.image-viewer-body {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0;
+}
+
+#imageViewerContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#viewerImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#viewerControls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+#viewerControls .nav-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 3rem;
+    cursor: pointer;
+    pointer-events: all;
+    transition: color 0.3s ease;
+    padding: 0 1rem;
+}
+
+#viewerControls .nav-btn:hover {
+    color: white;
+}
+
+.image-viewer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+/* New styles for the image gallery inside the details modal */
+.entry-details-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.entry-details-gallery img {
+    width: 100%;
+    height: 100px; /* Fixed height for a uniform grid */
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.entry-details-container .details-section {
+    word-break: break-all;
+}
+
+.image-viewer-body #viewerMedia {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.entry-details-gallery img:hover {
+    border-color: #ff4757;
+    transform: scale(1.05);
+}
+
+.media-preview-placeholder {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.media-preview-placeholder i {
+    font-size: 2rem;
+    color: #ff4757;
+    margin-bottom: 0.5rem;
+}
+
+.media-preview-placeholder:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #ff4757;
+}
+
+/* Updated styles for the modal footer buttons */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* --- Multi-Vault Entry Details Modal Styling --- */
+
+
+/* Modal header for consistent design */
+#entryDetailsModal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#entryDetailsModal .modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Main body of the modal with general padding */
+#entryDetailsModal .modal-body {
+    padding: 1.5rem 2rem;
+}
+
+/* Style for each section within the modal */
+.details-section {
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.details-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.details-section h4 {
+    color: #ff4757;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.details-section p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Styling for the type and priority badges at the top */
+.entry-type-header {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.entry-type-badge, .entry-priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+    background: rgba(255, 71, 87, 0.2);
+}
+
+.entry-priority-badge {
+    background: rgba(255, 193, 7, 0.2);
+}
+
+/* Styling for the dynamic data fields */
+.dynamic-data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.dynamic-field strong {
+    color: #ffffff;
+}
+
+/* Styling for the image gallery inside the modal */
+.entry-details-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.entry-details-gallery img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.entry-details-gallery img:hover {
+    border-color: #ff4757;
+    transform: scale(1.05);
+}
+
+/* Styling for the modal footer buttons */
+#entryDetailsModal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Fix for image size in the edit modal */
+.existing-media-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+    padding-top: 0.5rem;
+}
+
+.media-preview-item {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.media-preview-item img,
+.media-preview-item .media-icon-placeholder {
+    width: 100%;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.media-preview-item .media-icon-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.media-preview-item .file-name {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.5rem;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.media-delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.media-delete-btn:hover {
+    background: #c82333;
+}
+
+/* Styling for video and audio players in the card preview */
+.media-preview-container video,
+.media-preview-container audio {
+    width: 100%;
+    height: 150px; /* Fixed height for consistency */
+    background: #0a0a0f;
+    border-radius: 8px;
+}
+
+/* Styling for the audio player */
+.media-preview-container audio {
+    height: 40px; /* Smaller height for audio */
+}
+
+/* Styling for placeholder icons for media in the carousel */
+.media-thumbnail-placeholder {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: opacity 0.3s ease;
+}
+
+.media-thumbnail-placeholder.active {
+    display: flex;
+}
