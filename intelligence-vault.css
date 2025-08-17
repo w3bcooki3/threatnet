@@ -272,6 +272,8 @@
     justify-content: space-between;
     box-sizing: border-box; /* Crucial for grid item responsiveness */
     min-width: 0; /* Allow card content to shrink without overflow */
+    word-break: break-all;
+
 }
 
 .tool-card::before {
@@ -368,8 +370,18 @@
     align-items: center;
     gap: 0.6rem;
     transition: all 0.3s ease;
-    word-break: break-all; /* Allow long URLs to break */
+    overflow-wrap: break-word; 
+    word-break: break-all;
 }
+
+
+/* Fix for dynamic data URLs in the multi-vault entries */
+.entry-dynamic-data .dynamic-field a {
+    /* Ensures that long URLs and text wrap within the dynamic field */
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
 
 .tool-url a:hover {
     color: #ff4757;

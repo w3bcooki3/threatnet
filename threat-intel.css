@@ -349,47 +349,18 @@
     gap: 1rem;
 }
 
-/* News feed list for the widget */
-.news-feed-item {
-    text-decoration: none;
-    color: #fff;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.3s ease;
-    display: block;
-}
-
-.news-feed-item:last-child {
-    border-bottom: none;
-}
-
-.news-feed-item:hover {
-    color: #ff6b7a;
-    transform: translateX(5px);
-}
-
-.news-item-title {
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0;
-    line-height: 1.4;
-}
-
-.news-item-source {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-/* NEW CSS for unified threat intel grid */
+/* NEW CSS for unified threat intel grid and list views */
 .threat-intel-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2rem;
     align-items: stretch;
+}
+
+.threat-intel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .threat-intel-article-card {
@@ -526,6 +497,10 @@
     transform: translateX(5px);
 }
 
+.news-item-details {
+    flex: 1;
+}
+
 .news-item-title {
     font-size: 1.1rem;
     font-weight: 600;
@@ -543,6 +518,7 @@
 
 .news-item-actions {
     flex-shrink: 0;
+    margin-left: 1rem;
 }
 
 .news-item-action {
@@ -615,6 +591,8 @@
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 5;
 }
 
 .ioc-main-search-bar input {
@@ -671,4 +649,96 @@
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: rgba(255, 255, 255, 0.8);
+}
+
+.ioc-platform-selector {
+    position: relative;
+    min-width: 150px;
+}
+
+.selector-toggle-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.selector-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.selector-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+.selector-toggle-btn[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+.platform-dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 10;
+}
+
+.platform-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.platform-actions .btn-secondary {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.platform-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.platform-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.platform-checkbox-label:hover {
+    color: #fff;
+}
+
+.platform-checkbox-label input[type="checkbox"] {
+    cursor: pointer;
 }
