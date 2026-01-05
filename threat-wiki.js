@@ -16,26 +16,38 @@ class ThreatWikiManager {
         this.init();
     }
 
-    init() {
-        this.loadRules();
+    async init() {
+        await this.loadRules(); // Wait for data before rendering
         this.setupEventListeners();
         this.renderRules();
         this.updateStats();
     }
 
-    loadRules() {
-        const savedRules = localStorage.getItem('threatWikiRules');
-        if (savedRules) {
-            this.rules = JSON.parse(savedRules);
-        } else {
-            // Initialize with sample rules
+    async loadRules() {
+        try {
+            const savedRules = await localforage.getItem('threatWikiRules');
+            if (savedRules) {
+                // localForage automatically handles JSON.parse
+                this.rules = savedRules;
+            } else {
+                this.rules = this.getSampleRules();
+                await this.saveRules();
+            }
+        } catch (err) {
+            console.error("Error loading rules:", err);
             this.rules = this.getSampleRules();
-            this.saveRules();
         }
     }
 
-    saveRules() {
-        localStorage.setItem('threatWikiRules', JSON.stringify(this.rules));
+    async saveRules() {
+        try {
+            await localforage.setItem('threatWikiRules', this.rules);
+        } catch (err) {
+            console.error("Storage Quota Exceeded or Error:", err);
+            if (typeof window.showNotification === 'function') {
+                window.showNotification("Error saving rules to local database", "error");
+            }
+        }
     }
 
     setupEventListeners() {
@@ -138,7 +150,7 @@ class ThreatWikiManager {
 
     createRuleCard(rule) {
         return `
-            <div class="wiki-rule-card" onclick="threatWikiManager.showRuleDetail('${rule.id}')">
+            <div class="wiki-rule-card" data-severity="${rule.severity}" onclick="threatWikiManager.showRuleDetail('${rule.id}')">
                 <div class="wiki-rule-header">
                     <span class="rule-type-badge ${rule.type}">
                         <i class="fas fa-${rule.type === 'sigma' ? 'file-code' : 'shield-virus'}"></i>

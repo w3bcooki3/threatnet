@@ -592,63 +592,65 @@ class CaseStudiesManager {
         `;
     }
 
-    saveCaseStudiesToStorage() {
-        localStorage.setItem('threatnet_case_studies', JSON.stringify(this.caseStudies));
+    async loadCaseStudiesFromStorage() {
+        try {
+            const stored = await localforage.getItem('threatnet_case_studies');
+            
+            if (stored) {
+                // Data is already an Object/Array, no need for JSON.parse
+                this.caseStudies = stored;
+            } else {
+                // Initial dummy data
+                this.caseStudies = [
+                    {
+                        id: 1,
+                        title: "APT28's Spear-Phishing Tactics Exposed",
+                        source: "Mandiant Blog",
+                        author: "Security Research Team",
+                        url: "https://www.mandiant.com/resources/blog/apt28-spear-phishing-tactics",
+                        category: "apt",
+                        preview: "Detailed analysis of recent spear-phishing campaigns attributed to APT28...",
+                        tags: ["apt", "phishing", "russia", "threat intelligence"],
+                        notes: "Good overview of their recent activities.",
+                        dateAdded: "2024-03-15",
+                        dateModified: "2024-03-15",
+                        pinned: true,
+                        starred: false,
+                        preAdded: true
+                    },
+                    {
+                        id: 2,
+                        title: "OSINT for Financial Investigations",
+                        source: "OSINT Today",
+                        author: "Jane Analyst",
+                        url: "https://osint.today/financial-investigations-money-trail",
+                        category: "financial-osint",
+                        preview: "Exploration of open-source intelligence techniques for tracking financial flows...",
+                        tags: ["osint", "finance", "cryptocurrency", "investigation"],
+                        notes: "Excellent practical tips.",
+                        dateAdded: "2024-01-20",
+                        dateModified: "2024-01-20",
+                        pinned: false,
+                        starred: true,
+                        preAdded: true
+                    }
+                ];
+                await this.saveCaseStudiesToStorage();
+            }
+            // Important: Re-render after data is loaded
+            this.filterCaseStudies();
+            this.updateCaseStudiesStats();
+        } catch (err) {
+            console.error("Failed to load case studies:", err);
+        }
     }
 
-    loadCaseStudiesFromStorage() {
-        const stored = localStorage.getItem('threatnet_case_studies');
-        this.caseStudies = stored ? JSON.parse(stored) : [
-            // Initial dummy data for demonstration
-            {
-                id: 1,
-                title: "APT28's Spear-Phishing Tactics Exposed",
-                source: "Mandiant Blog",
-                author: "Security Research Team",
-                url: "https://www.mandiant.com/resources/blog/apt28-spear-phishing-tactics",
-                category: "apt",
-                preview: "Detailed analysis of recent spear-phishing campaigns attributed to APT28, focusing on their evolving TTPs and targeting vectors. Includes IOCs and recommendations for defense.",
-                tags: ["apt", "phishing", "russia", "threat intelligence"],
-                notes: "Good overview of their recent activities. Check out the custom malware mentioned.",
-                dateAdded: "2024-03-15",
-                dateModified: "2024-03-15",
-                pinned: true,
-                starred: false,
-                preAdded: true // Indicates this is dummy data
-            },
-            {
-                id: 2,
-                title: "OSINT for Financial Investigations: Following the Money Trail",
-                source: "OSINT Today",
-                author: "Jane Analyst",
-                url: "https://osint.today/financial-investigations-money-trail",
-                category: "financial-osint",
-                preview: "Exploration of open-source intelligence techniques for tracking financial flows, including cryptocurrency analysis, corporate registry lookups, and public financial disclosures. Practical tips for investigators.",
-                tags: ["osint", "finance", "cryptocurrency", "investigation"],
-                notes: "Excellent practical tips for tracing illicit funds. Need to explore the recommended tools further.",
-                dateAdded: "2024-01-20",
-                dateModified: "2024-01-20",
-                pinned: false,
-                starred: true,
-                preAdded: true // Indicates this is dummy data
-            },
-            {
-                id: 3,
-                title: "Understanding Ransomware Attack Chains: A Case Study",
-                source: "CISA",
-                author: "Cybersecurity & Infrastructure Security Agency",
-                url: "https://www.cisa.gov/uscert/ncas/alerts/aa20-295a",
-                category: "incident-response",
-                preview: "This alert details the typical stages of a ransomware attack, using recent incidents as examples. It provides guidance for organizations to defend against and respond to ransomware threats effectively.",
-                tags: ["ransomware", "cybersecurity", "incident response", "threats"],
-                notes: "Solid, actionable advice. Useful for tabletop exercises.",
-                dateAdded: "2023-08-01",
-                dateModified: "2023-08-01",
-                pinned: false,
-                starred: false,
-                preAdded: true // Indicates this is dummy data
-            }
-        ];
+    async saveCaseStudiesToStorage() {
+        try {
+            await localforage.setItem('threatnet_case_studies', this.caseStudies);
+        } catch (err) {
+            this.showNotification("Error: Local storage limit reached even with IndexedDB.", "error");
+        }
     }
 
     // Utility function to format dates

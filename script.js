@@ -501,16 +501,31 @@ function showConfirmDeleteModal(title, message, callback) {
 window.showConfirmDeleteModal = showConfirmDeleteModal; // Make it globally accessible
 
 
-// Function to save intelligence tools to local storage
-function saveTools() {
-    localStorage.setItem('intelligenceTools', JSON.stringify(intelligenceTools));
+// Function to save intelligence tools to local storage (IndexedDB)
+async function saveTools() {
+    try {
+        // localForage automatically handles JSON.stringify
+        await localforage.setItem('intelligenceTools', intelligenceTools);
+    } catch (err) {
+        console.error("Error saving intelligence tools:", err);
+        showNotification("Failed to save tools to local database", "error");
+    }
 }
 
-// Function to load intelligence tools from local storage
-function loadTools() {
-    const savedTools = localStorage.getItem('intelligenceTools');
-    if (savedTools) {
-        intelligenceTools = JSON.parse(savedTools);
+// Function to load intelligence tools from local storage (IndexedDB)
+async function loadTools() {
+    try {
+        const savedTools = await localforage.getItem('intelligenceTools');
+        if (savedTools) {
+            // localForage automatically handles JSON.parse
+            intelligenceTools = savedTools;
+        } else {
+            // If no data exists in IndexedDB yet, save the hardcoded 
+            // default list so it's ready for future edits
+            await saveTools();
+        }
+    } catch (err) {
+        console.error("Error loading intelligence tools:", err);
     }
 }
 
@@ -1673,18 +1688,28 @@ const entryTypeFields = {
     }
 };
 
-// Load vaults from localStorage
-function loadVaults() {
-    const savedVaults = localStorage.getItem('investigationVaults');
-    if (savedVaults) {
-        vaults = JSON.parse(savedVaults);
+// Load vaults from IndexedDB
+async function loadVaults() {
+    try {
+        const savedVaults = await localforage.getItem('investigationVaults');
+        if (savedVaults) {
+            vaults = savedVaults;
+        }
+        // renderVaultTabs must wait until the data is actually loaded
+        renderVaultTabs();
+    } catch (err) {
+        console.error("Error loading vaults:", err);
     }
-    renderVaultTabs();
 }
 
-// Save vaults to localStorage
-function saveVaults() {
-    localStorage.setItem('investigationVaults', JSON.stringify(vaults));
+// Save vaults to IndexedDB
+async function saveVaults() {
+    try {
+        await localforage.setItem('investigationVaults', vaults);
+    } catch (err) {
+        console.error("Error saving vaults:", err);
+        showNotification("Critical: Local database is full or inaccessible.", "error");
+    }
 }
 
 // Show create vault modal
@@ -3535,19 +3560,26 @@ function showNotification(message, type = 'info') {
 }
 
 // Initialize the application
-function initializeApp() {
-    loadTools();
-    if (typeof loadVaults === 'function') { // Use loadVaults instead of loadVaultEntriesFromStorage
-        loadVaults();
+async function initializeApp() {
+    // We wait for tools to load before proceeding
+    await loadTools();
+
+    if (typeof loadVaults === 'function') {
+        // Assuming loadVaults is also updated to be async
+        await loadVaults();
     }
 
     // Set up form submission handlers
-    // The previous `vault-entry-form` event listener here is for a form that doesn't exist.
-    // The `saveVaultEntry` function is called directly by the `addEntryForm`'s `onsubmit` handler.
-    // So, this part can be removed or ensure the element ID is correct if you have such a form.
+    // (Your existing logic for event listeners stays here)
 
     // Load dashboard by default
     showSection('dashboard');
+    
+    // If you have a function that renders the tools on the dashboard, 
+    // call it here AFTER loadTools() has finished.
+    if (typeof renderTools === 'function') {
+        renderTools(intelligenceTools);
+    }
 }
 
 // Make functions globally available
@@ -3628,8 +3660,9 @@ document.dispatchEvent(new Event('multiVaultManagerReady'));
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 // Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    loadVaults();
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadTools();
+    renderTools(intelligenceTools);
     // Load initial dashboard
     loadDashboard();
     
