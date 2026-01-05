@@ -10,7 +10,13 @@ class InvestigationNotes {
         this.editingNoteId = null;
         this.currentDetailNote = null;
         
-        this.loadNotes();
+        // Instead of calling loadNotes/initializeNotes directly, 
+        // we call an async init method.
+        this.init();
+    }
+
+    async init() {
+        await this.loadNotes(); // Wait for data from IndexedDB
         this.initializeNotes();
     }
 
@@ -603,13 +609,25 @@ class InvestigationNotes {
     }
 
     // Storage methods
-    loadNotes() {
-        const stored = localStorage.getItem('investigation-notes');
-        this.notes = stored ? JSON.parse(stored) : [];
+    async loadNotes() {
+        try {
+            const stored = await localforage.getItem('investigation-notes');
+            // localForage returns the object directly, no JSON.parse needed
+            this.notes = stored || [];
+        } catch (err) {
+            console.error("Error loading notes from IndexedDB:", err);
+            this.notes = [];
+        }
     }
 
-    saveNotes() {
-        localStorage.setItem('investigation-notes', JSON.stringify(this.notes));
+    async saveNotes() {
+        try {
+            // localForage handles the serialization automatically
+            await localforage.setItem('investigation-notes', this.notes);
+        } catch (err) {
+            console.error("Error saving notes:", err);
+            this.showNotification("Critical: Could not save notes to local database", "error");
+        }
     }
 
     // Show notification

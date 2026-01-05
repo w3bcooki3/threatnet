@@ -59,34 +59,29 @@ class BlueTeamPlaybook {
         }
     }
 
-    // --- Data Management (localStorage & Initial Load) ---
-    loadPlaybookData() {
-        const stored = localStorage.getItem('blueteam-playbook-data');
-        this.playbookData = stored ? JSON.parse(stored) : [];
-
-        // If no data in localStorage, attempt to load initial data from JSON file
-        if (!stored || this.playbookData.length === 0) {
-            console.log("No playbook data found in localStorage. Attempting to load initial sample data.");
-            this.loadInitialSampleData();
+    // --- Data Management (IndexDB) ---
+    async loadPlaybookData() {
+        try {
+            const savedData = await localforage.getItem('blueteam-playbook-data');
+            if (savedData) {
+                this.playbookData = savedData;
+            } else {
+                const response = await fetch('blueteam-playbook-initial-data.json');
+                this.playbookData = await response.json();
+                await this.savePlaybookData();
+            }
+            this.renderSidebar();
+            this.updateMainContentHeader();
+        } catch (error) {
+            console.error("Failed to load playbook data:", error);
         }
+    }
 
-        // Ensure IDs are numbers and nested arrays/objects exist
-        this.playbookData.forEach(chapter => {
-            chapter.id = Number(chapter.id);
-            chapter.sections = chapter.sections || [];
-            chapter.sections.forEach(section => {
-                section.id = Number(section.id);
-                section.entries = section.entries || [];
-                section.entries.forEach(entry => {
-                    entry.id = Number(entry.id);
-                });
-            });
-        });
-
-        // Automatically select the first chapter if available on load
-        if (this.playbookData.length > 0 && !this.currentChapterId) {
-            // Only select if there's no chapter currently active (e.g., after initial load or a full delete)
-            this.selectChapter(this.playbookData[0].id);
+    async savePlaybookData() {
+        try {
+            await localforage.setItem('blueteam-playbook-data', this.playbookData);
+        } catch (err) {
+            this.showNotification("Failed to save playbook changes locally", "error");
         }
     }
 

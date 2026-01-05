@@ -691,3 +691,31 @@
         align-items: flex-start;
     }
 }
+
+
+
+/* Show rule actions only on hover */
+.wiki-rule-actions {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: all 0.3s ease;
+}
+
+.wiki-rule-card:hover .wiki-rule-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+.threat-wiki-controls,
+.wiki-category-tabs {
+    position: sticky;
+    top: 80px;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+}
+.wiki-rule-card[data-severity="critical"] {
+    box-shadow: 0 0 20px rgba(220,53,69,0.35);
+}
+
+.wiki-rule-card[data-severity="high"] {
+    box-shadow: 0 0 16px rgba(255,107,122,0.25);
+}
