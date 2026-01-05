@@ -387,6 +387,7 @@ function showSection(sectionName) {
         } else if (sectionName === 'multi-vault') { // Re-render multi-vault when navigating to it directly
             renderVaultTabs();
         }
+        
     }
 
     // Update nav links - find the nav item that corresponds to this section

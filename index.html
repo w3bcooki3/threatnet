@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="threat-intel.css">
     <link rel="stylesheet" href="cheatsheets.css">
     <link rel="stylesheet" href="tracelink.css">
+    <link rel="stylesheet" href="threat-wiki.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
@@ -68,6 +69,11 @@
                 <a href="#" class="nav-item" onclick="showSection('multi-vault')">
                     <i class="fas fa-archive"></i>
                     <span>Multi-Vault</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('threat-wiki')">
+                    <i class="fas fa-shield-virus"></i>
+                    <span>Threat Wiki</span>
                     <div class="nav-indicator"></div>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('tracelink')"> 
@@ -488,7 +494,7 @@
                         <div class="vault-filters">
                             <select id="vaultEntryTypeFilter" onchange="filterVaultEntries()">
                                 <option value="all">All Entry Types</option>
-                                
+                                <option value="ioc">IOC Collection (Bulk Import)</option>
                                 <option value="tool">Tool</option>
                                 <option value="email">Email Address</option>
                                 <option value="phone">Phone Number</option>
@@ -1680,6 +1686,244 @@
             </div>
             <!--------------------Tracelink End --------------->
 
+            <!------------Threat Hunting wiki ----------------->
+            <section id="threat-wiki" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Threat Wiki</h1>
+                        <p class="header-subtitle">Professional threat hunting rules database - Sigma & YARA</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-secondary" onclick="threatWikiManager.exportAllRules()">
+                            <i class="fas fa-file-export"></i>
+                            Export All
+                        </button>
+                        <button class="btn-primary" onclick="threatWikiManager.showAddRuleModal()">
+                            <i class="fas fa-plus"></i>
+                            Add New Rule
+                        </button>
+                    </div>
+                </div>
+
+                <div class="threat-wiki-container">
+                    <!-- Stats Header -->
+                    <div class="threat-wiki-header">
+                        <div class="threat-wiki-stats">
+                            <div class="wiki-stat-card">
+                                <div class="wiki-stat-value" id="sigma-count">0</div>
+                                <div class="wiki-stat-label">Sigma Rules</div>
+                            </div>
+                            <div class="wiki-stat-card">
+                                <div class="wiki-stat-value" id="yara-count">0</div>
+                                <div class="wiki-stat-label">YARA Rules</div>
+                            </div>
+                            <div class="wiki-stat-card">
+                                <div class="wiki-stat-value" id="total-rules-count">0</div>
+                                <div class="wiki-stat-label">Total Rules</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="threat-wiki-controls">
+                        <div class="wiki-search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="wiki-search" placeholder="Search rules by name, description, or tags...">
+                        </div>
+                        <div class="wiki-filters">
+                            <select id="wiki-type-filter" class="wiki-filter-select">
+                                <option value="all">All Types</option>
+                                <option value="sigma">Sigma Rules</option>
+                                <option value="yara">YARA Rules</option>
+                            </select>
+                            <select id="wiki-severity-filter" class="wiki-filter-select">
+                                <option value="all">All Severities</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                            <select id="wiki-category-filter" class="wiki-filter-select">
+                                <option value="all">All Categories</option>
+                                <option value="malware">Malware Detection</option>
+                                <option value="apt">APT Activity</option>
+                                <option value="ransomware">Ransomware</option>
+                                <option value="persistence">Persistence</option>
+                                <option value="credential-access">Credential Access</option>
+                                <option value="lateral-movement">Lateral Movement</option>
+                                <option value="exfiltration">Exfiltration</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Category Tabs -->
+                    <div class="wiki-category-tabs">
+                        <div class="wiki-category-tab active" data-category="all" onclick="threatWikiManager.switchCategory('all')">
+                            <i class="fas fa-th-large"></i>
+                            <span>All Rules</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="malware" onclick="threatWikiManager.switchCategory('malware')">
+                            <i class="fas fa-virus"></i>
+                            <span>Malware</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="apt" onclick="threatWikiManager.switchCategory('apt')">
+                            <i class="fas fa-user-secret"></i>
+                            <span>APT</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="ransomware" onclick="threatWikiManager.switchCategory('ransomware')">
+                            <i class="fas fa-lock"></i>
+                            <span>Ransomware</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="persistence" onclick="threatWikiManager.switchCategory('persistence')">
+                            <i class="fas fa-anchor"></i>
+                            <span>Persistence</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="credential-access" onclick="threatWikiManager.switchCategory('credential-access')">
+                            <i class="fas fa-key"></i>
+                            <span>Credential Access</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="lateral-movement" onclick="threatWikiManager.switchCategory('lateral-movement')">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>Lateral Movement</span>
+                            <span class="category-count">0</span>
+                        </div>
+                        <div class="wiki-category-tab" data-category="exfiltration" onclick="threatWikiManager.switchCategory('exfiltration')">
+                            <i class="fas fa-share-square"></i>
+                            <span>Exfiltration</span>
+                            <span class="category-count">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Rules Grid -->
+                    <div class="threat-wiki-grid" id="threat-wiki-grid">
+                        <!-- Rules will be rendered here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rule Detail Modal -->
+            <div id="wiki-detail-modal" class="modal wiki-detail-modal">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3>Rule Details</h3>
+                        <button class="modal-close" onclick="threatWikiManager.closeDetailModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="wiki-detail-body">
+                        <!-- Detail content will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add/Edit Rule Modal -->
+            <div id="wiki-add-rule-modal" class="modal">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 id="wiki-modal-title">Add New Rule</h3>
+                        <button class="modal-close" onclick="threatWikiManager.closeAddRuleModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="wiki-rule-form" onsubmit="threatWikiManager.saveRule(event)">
+                        <div class="modal-body">
+                            <input type="hidden" id="wiki-rule-id" name="rule-id">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="rule-type">Rule Type *</label>
+                                    <select id="rule-type" name="rule-type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="sigma">Sigma Rule</option>
+                                        <option value="yara">YARA Rule</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rule-severity">Severity *</label>
+                                    <select id="rule-severity" name="rule-severity" required>
+                                        <option value="">Select Severity</option>
+                                        <option value="critical">Critical</option>
+                                        <option value="high">High</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rule-title">Rule Title *</label>
+                                <input type="text" id="rule-title" name="rule-title" required placeholder="e.g., Suspicious PowerShell Execution">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rule-description">Description *</label>
+                                <textarea id="rule-description" name="rule-description" rows="3" required placeholder="Describe what this rule detects..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rule-code">Rule Code *</label>
+                                <textarea id="rule-code" name="rule-code" class="code-editor" required placeholder="Paste your Sigma or YARA rule code here..."></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="rule-category">Category *</label>
+                                    <select id="rule-category" name="rule-category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="malware">Malware Detection</option>
+                                        <option value="apt">APT Activity</option>
+                                        <option value="ransomware">Ransomware</option>
+                                        <option value="persistence">Persistence</option>
+                                        <option value="credential-access">Credential Access</option>
+                                        <option value="lateral-movement">Lateral Movement</option>
+                                        <option value="exfiltration">Exfiltration</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rule-technique">MITRE ATT&CK Technique *</label>
+                                    <input type="text" id="rule-technique" name="rule-technique" required placeholder="e.g., T1059.001">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="rule-author">Author</label>
+                                    <input type="text" id="rule-author" name="rule-author" placeholder="Rule author name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rule-platform">Platform</label>
+                                    <input type="text" id="rule-platform" name="rule-platform" placeholder="e.g., Windows, Linux, Multi-Platform">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rule-tags">Tags (comma separated)</label>
+                                <input type="text" id="rule-tags" name="rule-tags" placeholder="e.g., powershell, execution, suspicious">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rule-references">References (one per line)</label>
+                                <textarea id="rule-references" name="rule-references" rows="3" placeholder="https://attack.mitre.org/..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="threatWikiManager.closeAddRuleModal()">Cancel</button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i>
+                                Save Rule
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!------------Threat Hunting wiki End ------------->
+
             <footer class="app-footer">
                 <div class="footer-content">
                     <div class="footer-bottom">
@@ -1899,6 +2143,7 @@
                         <label for="entryType">Entry Type *</label>
                         <select id="entryType" name="entryType" required onchange="updateEntryFields()">
                             <option value="">Select Entry Type</option>
+                            <option value="ioc">IOC Collection (Bulk Import)</option>
                             <option value="tool">Tool</option>
                             <option value="email">Email Address</option>
                             <option value="phone">Phone Number</option>
@@ -2502,6 +2747,7 @@
     <script src="threat-intel.js"></script>
     <script src="cheatsheets.js"></script>
     <script src="tracelink.js"></script>
+    <script src="threat-wiki.js"></script>
 
 </body>
 </html>
