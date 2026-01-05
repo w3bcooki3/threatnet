@@ -173,7 +173,6 @@ class ThreatIntel {
                 { name: 'Hacker News (Feedburner)', url: 'https://feeds.feedburner.com/TheHackersNews' },
                 { name: 'BleepingComputer', url: 'https://www.bleepingcomputer.com/feed/' },
                 { name: 'KrebsOnSecurity', url: 'https://krebsonsecurity.com/feed/' },
-                { name: 'SecurityWeek', url: 'https://www.securityweek.com/feed/' },
                 { name: 'SANS Internet Storm Center', url: 'https://isc.sans.edu/rssfeed.xml' },
                 { name: 'Microsoft Security Blog', url: 'https://www.microsoft.com/en-us/security/blog/feed/' },
                 { name: 'Google Cybersecurity Blog', url: 'https://security.googleblog.com/feeds/posts/default' }
