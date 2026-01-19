@@ -1,103 +1,5 @@
 // Intelligence Vault Data
-let intelligenceTools = [
-    // General Tools
-    {
-        id: 1,
-        name: "Maltego",
-        url: "https://www.maltego.com",
-        parentCategory: "general",
-        childCategory: "all-tools",
-        description: "Comprehensive link analysis and data mining application for gathering and connecting information for investigative tasks.",
-        tags: ["investigation", "link-analysis", "osint", "commercial"],
-        isPinned: false,
-        isStarred: true,
-        dateAdded: "2024-01-15"
-    },
-    {
-        id: 2,
-        name: "Shodan",
-        url: "https://www.shodan.io",
-        parentCategory: "osint",
-        childCategory: "search-engines",
-        description: "Search engine for Internet-connected devices. Find exposed databases, webcams, industrial systems, and more.",
-        tags: ["iot", "search", "reconnaissance", "devices"],
-        isPinned: true,
-        isStarred: true,
-        dateAdded: "2024-01-14"
-    },
-    {
-        id: 3,
-        name: "VirusTotal",
-        url: "https://www.virustotal.com",
-        parentCategory: "malware-analysis",
-        childCategory: "file-analysis",
-        description: "Free online service that analyzes files and URLs for viruses, worms, trojans and other malicious content.",
-        tags: ["malware", "analysis", "free", "hash-lookup"],
-        isPinned: true,
-        isStarred: false,
-        dateAdded: "2024-01-13"
-    },
-    {
-        id: 4,
-        name: "Wireshark",
-        url: "https://www.wireshark.org",
-        parentCategory: "network-security",
-        childCategory: "packet-analysis",
-        description: "World's foremost and widely-used network protocol analyzer for troubleshooting, analysis, and protocol development.",
-        tags: ["network", "packet-capture", "analysis", "free", "open-source"],
-        isPinned: false,
-        isStarred: true,
-        dateAdded: "2024-01-12"
-    },
-    {
-        id: 5,
-        name: "Autopsy",
-        url: "https://www.autopsy.com",
-        parentCategory: "digital-forensics",
-        childCategory: "disk-analysis",
-        description: "Digital forensics platform and graphical interface to The Sleuth Kit and other digital forensics tools.",
-        tags: ["forensics", "disk-analysis", "free", "open-source"],
-        isPinned: false,
-        isStarred: false,
-        dateAdded: "2024-01-11"
-    },
-    {
-        id: 6,
-        name: "MISP",
-        url: "https://www.misp-project.org",
-        parentCategory: "threat-intelligence",
-        childCategory: "threat-sharing",
-        description: "Open source threat intelligence platform for sharing, storing and correlating Indicators of Compromise.",
-        tags: ["threat-intel", "ioc", "sharing", "open-source"],
-        isPinned: true,
-        isStarred: true,
-        dateAdded: "2024-01-10"
-    },
-    {
-        id: 7,
-        name: "TheHive",
-        url: "https://thehive-project.org",
-        parentCategory: "incident-response",
-        childCategory: "case-management",
-        description: "Scalable, open source and free Security Incident Response Platform designed to make life easier for SOCs and CSIRTs.",
-        tags: ["incident-response", "case-management", "open-source", "soc"],
-        isPinned: false,
-        isStarred: true,
-        dateAdded: "2024-01-09"
-    },
-    {
-        id: 8,
-        name: "Nessus",
-        url: "https://www.tenable.com/products/nessus",
-        parentCategory: "compliance",
-        childCategory: "vulnerability-assessment",
-        description: "Comprehensive vulnerability scanner that identifies vulnerabilities, configuration issues, and malware.",
-        tags: ["vulnerability", "scanning", "compliance", "commercial"],
-        isPinned: false,
-        isStarred: false,
-        dateAdded: "2024-01-08"
-    }
-];
+let intelligenceTools = [];
 
 // Parent-Child Category Mapping
 const categoryMapping = {
@@ -512,20 +414,29 @@ async function saveTools() {
     }
 }
 
-// Function to load intelligence tools from local storage (IndexedDB)
+// Updated function to load tools from JSON file or Local Storage
 async function loadTools() {
     try {
+        // 1. Try to get saved tools from the local database (IndexedDB)
         const savedTools = await localforage.getItem('intelligenceTools');
-        if (savedTools) {
-            // localForage automatically handles JSON.parse
+
+        if (savedTools && savedTools.length > 0) {
+            // If the user has local data, use it
             intelligenceTools = savedTools;
         } else {
-            // If no data exists in IndexedDB yet, save the hardcoded 
-            // default list so it's ready for future edits
+            // 2. If no local data exists, fetch the default tools from tools.json
+            const response = await fetch('tools.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            intelligenceTools = await response.json();
+
+            // 3. Save these default tools to local storage for future persistence
             await saveTools();
         }
     } catch (err) {
         console.error("Error loading intelligence tools:", err);
+        showNotification("Failed to load tools from external file.", "error");
     }
 }
 
