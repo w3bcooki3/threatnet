@@ -591,3 +591,21 @@ document.addEventListener('DOMContentLoaded', () => {
         window.threatWikiManager = threatWikiManager;
     }
 });
+
+// Smooth scroll to top
+const scrollBtn = document.createElement('div');
+scrollBtn.className = 'scroll-to-top';
+scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+document.body.appendChild(scrollBtn);
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) {
+        scrollBtn.classList.add('visible');
+    } else {
+        scrollBtn.classList.remove('visible');
+    }
+});
+
+scrollBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});

@@ -6,9 +6,11 @@ class ThreatIntel {
         this.filterSettings = {
             search: '',
             source: 'all',
-            sort: 'newest'
+            sort: 'newest',
+            category: 'all'
         };
         this.pageSize = 20;
+        this.currentView = 'grid';
 
         this.addFeedModal = document.getElementById('addFeedModal');
         this.addFeedForm = document.getElementById('addFeedForm');
@@ -28,6 +30,17 @@ class ThreatIntel {
         ];
         this.selectedPlatforms = this.loadSelectedPlatforms();
         
+        // Threat categories for better organization
+        this.threatCategories = {
+            'ransomware': { icon: 'fas fa-lock', color: '#dc3545' },
+            'malware': { icon: 'fas fa-virus', color: '#e74c3c' },
+            'phishing': { icon: 'fas fa-fish', color: '#f39c12' },
+            'apt': { icon: 'fas fa-user-secret', color: '#9b59b6' },
+            'vulnerability': { icon: 'fas fa-bug', color: '#e67e22' },
+            'data-breach': { icon: 'fas fa-database', color: '#c0392b' },
+            'zero-day': { icon: 'fas fa-exclamation-triangle', color: '#e74c3c' },
+            'general': { icon: 'fas fa-shield-alt', color: '#3498db' }
+        };
 
         this.initEventListeners();
         this.fetchFeeds();
@@ -60,7 +73,6 @@ class ThreatIntel {
             newsCountSelect.onchange = () => this.updatePageSize();
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             const platformDropdown = document.getElementById('platform-dropdown');
             const toggleBtn = document.querySelector('.selector-toggle-btn');
@@ -81,7 +93,6 @@ class ThreatIntel {
         this.renderArticles(this.articles.slice(0, this.pageSize));
     }
     
-    // Fixed multiSearchIOC function to open multiple tabs.
     multiSearchIOC(ioc) {
         ioc = ioc.trim();
         if (!ioc) {
@@ -95,7 +106,6 @@ class ThreatIntel {
         }
     
         const encodedIoc = encodeURIComponent(ioc);
-
         this.iocPlatforms
             .filter(platform => this.selectedPlatforms.includes(platform.name))
             .forEach(platform => {
@@ -294,8 +304,7 @@ class ThreatIntel {
                         </form>
                         <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
                         <h4>Current Feeds</h4>
-                        <div class="feed-list-container" id="feedListContainer">
-                            </div>
+                        <div class="feed-list-container" id="feedListContainer"></div>
                     </div>
                 </div>
             </div>
@@ -308,6 +317,14 @@ class ThreatIntel {
         const fetchPromises = this.feeds.map(feed => this.fetchSingleFeed(feed));
         
         await Promise.allSettled(fetchPromises);
+        
+        // Enhance articles with detected categories
+        this.articles.forEach(article => {
+            article.category = this.detectCategory(article);
+            article.threatLevel = this.assessThreatLevel(article);
+            article.hasImage = this.validateImageUrl(article.thumbnail);
+        });
+        
         this.articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         this.populateSourceFilter();
         this.renderArticles(this.articles.slice(0, this.pageSize));
@@ -318,7 +335,7 @@ class ThreatIntel {
             const response = await fetch(`${this.rss2jsonApi}${encodeURIComponent(feed.url)}`);
             if (!response.ok) {
                 if (response.status === 422) {
-                    throw new Error(`The RSS2JSON service could not process this feed. It might be an invalid URL or a feed that cannot be converted: ${response.status}`);
+                    throw new Error(`The RSS2JSON service could not process this feed.`);
                 }
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -350,12 +367,40 @@ class ThreatIntel {
                 this.articles.push(...newArticles);
             } else {
                 console.error(`Error fetching feed ${feed.name}:`, data.message || 'Unknown error');
-                this.showNotification(`Failed to load feed: ${feed.name}. ${data.message || 'Check URL or try again later.'}`, 'error');
             }
         } catch (error) {
-            console.error(`Could not fetch RSS feed from ${feed.name} (${feed.url}):`, error);
-            this.showNotification(`Error loading articles from ${feed.name}: ${error.message}.`, 'error');
+            console.error(`Could not fetch RSS feed from ${feed.name}:`, error);
         }
+    }
+
+    detectCategory(article) {
+        const text = (article.title + ' ' + article.description).toLowerCase();
+        
+        if (text.match(/ransomware|lockbit|blackcat|alphv/i)) return 'ransomware';
+        if (text.match(/phishing|spearphishing|credential|social engineering/i)) return 'phishing';
+        if (text.match(/apt|advanced persistent|nation-state|lazarus|fancy bear/i)) return 'apt';
+        if (text.match(/\bcve-|vulnerability|zero-day|0day|exploit/i)) return 'vulnerability';
+        if (text.match(/breach|leak|exposed|stolen data/i)) return 'data-breach';
+        if (text.match(/malware|trojan|backdoor|rat\b/i)) return 'malware';
+        
+        return 'general';
+    }
+
+    assessThreatLevel(article) {
+        const text = (article.title + ' ' + article.description).toLowerCase();
+        
+        if (text.match(/critical|severe|urgent|zero-day|0day|active exploitation/i)) return 'critical';
+        if (text.match(/high|important|significant|widespread/i)) return 'high';
+        if (text.match(/medium|moderate/i)) return 'medium';
+        
+        return 'low';
+    }
+
+    validateImageUrl(url) {
+        if (!url) return false;
+        if (!url.startsWith('http')) return false;
+        // Check if it's a common image format
+        return url.match(/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i) !== null;
     }
 
     populateSourceFilter() {
@@ -424,68 +469,135 @@ class ThreatIntel {
             this.noArticlesState.style.display = 'none';
         }
         
-        const isListView = document.querySelector('.threat-intel-view-toggle .list-btn').classList.contains('active');
+        const isListView = document.querySelector('.threat-intel-view-toggle .list-btn')?.classList.contains('active');
         if (isListView) {
             newsListContainer.className = 'threat-intel-list';
             newsListContainer.innerHTML = articlesToRender.map(article => this.createArticleListItem(article)).join('');
         } else {
-            newsListContainer.className = 'threat-intel-grid';
-            newsListContainer.innerHTML = articlesToRender.map(article => this.createArticleCard(article)).join('');
+            newsListContainer.className = 'threat-intel-grid-enhanced';
+            newsListContainer.innerHTML = articlesToRender.map(article => this.createEnhancedArticleCard(article)).join('');
         }
     }
     
-    createArticleCard(article) {
-        const highlightedTitle = this.highlightKeywords(this.stripHtml(article.title));
-        const highlightedDescription = this.highlightKeywords(this.stripHtml(article.description || '')).substring(0, 200) + '...';
-        const hasImage = article.thumbnail && article.thumbnail !== '';
+    createEnhancedArticleCard(article) {
+        const category = this.threatCategories[article.category] || this.threatCategories['general'];
+        const threatLevelColors = {
+            'critical': '#dc3545',
+            'high': '#e74c3c',
+            'medium': '#f39c12',
+            'low': '#3498db'
+        };
         
-        const firstIoc = this.stripHtml(article.title + ' ' + article.description).match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b|\b([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6})\b|\b[A-Fa-f0-9]{32}\b|\b[A-Fa-f0-9]{40}\b|\b[A-Fa-f0-9]{64}\b/);
-        const viewIocButton = firstIoc ? `
-            <button class="news-item-action" onclick="event.preventDefault(); event.stopPropagation(); window.threatIntel.multiSearchIOC('${firstIoc[0]}');" title="Multi-platform Search">
+        const highlightedTitle = this.highlightKeywords(this.stripHtml(article.title));
+        const cleanDescription = this.stripHtml(article.description || '');
+        const excerpt = cleanDescription.substring(0, 180) + (cleanDescription.length > 180 ? '...' : '');
+        
+        // Extract IOCs for quick search
+        const iocs = this.extractIOCs(article.title + ' ' + article.description);
+        const iocButton = iocs.length > 0 ? `
+            <button class="article-ioc-btn" onclick="event.preventDefault(); event.stopPropagation(); window.threatIntel.multiSearchIOC('${iocs[0]}');" title="Search IOC: ${iocs[0]}">
                 <i class="fas fa-search-plus"></i>
+                <span>Check IOC</span>
             </button>
         ` : '';
 
+        // Generate fallback gradient if no image
+        const fallbackGradient = this.generateGradient(article.category);
+
         return `
-            <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="threat-intel-article-card fade-in ${hasImage ? '' : 'no-image-card'}">
-                ${hasImage ? `
-                    <div class="article-image-container">
-                        <img src="${article.thumbnail}" alt="${this.stripHtml(article.title)} thumbnail" onerror="this.style.display='none';">
-                    </div>` : ''}
-                <div class="article-content">
-                    <div class="article-meta-info">
-                        <strong>${article.source}</strong> • ${this.formatDate(article.pubDate)}
-                    </div>
-                    <h3 class="article-title">${highlightedTitle}</h3>
-                    <p class="article-description">${highlightedDescription}</p>
-                    <div class="card-footer">
-                        <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
-                        ${viewIocButton}
+            <article class="threat-article-card-enhanced" data-category="${article.category}" data-threat="${article.threatLevel}">
+                <div class="article-visual-header" style="${article.hasImage ? `background-image: url('${article.thumbnail}')` : fallbackGradient}">
+                    <div class="article-overlay">
+                        <div class="article-badges">
+                            <span class="category-badge" style="background-color: ${category.color};">
+                                <i class="${category.icon}"></i>
+                                ${article.category.replace('-', ' ')}
+                            </span>
+                            <span class="threat-badge threat-${article.threatLevel}" style="background-color: ${threatLevelColors[article.threatLevel]};">
+                                ${article.threatLevel}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </a>
+                
+                <div class="article-body-enhanced">
+                    <div class="article-meta-row">
+                        <span class="article-source">
+                            <i class="fas fa-rss"></i>
+                            ${article.source}
+                        </span>
+                        <span class="article-date">
+                            <i class="far fa-clock"></i>
+                            ${this.formatDateRelative(article.pubDate)}
+                        </span>
+                    </div>
+                    
+                    <h3 class="article-title-enhanced">${highlightedTitle}</h3>
+                    
+                    <p class="article-excerpt">${excerpt}</p>
+                    
+                    <div class="article-footer-enhanced">
+                        <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="article-read-btn">
+                            <span>Read Full Article</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        ${iocButton}
+                    </div>
+                </div>
+            </article>
         `;
     }
 
-    createArticleListItem(article) {
-        const highlightedTitle = this.highlightKeywords(this.stripHtml(article.title));
-        const firstIoc = this.stripHtml(article.title + ' ' + article.description).match(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b|\b([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6})\b|\b[A-Fa-f0-9]{32}\b|\b[A-Fa-f0-9]{40}\b|\b[A-Fa-f0-9]{64}\b/);
-        const viewIocButton = firstIoc ? `
-            <button class="news-item-action" onclick="event.preventDefault(); event.stopPropagation(); window.threatIntel.multiSearchIOC('${firstIoc[0]}');" title="Multi-platform Search">
-                <i class="fas fa-search-plus"></i>
-            </button>
-        ` : '';
+    generateGradient(category) {
+        const gradients = {
+            'ransomware': 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'malware': 'background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'phishing': 'background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'apt': 'background: linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+            'vulnerability': 'background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+            'data-breach': 'background: linear-gradient(135deg, #ff6a88 0%, #a8edea 100%)',
+            'zero-day': 'background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
+            'general': 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        };
+        return gradients[category] || gradients['general'];
+    }
 
+    extractIOCs(text) {
+        const iocRegex = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b|\b([a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6})\b|\b[A-Fa-f0-9]{32}\b|\b[A-Fa-f0-9]{40}\b|\b[A-Fa-f0-9]{64}\b/g;
+        const matches = this.stripHtml(text).match(iocRegex);
+        return matches ? [...new Set(matches)].slice(0, 3) : [];
+    }
+
+    createArticleListItem(article) {
+        const category = this.threatCategories[article.category] || this.threatCategories['general'];
+        const highlightedTitle = this.highlightKeywords(this.stripHtml(article.title));
+        const iocs = this.extractIOCs(article.title + ' ' + article.description);
+        
         return `
-            <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="news-feed-item fade-in">
-                <div class="news-item-details">
-                    <h4 class="news-item-title">${highlightedTitle}</h4>
-                    <span class="news-item-source">
-                        ${article.source} &bull; ${this.formatDate(article.pubDate)}
-                    </span>
+            <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="threat-list-item-enhanced">
+                <div class="list-item-icon" style="background-color: ${category.color};">
+                    <i class="${category.icon}"></i>
                 </div>
-                <div class="news-item-actions">
-                    ${viewIocButton}
+                
+                <div class="list-item-content">
+                    <h4 class="list-item-title">${highlightedTitle}</h4>
+                    <div class="list-item-meta">
+                        <span class="meta-badge">${article.category.replace('-', ' ')}</span>
+                        <span class="meta-badge threat-${article.threatLevel}">${article.threatLevel}</span>
+                        <span class="meta-divider">•</span>
+                        <span>${article.source}</span>
+                        <span class="meta-divider">•</span>
+                        <span>${this.formatDateRelative(article.pubDate)}</span>
+                    </div>
+                </div>
+                
+                <div class="list-item-actions">
+                    ${iocs.length > 0 ? `
+                        <button class="list-ioc-btn" onclick="event.preventDefault(); event.stopPropagation(); window.threatIntel.multiSearchIOC('${iocs[0]}');" title="Search IOC">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                    ` : ''}
+                    <i class="fas fa-external-link-alt"></i>
                 </div>
             </a>
         `;
@@ -496,13 +608,14 @@ class ThreatIntel {
         const listBtn = document.querySelector('.threat-intel-view-toggle .list-btn');
 
         if (view === 'grid') {
-            gridBtn.classList.add('active');
-            listBtn.classList.remove('active');
+            gridBtn?.classList.add('active');
+            listBtn?.classList.remove('active');
         } else {
-            gridBtn.classList.remove('active');
-            listBtn.classList.add('active');
+            gridBtn?.classList.remove('active');
+            listBtn?.classList.add('active');
         }
-        this.renderArticles(this.articles);
+        this.currentView = view;
+        this.renderArticles(this.articles.slice(0, this.pageSize));
     }
     
     stripHtml(html) {
@@ -512,12 +625,21 @@ class ThreatIntel {
     
     highlightKeywords(text) {
         const keywords = {
-            'apt': 'APT', 'ransomware': 'Ransomware', 'malware': 'Malware', 'phishing': 'Phishing', 'zero-day': 'Zero-Day', 'exploit': 'Exploit', 'cve-': 'CVE', 'lazarus': 'Lazarus Group', 'fancy bear': 'Fancy Bear', 'sandworm': 'Sandworm', 'revil': 'REvil'
+            'apt': 'APT',
+            'ransomware': 'Ransomware',
+            'malware': 'Malware',
+            'phishing': 'Phishing',
+            'zero-day': 'Zero-Day',
+            'exploit': 'Exploit',
+            'cve-': 'CVE',
+            'lazarus': 'Lazarus',
+            'fancy bear': 'Fancy Bear'
         };
+        
         let result = text;
         for (const key in keywords) {
             const regex = new RegExp(`\\b(${key})\\b`, 'gi');
-            result = result.replace(regex, `<span class="intel-badge">${keywords[key]}</span>`);
+            result = result.replace(regex, `<span class="keyword-highlight">${keywords[key]}</span>`);
         }
         return result;
     }
@@ -526,29 +648,31 @@ class ThreatIntel {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return new Date(dateString).toLocaleDateString('en-US', options);
     }
-    
-    showNotification(message, type = 'info') {
-        if (typeof window.showNotification === 'function') {
-            window.showNotification(message, type);
-        } else {
-            console.warn("showNotification function not found. Displaying alert instead:", message);
-            alert(message);
+
+    formatDateRelative(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        return this.formatDate(dateString);
+    }
+
+    showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => document.body.removeChild(notification), 500);
         }
+        , duration);
     }
 }
-
-window.showSection = (() => {
-    const originalShowSection = window.showSection;
-    return (sectionName) => {
-        originalShowSection(sectionName);
-        if (sectionName === 'threat-intel' && window.threatIntel) {
-            window.threatIntel.renderArticles(window.threatIntel.articles);
-        }
-    };
-})();
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof ThreatIntel !== 'undefined') {
-        window.threatIntel = new ThreatIntel();
-    }
-});
+window.threatIntel = new ThreatIntel();
