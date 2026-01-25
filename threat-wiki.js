@@ -475,6 +475,31 @@ class ThreatWikiManager {
         showNotification('Rule exported successfully', 'success');
     }
 
+    exportAllRules() {
+        if (this.rules.length === 0) {
+            showNotification('No rules available to export', 'warning');
+            return;
+        }
+
+        // Convert the entire rules array to a JSON string
+        const dataStr = JSON.stringify(this.rules, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        // Create a temporary link to trigger download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `all_threat_rules_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        showNotification('All rules exported successfully', 'success');
+    }
+
     copyCode(ruleId) {
         const rule = this.rules.find(r => r.id === ruleId);
         if (!rule) return;
@@ -493,7 +518,12 @@ class ThreatWikiManager {
         document.getElementById('yara-count').textContent = yaraCount;
         document.getElementById('total-rules-count').textContent = totalCount;
 
-        // Update category counts
+        // --- ADD THIS LINE BELOW ---
+        const allCountEl = document.querySelector('[data-category="all"] .category-count');
+        if (allCountEl) allCountEl.textContent = totalCount;
+        // ---------------------------
+
+        // Update other category counts
         const categories = ['malware', 'apt', 'ransomware', 'persistence', 'credential-access', 'lateral-movement', 'exfiltration'];
         categories.forEach(cat => {
             const count = this.rules.filter(r => r.category === cat).length;
@@ -508,111 +538,6 @@ class ThreatWikiManager {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    getSampleRules() {
-        return [
-            {
-                id: '1',
-                type: 'sigma',
-                title: 'Suspicious PowerShell Execution',
-                description: 'Detects suspicious PowerShell command line patterns commonly used by attackers',
-                code: `title: Suspicious PowerShell Execution
-status: experimental
-description: Detects suspicious PowerShell command patterns
-references:
-    - https://attack.mitre.org/techniques/T1059/001/
-logsource:
-    category: process_creation
-    product: windows
-detection:
-    selection:
-        Image|endswith: '\\powershell.exe'
-        CommandLine|contains:
-            - 'IEX'
-            - 'Invoke-Expression'
-            - 'DownloadString'
-            - 'EncodedCommand'
-    condition: selection
-falsepositives:
-    - Legitimate admin scripts
-level: high`,
-                severity: 'high',
-                category: 'malware',
-                technique: 'T1059.001',
-                author: 'Security Team',
-                platform: 'Windows',
-                tags: ['powershell', 'execution', 'suspicious'],
-                references: ['https://attack.mitre.org/techniques/T1059/001/'],
-                created: '2024-01-15T10:30:00Z',
-                modified: '2024-01-15T10:30:00Z',
-                starred: true
-            },
-            {
-                id: '2',
-                type: 'yara',
-                title: 'Cobalt Strike Beacon Detection',
-                description: 'Detects Cobalt Strike beacon patterns in memory or files',
-                code: `rule CobaltStrike_Beacon {
-    meta:
-        description = "Detects Cobalt Strike Beacon"
-        author = "Security Team"
-        date = "2024-01-15"
-        reference = "https://www.cobaltstrike.com/"
-    strings:
-        $s1 = "%s.4%08x%08x%08x%08x%08x.%08x%08x%08x%08x%08x%08x%08x.%08x%08x%08x%08x%08x%08x%08x.%08x%08x%08x%08x%08x%08x%08x.%x%x.%s" ascii
-        $s2 = "%02d/%02d/%02d %02d:%02d:%02d" ascii
-        $s3 = "IEX (New-Object Net.Webclient).DownloadString('http://%s:%u%s')" ascii wide
-    condition:
-        2 of them
-}`,
-                severity: 'critical',
-                category: 'apt',
-                technique: 'T1071.001',
-                author: 'Security Team',
-                platform: 'Multi-Platform',
-                tags: ['cobalt-strike', 'c2', 'beacon'],
-                references: ['https://www.cobaltstrike.com/'],
-                created: '2024-01-14T15:20:00Z',
-                modified: '2024-01-14T15:20:00Z',
-                starred: false
-            },
-            {
-                id: '3',
-                type: 'sigma',
-                title: 'Mimikatz Credential Dumping',
-                description: 'Detects potential Mimikatz usage for credential dumping',
-                code: `title: Mimikatz Credential Dumping
-status: stable
-description: Detects credential dumping tools like Mimikatz
-logsource:
-    product: windows
-    service: security
-detection:
-    selection_img:
-        - Image|endswith: '\\mimikatz.exe'
-        - OriginalFileName: 'mimikatz.exe'
-    selection_cli:
-        CommandLine|contains:
-            - 'sekurlsa::logonpasswords'
-            - 'lsadump::'
-            - 'kerberos::'
-    condition: selection_img or selection_cli
-falsepositives:
-    - Penetration testing
-level: critical`,
-                severity: 'critical',
-                category: 'credential-access',
-                technique: 'T1003.001',
-                author: 'Security Team',
-                platform: 'Windows',
-                tags: ['mimikatz', 'credential-dumping', 'lsass'],
-                references: ['https://attack.mitre.org/techniques/T1003/001/'],
-                created: '2024-01-13T09:15:00Z',
-                modified: '2024-01-13T09:15:00Z',
-                starred: true
-            }
-        ];
     }
 }
 
