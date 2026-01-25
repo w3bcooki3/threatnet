@@ -20,13 +20,42 @@ class ThreatIntel {
         this.noArticlesState = document.getElementById('no-articles-state');
 
         this.iocPlatforms = [
-            { name: "VirusTotal", id: "virustotal", url: "https://www.virustotal.com/gui/search/" },
-            { name: "Shodan", id: "shodan", url: "https://www.shodan.io/search?query=" },
-            { name: "AbuseIPDB", id: "abuseipdb", url: "https://www.abuseipdb.com/check/" },
-            { name: "Censys", id: "censys", url: "https://search.censys.io/search?q=" },
-            { name: "ThreatHunter.ai", id: "threathunter", url: "https://threathunter.ai/search?q=" },
-            { name: "Hybrid Analysis", id: "hybridanalysis", url: "https://www.hybrid-analysis.com/search?query=" },
-            { name: "Urlscan.io", id: "urlscan", url: "https://urlscan.io/search/#" }
+            { 
+                name: "VirusTotal", 
+                id: "virustotal", 
+                templates: { default: "https://www.virustotal.com/gui/search/" } 
+            },
+            { 
+                name: "Shodan", 
+                id: "shodan", 
+                templates: {
+                    ip: "https://www.shodan.io/search?query=",
+                    domain: "https://www.shodan.io/search?query=hostname:",
+                    default: "https://www.shodan.io/search?query="
+                }
+            },
+            { 
+                name: "Censys", 
+                id: "censys", 
+                templates: {
+                    ip: "https://search.censys.io/hosts/",
+                    domain: "https://search.censys.io/search?q=",
+                    default: "https://search.censys.io/search?q="
+                }
+            },
+            { 
+                name: "AbuseIPDB", 
+                id: "abuseipdb", 
+                templates: {
+                    ip: "https://www.abuseipdb.com/check/",
+                    default: "https://www.abuseipdb.com/check/" 
+                }
+            },
+            { 
+                name: "Urlscan.io", 
+                id: "urlscan", 
+                url: "https://urlscan.io/search/#" 
+            }
         ];
         this.selectedPlatforms = this.loadSelectedPlatforms();
         
@@ -45,6 +74,19 @@ class ThreatIntel {
         this.initEventListeners();
         this.fetchFeeds();
         this.renderPlatformCheckboxes();
+    }
+
+    identifyIOCType(ioc) {
+        const patterns = {
+            ip: /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/,
+            domain: /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i,
+            hash: /^[a-f0-9]{32,64}$/i
+        };
+
+        if (patterns.ip.test(ioc)) return 'ip';
+        if (patterns.domain.test(ioc)) return 'domain';
+        if (patterns.hash.test(ioc)) return 'hash';
+        return 'default';
     }
 
     initEventListeners() {
@@ -92,36 +134,37 @@ class ThreatIntel {
         this.populateSourceFilter();
         this.renderArticles(this.articles.slice(0, this.pageSize));
     }
-    
-    multiSearchIOC(ioc) {
+
+    async multiSearchIOC(ioc) {
         ioc = ioc.trim();
         if (!ioc) {
-            this.showNotification("Please enter an IP, Domain, or Hash to search.", "warning");
+            this.showNotification("Please enter an IOC to search.", "warning");
             return;
         }
-    
-        if (this.selectedPlatforms.length === 0) {
-            this.showNotification("Please select at least one platform to search on.", "warning");
-            return;
-        }
-    
+
+        const type = this.identifyIOCType(ioc);
         const encodedIoc = encodeURIComponent(ioc);
+
         this.iocPlatforms
             .filter(platform => this.selectedPlatforms.includes(platform.name))
             .forEach(platform => {
-                window.open(`${platform.url}${encodedIoc}`, '_blank');
+                // Get the template for the specific type, or fall back to default
+                const baseUrl = platform.templates[type] || platform.templates.default;
+                
+                // Open the specific structured URL
+                window.open(`${baseUrl}${encodedIoc}`, '_blank');
             });
-            
-        this.showNotification(`Searching for "${ioc}" on ${this.selectedPlatforms.length} platforms...`, 'info', 4000);
+
+        await this.showNotification(`Searching ${type.toUpperCase()} on ${this.selectedPlatforms.length} platforms...`, 'info');
     }
     
     loadSelectedPlatforms() {
         try {
             const savedPlatforms = localStorage.getItem('selectedPlatforms');
-            return savedPlatforms ? JSON.parse(savedPlatforms) : ['VirusTotal', 'Shodan', 'AbuseIPDB', 'Censys'];
+            return savedPlatforms ? JSON.parse(savedPlatforms) : ['VirusTotal', 'Shodan', 'AbuseIPDB', 'Censys', 'Urlscan.io'];
         } catch (e) {
             console.error("Error loading selected platforms:", e);
-            return ['VirusTotal', 'Shodan', 'AbuseIPDB', 'Censys'];
+            return ['VirusTotal', 'Shodan', 'AbuseIPDB', 'Censys', 'Urlscan.io'];
         }
     }
     
@@ -313,12 +356,21 @@ class ThreatIntel {
     }
 
     async fetchFeeds() {
+        // NEW: Show loading state in the grid immediately
+        if (this.threatIntelGrid) {
+            this.threatIntelGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: rgba(255,255,255,0.4);">
+                    <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+                    <p style="margin-top: 1.5rem; font-weight: 500;">Aggregating threat data...</p>
+                </div>`;
+        }
+
         this.articles = [];
         const fetchPromises = this.feeds.map(feed => this.fetchSingleFeed(feed));
         
         await Promise.allSettled(fetchPromises);
         
-        // Enhance articles with detected categories
+        // ... rest of your enhancement logic ...
         this.articles.forEach(article => {
             article.category = this.detectCategory(article);
             article.threatLevel = this.assessThreatLevel(article);
@@ -328,6 +380,40 @@ class ThreatIntel {
         this.articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         this.populateSourceFilter();
         this.renderArticles(this.articles.slice(0, this.pageSize));
+    }
+
+    async refreshFeeds() {
+        // 1. Show immediate feedback (Spin the icon)
+        const refreshBtnIcon = document.querySelector('button[onclick*="refreshFeeds"] i');
+        if (refreshBtnIcon) refreshBtnIcon.classList.add('fa-spin');
+
+        // 2. Reset internal filter logic
+        this.filterSettings = {
+            search: '',
+            source: 'all',
+            sort: 'newest',
+            category: 'all'
+        };
+
+        // 3. Reset the physical UI elements (dropdowns and search box)
+        const searchInput = document.getElementById('threat-intel-search');
+        const sortSelect = document.getElementById('threat-intel-sort');
+        const sourceSelect = document.getElementById('threat-intel-source-filter');
+
+        if (searchInput) searchInput.value = '';
+        if (sortSelect) sortSelect.value = 'newest';
+        if (sourceSelect) sourceSelect.value = 'all';
+
+        // 4. Fetch the data
+        await this.fetchFeeds();
+
+        // 5. Success notification
+        this.showNotification("Threat feeds updated and filters reset.", "success");
+
+        // 6. Stop the icon spinning
+        if (refreshBtnIcon) {
+            setTimeout(() => refreshBtnIcon.classList.remove('fa-spin'), 600);
+        }
     }
 
     async fetchSingleFeed(feed) {
@@ -675,4 +761,15 @@ class ThreatIntel {
         , duration);
     }
 }
+
+document.querySelector('.search-tip-container').addEventListener('click', function(e) {
+    this.querySelector('.tooltip-text').style.visibility = 'visible';
+    this.querySelector('.tooltip-text').style.opacity = '1';
+    this.querySelector('.tooltip-text').style.transform = 'translateY(0)';
+    
+    // Hide it after 3 seconds
+    setTimeout(() => {
+        this.querySelector('.tooltip-text').style = '';
+    }, 2000);
+});
 window.threatIntel = new ThreatIntel();

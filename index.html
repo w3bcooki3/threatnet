@@ -1385,7 +1385,7 @@
                         <button class="btn-secondary" onclick="window.threatIntel.showAddFeedModal()">
                             <i class="fas fa-plus"></i> Manage Feeds
                         </button>
-                        <button class="btn-primary" onclick="window.threatIntel.fetchFeeds()">
+                        <button class="btn-primary" onclick="window.threatIntel.refreshFeeds()">
                             <i class="fas fa-sync-alt"></i> Refresh Feeds
                         </button>
                         <div class="threat-intel-view-toggle">
@@ -1396,7 +1396,7 @@
                                 <i class="fas fa-list"></i>
                             </button>
                         </div>
-                        </div>
+                    </div>
                 </div>
 
                 <div class="ioc-main-search-bar">
@@ -1410,13 +1410,19 @@
                                 <button class="btn-secondary btn-small" onclick="window.threatIntel.toggleAllPlatforms(true)">Select All</button>
                                 <button class="btn-secondary btn-small" onclick="window.threatIntel.toggleAllPlatforms(false)">Deselect All</button>
                             </div>
-                            <div id="platform-checkboxes" class="platform-checkboxes">
-                                </div>
+                            <div id="platform-checkboxes" class="platform-checkboxes"></div>
                         </div>
                     </div>
                     <button class="btn-primary" onclick="window.threatIntel.multiSearchIOC(document.getElementById('ioc-search-input').value)">
                         <i class="fas fa-search"></i>
                     </button>
+                    
+                    <div class="search-tip-container">
+                        <i class="fas fa-question-circle"></i>
+                        <span class="tooltip-text">
+                            <strong>Pro Tip:</strong> Searching multiple platforms requires 'Allow Pop-ups' in your browser's address bar.
+                        </span>
+                    </div>
                 </div>
 
                 <div class="threat-intel-controls">

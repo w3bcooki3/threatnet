@@ -735,3 +735,66 @@
         min-width: unset;
     }
 }
+
+
+/* Container for the icon */
+.search-tip-container {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    margin-left: 10px;
+    font-size: 1.1rem;
+}
+
+/* The actual popup box */
+.tooltip-text {
+    visibility: hidden;
+    width: 240px;
+    background-color: #1a1a1a;
+    color: #fff;
+    text-align: left; /* Better for reading */
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 1000;
+    
+    /* Position Fix: Anchor to the right edge of the icon */
+    bottom: 150%; 
+    right: 0; 
+    
+    /* Styling */
+    font-size: 0.85rem;
+    line-height: 1.4;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    
+    /* Animation */
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+/* The little arrow - now aligned to the right */
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 10px; /* Align arrow with the icon */
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1a1a1a transparent transparent transparent;
+}
+
+/* Show on hover */
+.search-tip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification-success {
+    background: #27ae60 !important;
+    border-left: 4px solid #1e8449;
+    color: white;
+}
