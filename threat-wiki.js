@@ -13,29 +13,42 @@ class ThreatWikiManager {
             category: 'all',
             search: ''
         };
+        this.currentView = 'grid';
         this.init();
     }
 
     async init() {
-        await this.loadRules(); // Wait for data before rendering
+        await this.loadRules();
         this.setupEventListeners();
+    
+        const savedView = await localforage.getItem('threatWikiView') || 'grid';
+        this.setView(savedView);
+        
         this.renderRules();
         this.updateStats();
     }
 
     async loadRules() {
         try {
+            // 1. Try to get user-modified rules from local storage
             const savedRules = await localforage.getItem('threatWikiRules');
-            if (savedRules) {
-                // localForage automatically handles JSON.parse
+            
+            if (savedRules && savedRules.length > 0) {
                 this.rules = savedRules;
             } else {
-                this.rules = this.getSampleRules();
+                // 2. If nothing in local storage, fetch the external JSON file
+                const response = await fetch('threat-rules.json'); // Adjust path as needed
+                if (!response.ok) throw new Error('Failed to fetch rules.json');
+                
+                const defaultRules = await response.json();
+                this.rules = defaultRules;
+                
+                // 3. Save to localforage so user can start editing/adding
                 await this.saveRules();
             }
         } catch (err) {
-            console.error("Error loading rules:", err);
-            this.rules = this.getSampleRules();
+            console.error("Critical error loading threat rules:", err);
+            this.rules = []; // Fallback to empty if both fail
         }
     }
 
@@ -48,6 +61,26 @@ class ThreatWikiManager {
                 window.showNotification("Error saving rules to local database", "error");
             }
         }
+    }
+
+    
+    setView(view) {
+        this.currentView = view;
+        
+        // Update button states
+        document.querySelectorAll('.wiki-view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        
+        // Update grid class
+        const grid = document.getElementById('threat-wiki-grid');
+        if (grid) {
+            grid.classList.toggle('list-view', view === 'list');
+            grid.classList.toggle('grid-view', view === 'grid');
+        }
+        
+        // Save preference
+        localStorage.setItem('threatWikiView', view);
     }
 
     setupEventListeners() {
@@ -122,7 +155,8 @@ class ThreatWikiManager {
         });
     }
 
-    renderRules() {
+    // Optimized renderRules for large datasets
+    renderRules(limit = 50) {
         const grid = document.getElementById('threat-wiki-grid');
         if (!grid) return;
 
@@ -131,21 +165,20 @@ class ThreatWikiManager {
         if (filteredRules.length === 0) {
             grid.innerHTML = `
                 <div class="wiki-empty-state" style="grid-column: 1 / -1;">
-                    <div class="wiki-empty-icon">
-                        <i class="fas fa-shield-virus"></i>
-                    </div>
+                    <div class="wiki-empty-icon"><i class="fas fa-shield-virus"></i></div>
                     <h3>No Rules Found</h3>
-                    <p>No threat hunting rules match your current filters. Try adjusting your search or add new rules.</p>
-                    <button class="btn-primary" onclick="threatWikiManager.showAddRuleModal()">
-                        <i class="fas fa-plus"></i>
-                        Add New Rule
-                    </button>
-                </div>
-            `;
+                    <p>Try adjusting your search or filters.</p>
+                </div>`;
             return;
         }
 
-        grid.innerHTML = filteredRules.map(rule => this.createRuleCard(rule)).join('');
+        // Only render the first 50 rules initially to maintain performance
+        const rulesToDisplay = filteredRules.slice(0, limit);
+        grid.innerHTML = rulesToDisplay.map(rule => this.createRuleCard(rule)).join('');
+
+        // Update the total count in the UI header
+        const countEl = document.getElementById('total-rules-count');
+        if (countEl) countEl.textContent = filteredRules.length;
     }
 
     createRuleCard(rule) {

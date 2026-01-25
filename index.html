@@ -996,7 +996,7 @@
             <section id="investigation-notes" class="content-section">
                 <div class="section-header">
                     <div class="header-content">
-                        <h1>Investigation Notes</h1>
+                        <h1>Notes</h1>
                         <p class="header-subtitle">Professional note-taking for security investigators and researchers</p>
                     </div>
                 </div>
@@ -1378,7 +1378,7 @@
             <section id="threat-intel" class="content-section">
                 <div class="section-header">
                     <div class="header-content">
-                        <h1>Threat Intelligence Platform</h1>
+                        <h1>Threat Intelligence</h1>
                         <p class="header-subtitle">A unified view of global threat data, news, and IOC investigation tools</p>
                     </div>
                     <div class="header-actions">
@@ -1695,6 +1695,16 @@
                         <p class="header-subtitle">Professional threat hunting rules database - Sigma & YARA</p>
                     </div>
                     <div class="header-actions">
+                        <div class="wiki-view-toggle">
+                            <button class="wiki-view-btn active" data-view="grid" onclick="threatWikiManager.setView('grid')">
+                                <i class="fas fa-th-large"></i>
+                                Grid
+                            </button>
+                            <button class="wiki-view-btn" data-view="list" onclick="threatWikiManager.setView('list')">
+                                <i class="fas fa-list"></i>
+                                List
+                            </button>
+                        </div>
                         <button class="btn-secondary" onclick="threatWikiManager.exportAllRules()">
                             <i class="fas fa-file-export"></i>
                             Export All
@@ -1724,6 +1734,7 @@
                             </div>
                         </div>
                     </div>
+                    
 
                     <!-- Controls -->
                     <div class="threat-wiki-controls">
@@ -1799,6 +1810,7 @@
                             <span>Exfiltration</span>
                             <span class="category-count">0</span>
                         </div>
+                        
                     </div>
 
                     <!-- Rules Grid -->
