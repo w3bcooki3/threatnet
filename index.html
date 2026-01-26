@@ -123,38 +123,6 @@
         </aside>
 
         <main class="main-content">
-            <header class="top-bar">
-                <div class="search-section">
-                    <div class="search-container">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="globalSearch" placeholder="Search threat actors, campaigns, IOCs...">
-                        <div class="search-suggestions" id="searchSuggestions"></div>
-                        <div class="search-filters">
-                            <button class="filter-btn" onclick="toggleAdvancedSearch()">
-                                <i class="fas fa-sliders-h"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="top-bar-actions">
-                    <button class="action-btn" title="Notifications">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    <button class="action-btn" title="Export Data">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn" title="Settings">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                    <div class="user-profile">
-                        <img src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User">
-                        <div class="user-status"></div>
-                    </div>
-                </div>
-            </header>
-
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
                     <div class="header-content">
@@ -354,7 +322,7 @@
                     </div>
                     
                     <div class="vault-filters">
-                        <select id="vaultSortFilter" onchange="sortTools()">
+                        <select id="vaultSortFilter" onchange="applyVaultFilters()">
                             <option value="name-asc">Name (A-Z)</option>
                             <option value="name-desc">Name (Z-A)</option>
                             <option value="date-new">Newest First</option>
@@ -2710,16 +2678,19 @@
                     
                     <div class="import-format">
                         <h5>Expected JSON Format:</h5>
-                        <pre><code>[
-                            {
-                                "name": "Tool Name",
-                                "url": "https://example.com",
-                                "parentCategory": "osint",
-                                "childCategory": "social-media",
-                                "description": "Tool description",
-                                "tags": ["tag1", "tag2"]
-                            }
-                            ]</code>
+                        <pre>
+                            <code style="text-align: left;">
+                            [
+                                {
+                                    "name": "Tool Name",
+                                    "url": "https://example.com",
+                                    "parentCategory": "osint",
+                                    "childCategory": "social-media",
+                                    "description": "Tool description",
+                                    "tags": ["tag1", "tag2"]
+                                }
+                            ]
+                            </code>
                         </pre>
                     </div>
                 </div>

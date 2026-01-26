@@ -298,165 +298,42 @@ body {
     z-index: 1;
 }
 
-/* Top Bar */
-.top-bar {
-    background: rgba(15, 15, 25, 0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-}
-
-.search-section {
-    flex: 1;
-    max-width: 600px;
-}
-
 .search-container {
+    flex: 1;
+    min-width: 300px;
     position: relative;
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 0.875rem 1.25rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.search-container:focus-within {
-    border-color: #ff4757;
-    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.search-container i {
-    color: rgba(255, 255, 255, 0.5);
-    margin-right: 1rem;
-    font-size: 1.1rem;
 }
 
 .search-container input {
-    flex: 1;
-    background: none;
-    border: none;
+    width: 100%;
+    padding: 0.875rem 1.25rem 0.875rem 3rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
     color: #ffffff;
     font-size: 0.95rem;
-    outline: none;
     font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-container i {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1rem;
+}
+
+.search-container input:focus {
+    border-color: #ff4757;
+    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
 }
 
 .search-container input::placeholder {
     color: rgba(255, 255, 255, 0.5);
-}
-
-.search-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: rgba(15, 15, 25, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    margin-top: 0.5rem;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-}
-
-.search-filters {
-    margin-left: 1rem;
-}
-
-.filter-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
-    padding: 0.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.filter-btn:hover {
-    color: #ff4757;
-    background: rgba(255, 71, 87, 0.1);
-    border-color: rgba(255, 71, 87, 0.3);
-}
-
-.top-bar-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.action-btn {
-    position: relative;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
-    padding: 0.75rem;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 1.1rem;
-}
-
-.action-btn:hover {
-    background: rgba(255, 71, 87, 0.1);
-    border-color: #ff4757;
-    color: #ff4757;
-    transform: translateY(-2px);
-}
-
-.notification-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: linear-gradient(135deg, #ff4757, #ff6b7a);
-    color: white;
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    min-width: 20px;
-    text-align: center;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
-}
-
-.user-profile {
-    position: relative;
-    cursor: pointer;
-}
-
-.user-profile img {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-}
-
-.user-profile:hover img {
-    border-color: #ff4757;
-}
-
-.user-status {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 12px;
-    height: 12px;
-    background: #28a745;
-    border: 2px solid rgba(15, 15, 25, 1);
-    border-radius: 50%;
 }
 
 /* Content Sections */

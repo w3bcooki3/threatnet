@@ -596,47 +596,54 @@ function switchChildTab(childTab) {
 }
 
 function applyVaultFilters() {
-    const searchTerm = document.getElementById('vaultSearch')?.value.toLowerCase() || '';
+    const searchTerm = document.getElementById('vaultSearch')?.value.toLowerCase().trim() || '';
+    const statusFilter = document.getElementById('vaultStatusFilter')?.value || 'all';
     
     filteredTools = intelligenceTools.filter(tool => {
-        // Search filter
-        if (searchTerm && !tool.name.toLowerCase().includes(searchTerm) && 
-            !tool.description.toLowerCase().includes(searchTerm) &&
-            !tool.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
-            return false;
-        }
         
-        // Category filter
+        const matchesSearch = !searchTerm || 
+            tool.name.toLowerCase().includes(searchTerm) || 
+            tool.description.toLowerCase().includes(searchTerm) ||
+            (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(searchTerm)));
+
+        if (!matchesSearch) return false;
+
+        if (statusFilter !== 'all') {
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            
+            const matchesStatus = 
+                (statusFilter === 'pinned' && tool.isPinned) ||
+                (statusFilter === 'starred' && tool.isStarred) ||
+                (statusFilter === 'recent' && new Date(tool.dateAdded) > weekAgo);
+            
+            if (!matchesStatus) return false;
+        }
+
+        // --- STEP C: Category Filter (Parent & Child Tabs) ---
         if (currentParentTab === 'general') {
-            if (currentChildTab === 'favorites') {
-                return tool.isStarred;
-            } else if (currentChildTab === 'recently-added') {
+            // Dashboard-style views (Favorites, Recently Added, etc.)
+            if (currentChildTab === 'favorites') return tool.isStarred;
+            if (currentChildTab === 'most-used') return tool.isPinned;
+            if (currentChildTab === 'recently-added') {
                 const weekAgo = new Date();
                 weekAgo.setDate(weekAgo.getDate() - 7);
                 return new Date(tool.dateAdded) > weekAgo;
-            } else if (currentChildTab === 'most-used') {
-                return tool.isPinned;
             }
-            // 'all-tools' shows everything
-            return true;
+            return true; // 'all-tools'
         } else {
-            // Filter by parent category
-            if (tool.parentCategory !== currentParentTab) {
-                return false;
-            }
-            
-            // Filter by child category if not 'all'
-            if (currentChildTab !== 'all' && tool.childCategory !== currentChildTab) {
-                return false;
-            }
+            // Specific Category Navigation
+            const matchesParent = tool.parentCategory === currentParentTab;
+            const matchesChild = currentChildTab === 'all' || tool.childCategory === currentChildTab;
+            return matchesParent && matchesChild;
         }
-        
-        return true;
     });
-    
-    // Apply sorting
+
     sortTools();
     renderTools();
+
+    renderParentTabs();
+    renderChildTabs();
 }
 
 function sortTools() {
@@ -644,48 +651,28 @@ function sortTools() {
     
     filteredTools.sort((a, b) => {
         switch (sortBy) {
-            case 'name-asc':
-                return a.name.localeCompare(b.name);
-            case 'name-desc':
-                return b.name.localeCompare(a.name);
-            case 'date-new':
-                return new Date(b.dateAdded) - new Date(a.dateAdded);
-            case 'date-old':
-                return new Date(a.dateAdded) - new Date(b.dateAdded);
-            case 'pinned':
-                return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
-            case 'starred':
-                return (b.isStarred ? 1 : 0) - (a.isStarred ? 1 : 0);
-            default:
+            case 'name-asc': 
+                return (a.name || "").localeCompare(b.name || "");
+            case 'name-desc': 
+                return (b.name || "").localeCompare(a.name || "");
+            case 'date-new': 
+                return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
+            case 'date-old': 
+                return new Date(a.dateAdded || 0) - new Date(b.dateAdded || 0);
+            case 'pinned': 
+                // Moves Pinned (1) above Unpinned (0)
+                return (Number(b.isPinned) || 0) - (Number(a.isPinned) || 0);
+            case 'starred': 
+                // Moves Starred (1) above Unstarred (0)
+                return (Number(b.isStarred) || 0) - (Number(a.isStarred) || 0);
+            default: 
                 return 0;
         }
     });
 }
 
 function filterToolsByStatus() {
-    const statusFilter = document.getElementById('vaultStatusFilter')?.value || 'all';
-    
-    if (statusFilter === 'all') {
-        applyVaultFilters();
-        return;
-    }
-    
-    filteredTools = filteredTools.filter(tool => {
-        switch (statusFilter) {
-            case 'pinned':
-                return tool.isPinned;
-            case 'starred':
-                return tool.isStarred;
-            case 'recent':
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return new Date(tool.dateAdded) > weekAgo;
-            default:
-                return true;
-        }
-    });
-    
-    renderTools();
+    applyVaultFilters();
 }
 
 function renderTools() {
