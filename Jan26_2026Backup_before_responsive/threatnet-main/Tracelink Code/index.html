@@ -1,29 +1,10 @@
-<head>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
-
-    <title>OSINTrix: Your Private OSINT and Threat Intel Workspace 🕵️‍♂️</title>
-    <meta name="description" content="OSINTrix is a platform for OSINT analysts, cyber threat hunters, and investigators. Manually track threat actors, manage cases in a secure, local environment, and organize investigation data with powerful tools.">
-    <meta name="keywords" content="threat intelligence, OSINT, cyber threat hunting, cybercrime, cryptofraud, law enforcement, investigation tools, threat actors, manual intelligence, digital forensics, open-source intelligence, application, privacy-first">
-    <meta name="author" content="Rahul">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://w3bcooki3.github.io/threatnet/">
-    <meta property="og:title" content="OSINTrix: Your Private OSINT and Threat Intel Workspace 🕵️‍♂️">
-    <meta property="og:description" content="OSINTrix is a platform for OSINT analysts, cyber threat hunters, and investigators. Manually track threat actors, manage cases in a secure, local environment, and organize investigation data with powerful tools.">
-    <meta property="og:image" content="https://w3bcooki3.github.io/threatnet/favicon.png">
-
-    <meta property="twitter:card" content="OSINTrix is a platform for OSINT analysts, cyber threat hunters, and investigators. Manually track threat actors, manage cases in a secure, local environment, and organize investigation data with powerful tools.">
-    <meta property="twitter:url" content="https://w3bcooki3.github.io/threatnet/">
-    <meta property="twitter:title" content="OSINTrix: Forget fragmented notes and scattered tools. OSINTVault centralizes your efforts, offering robust features for data collection, analysis, and reporting, all while prioritizing your privacy by storing all data exclusively in your local browser storage.Forget fragmented notes and scattered tools. OSINTVault centralizes your efforts, offering robust features for data collection, analysis, and reporting, all while prioritizing your privacy by storing all data exclusively in your local browser storage.OSINT & Cyber Investigation Tool">
-    <meta property="twitter:description" content="OSINTrix is a platform for OSINT analysts, cyber threat hunters, and investigators. Manually track threat actors, manage cases in a secure, local environment, and organize investigation data with powerful tools.">
-    <meta property="twitter:image" content="https://w3bcooki3.github.io/threatnet/favicon.png">
-    
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="stylesheet" href="styles-responsive.css">
+    <title>ThreatNet - Threat Intelligence Platform</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="investigation-notes.css">
     <link rel="stylesheet" href="blueteam-playbook.css">
@@ -32,15 +13,11 @@
     <link rel="stylesheet" href="threat-intel.css">
     <link rel="stylesheet" href="cheatsheets.css">
     <link rel="stylesheet" href="tracelink.css">
-    <link rel="stylesheet" href="threat-wiki.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
-    <script src="https://unpkg.com/cytoscape-undo-redo@1.0.0/cytoscape-undo-redo.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 </head>
 <body>
-
     <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -49,7 +26,7 @@
                         <i class="fas fa-shield-virus"></i>
                     </div>
                     <div class="logo-text">
-                        <span class="logo-name">OSINTRIX</span>
+                        <span class="logo-name">ThreatNet</span>
                         <span class="logo-tagline">Intelligence Platform</span>
                     </div>
                 </div>
@@ -59,6 +36,11 @@
                 <a href="#" class="nav-item active" onclick="showSection('dashboard')">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('actors')">
+                    <i class="fas fa-users-cog"></i>
+                    <span>Threat Actors</span>
                     <div class="nav-indicator"></div>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('threat-intel')"> <i class="fas fa-rss-square"></i>
@@ -73,11 +55,6 @@
                 <a href="#" class="nav-item" onclick="showSection('multi-vault')">
                     <i class="fas fa-archive"></i>
                     <span>Multi-Vault</span>
-                    <div class="nav-indicator"></div>
-                </a>
-                <a href="#" class="nav-item" onclick="showSection('threat-wiki')">
-                    <i class="fas fa-shield-virus"></i>
-                    <span>Threat Wiki</span>
                     <div class="nav-indicator"></div>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('tracelink')"> 
@@ -109,39 +86,75 @@
                     <span>OSINT Playbook</span>
                     <div class="nav-indicator"></div>
                 </a>
+                <a href="#" class="nav-item" onclick="showSection('import')">
+                    <i class="fas fa-upload"></i>
+                    <span>Import Data</span>
+                    <div class="nav-indicator"></div>
+                </a>
             </nav>
             
             <div class="sidebar-footer">
                 <div class="threat-level-indicator">
+                    <div class="indicator-pulse">
+                        <div class="pulse-dot"></div>
+                        <div class="pulse-ring"></div>
+                    </div>
                     <div class="threat-status">
-                        <span class="status-label">Notice:</span>
-                        <span class="status-value">This is a side project and in Development. Users should expect bugs and frequent updates. While the platform is functional for personal research organization, it is provided "as-is."</span>
+                        <span class="status-label">Global Threat Level</span>
+                        <span class="status-value">CRITICAL</span>
                     </div>
                 </div>
             </div>
         </aside>
 
         <main class="main-content">
+            <header class="top-bar">
+                <div class="search-section">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="globalSearch" placeholder="Search threat actors, campaigns, IOCs...">
+                        <div class="search-suggestions" id="searchSuggestions"></div>
+                        <div class="search-filters">
+                            <button class="filter-btn" onclick="toggleAdvancedSearch()">
+                                <i class="fas fa-sliders-h"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <button class="action-btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="action-btn" title="Export Data">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User">
+                        <div class="user-status"></div>
+                    </div>
+                </div>
+            </header>
+
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
-                    <div class="header-content" style="max-width: 900px;">
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            <h1 style="margin: 0; font-size: 2.5rem; letter-spacing: -0.5px; color: #f1f5f9;">
-                                Unified Intelligence Hub
-                            </h1>
-                            <span style="background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-                                Beta Build
-                            </span>
-                        </div>
-
-                        <p class="header-subtitle" style="color: #94a3b8; font-size: 1.1rem; line-height: 1.6; margin: 0;">
-                            A privacy-first analyst workspace for <strong style="color: #e2e8f0;">OSINT, DFIR, and Threat Hunting</strong>
-                        </p>
-
-                        <div style="margin-top: 15px; font-size: 0.85rem; color: #64748b; font-style: italic;">
-                            <i class="fas fa-code-branch" style="margin-right: 5px;"></i> 
-                            Development in progress — expect frequent updates and improvements.
-                        </div>
+                    <div class="header-content">
+                        <h1>Threat Intelligence Dashboard</h1>
+                        <p class="header-subtitle">Real-time global threat landscape monitoring</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-secondary">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Intelligence
+                        </button>
                     </div>
                 </div>
 
@@ -243,6 +256,32 @@
                     </div>
                 </div>
 
+                <div class="dashboard-grid">
+                    <div class="dashboard-card activity-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-clock"></i>
+                                <h3>Recent Activity</h3>
+                            </div>
+                            <button class="card-action">View All</button>
+                        </div>
+                        <div class="activity-timeline" id="recentActivity">
+                            </div>
+                    </div>
+                    
+                    <div class="dashboard-card threats-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-fire"></i>
+                                <h3>Top Threats</h3>
+                            </div>
+                            <button class="card-action">View All</button>
+                        </div>
+                        <div class="top-threats-list" id="topThreats">
+                            </div>
+                    </div>
+                </div>
+
                 <div class="dashboard-card full-width map-card">
                     <div class="card-header">
                         <div class="card-title">
@@ -295,6 +334,53 @@
                 </div>
             </section>
 
+            <section id="actors" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Threat Actor Intelligence</h1>
+                        <p class="header-subtitle">Comprehensive profiles of global threat actors</p>
+                    </div>
+                    <div class="header-filters">
+                        <select id="categoryFilter" onchange="filterActors()">
+                            <option value="all">All Categories</option>
+                            <option value="apt">APT Groups</option>
+                            <option value="ransomware">Ransomware Groups</option>
+                            <option value="nation-state">Nation-State</option>
+                            <option value="cybercriminal">Cybercriminal</option>
+                            <option value="hacktivist">Hacktivist</option>
+                        </select>
+                        <select id="regionFilter" onchange="filterActors()">
+                            <option value="all">All Regions</option>
+                            <option value="china">China</option>
+                            <option value="russia">Russia</option>
+                            <option value="north-korea">North Korea</option>
+                            <option value="iran">Iran</option>
+                            <option value="usa">United States</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                        <select id="threatLevelFilter" onchange="filterActors()">
+                            <option value="all">All Threat Levels</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <button class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Actor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="actors-grid" id="actorsGrid">
+                    </div>
+            </section>
+
+            <section id="actor-profile" class="content-section">
+                <div id="actorProfileContent">
+                    </div>
+            </section>
+
             <section id="vault" class="content-section">
                 <div class="section-header">
                     <div class="header-content">
@@ -326,7 +412,7 @@
                     </div>
                     
                     <div class="vault-filters">
-                        <select id="vaultSortFilter" onchange="applyVaultFilters()">
+                        <select id="vaultSortFilter" onchange="sortTools()">
                             <option value="name-asc">Name (A-Z)</option>
                             <option value="name-desc">Name (Z-A)</option>
                             <option value="date-new">Newest First</option>
@@ -467,7 +553,6 @@
                         <div class="vault-filters">
                             <select id="vaultEntryTypeFilter" onchange="filterVaultEntries()">
                                 <option value="all">All Entry Types</option>
-                                <option value="ioc">IOC Collection (Bulk Import)</option>
                                 <option value="tool">Tool</option>
                                 <option value="email">Email Address</option>
                                 <option value="phone">Phone Number</option>
@@ -597,7 +682,7 @@
                 <div class="section-header">
                     <div class="header-content">
                         <h1>Case Studies & Articles</h1>
-                        <p class="header-subtitle">Add your favourite real world cases, articles here</p>
+                        <p class="header-subtitle">Real-world investigation case studies and analysis</p>
                     </div>
                     <div class="header-actions">
                         <button onclick="window.caseStudiesManager.showAddCaseStudyForm()" class="btn-primary">
@@ -968,7 +1053,7 @@
             <section id="investigation-notes" class="content-section">
                 <div class="section-header">
                     <div class="header-content">
-                        <h1>Notes</h1>
+                        <h1>Investigation Notes</h1>
                         <p class="header-subtitle">Professional note-taking for security investigators and researchers</p>
                     </div>
                 </div>
@@ -1320,110 +1405,128 @@
                 </div>
             </div>
 
-            <div id="iocModal" class="modal">
-                <div class="modal-content large-modal">
-                    <div class="modal-header">
-                        <h3 id="iocModalTitle">Indicators of Compromise</h3>
-                        <button class="modal-close" onclick="window.threatIntel.closeIocModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="ioc-info-container">
-                            <p id="iocModalArticleTitle" class="ioc-modal-article-title"></p>
-                            <div id="iocContent">
-                                </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn-secondary" onclick="window.threatIntel.closeIocModal()">
-                                Close
-                            </button>
-                            <button class="btn-primary">
-                                <i class="fas fa-atlas"></i> Save to Multi-Vault
-                            </button>
-                        </div>
+            <section id="import" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Import Threat Intelligence Data</h1>
+                        <p class="header-subtitle">Upload and convert MITRE ATT&CK data automatically</p>
                     </div>
                 </div>
-            </div>
 
-            <!--------Threat Intel Start ------->
+                <div class="import-container">
+                    <div class="import-card">
+                        <div class="import-header">
+                            <div class="import-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <h3>MITRE ATT&CK Data Import</h3>
+                            <p>Upload the enterprise-attack.json file from MITRE's GitHub repository</p>
+                        </div>
+
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h4>Drop your MITRE JSON file here</h4>
+                                <p>or click to browse files</p>
+                                <input type="file" id="mitreFileInput" accept=".json" style="display: none;">
+                                <button class="btn-primary" onclick="document.getElementById('mitreFileInput').click()">
+                                    <i class="fas fa-folder-open"></i>
+                                    Choose File
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="import-instructions">
+                            <h4><i class="fas fa-info-circle"></i> How to get MITRE data:</h4>
+                            <ol>
+                                <li>Visit <a href="https://github.com/mitre/cti" target="_blank">MITRE CTI Repository</a></li>
+                                <li>Download <code>enterprise-attack/enterprise-attack.json</code></li>
+                                <li>Upload the file using the area above</li>
+                                <li>The app will automatically convert and import the data</li>
+                            </ol>
+                        </div>
+
+                        <div class="import-progress" id="importProgress" style="display: none;">
+                            <div class="progress-header">
+                                <h4>Processing MITRE Data...</h4>
+                                <span id="progressText">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-details" id="progressDetails">
+                                Initializing...
+                            </div>
+                        </div>
+
+                        <div class="import-results" id="importResults" style="display: none;">
+                            <div class="results-header">
+                                <i class="fas fa-check-circle"></i>
+                                <h4>Import Completed Successfully!</h4>
+                            </div>
+                            <div class="results-stats" id="resultsStats">
+                                </div>
+                            <div class="results-actions">
+                                <button class="btn-primary" onclick="showSection('actors')">
+                                    <i class="fas fa-users-cog"></i>
+                                    View Imported Actors
+                                </button>
+                                <button class="btn-secondary" onclick="downloadConvertedData()">
+                                    <i class="fas fa-download"></i>
+                                    Download JSON
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="import-tips">
+                        <h4><i class="fas fa-lightbulb"></i> Import Tips</h4>
+                        <ul>
+                            <li><strong>File Size:</strong> MITRE files are typically 10-50MB</li>
+                            <li><strong>Processing Time:</strong> Conversion takes 10-30 seconds</li>
+                            <li><strong>Data Quality:</strong> Confidence scores are auto-calculated</li>
+                            <li><strong>Backup:</strong> Your original data is preserved</li>
+                            <li><strong>Updates:</strong> Re-import to get latest MITRE data</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+
             <section id="threat-intel" class="content-section">
                 <div class="section-header">
                     <div class="header-content">
-                        <h1>Threat Intelligence</h1>
-                        <p class="header-subtitle">A unified view of global threat data, news, and IOC investigation tools</p>
+                        <h1>Threat Intelligence Feeds</h1>
+                        <p class="header-subtitle">Real-time updates from leading cybersecurity sources</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-secondary" onclick="window.threatIntel.showAddFeedModal()">
-                            <i class="fas fa-plus"></i> Manage Feeds
+                        <button class="btn-primary" onclick="threatIntel.showAddFeedModal()">
+                            <i class="fas fa-plus"></i> Add New Feed
                         </button>
-                        <button class="btn-primary" onclick="window.threatIntel.refreshFeeds()">
-                            <i class="fas fa-sync-alt"></i> Refresh Feeds
-                        </button>
-                        <div class="threat-intel-view-toggle">
-                            <button class="view-btn active grid-btn" onclick="window.threatIntel.toggleView('grid')">
-                                <i class="fas fa-th-large"></i>
-                            </button>
-                            <button class="view-btn list-btn" onclick="window.threatIntel.toggleView('list')">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ioc-main-search-bar">
-                    <input type="text" id="ioc-search-input" placeholder="Enter IP, Domain, or Hash to investigate...">
-                    <div id="ioc-platform-selector" class="ioc-platform-selector">
-                        <button class="selector-toggle-btn" onclick="window.threatIntel.togglePlatformDropdown(event)">
-                            Platforms <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div id="platform-dropdown" class="platform-dropdown-content">
-                            <div class="platform-actions">
-                                <button class="btn-secondary btn-small" onclick="window.threatIntel.toggleAllPlatforms(true)">Select All</button>
-                                <button class="btn-secondary btn-small" onclick="window.threatIntel.toggleAllPlatforms(false)">Deselect All</button>
-                            </div>
-                            <div id="platform-checkboxes" class="platform-checkboxes"></div>
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="window.threatIntel.multiSearchIOC(document.getElementById('ioc-search-input').value)">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    
-                    <div class="search-tip-container">
-                        <i class="fas fa-question-circle"></i>
-                        <span class="tooltip-text">
-                            <strong>Pro Tip:</strong> Searching multiple platforms requires 'Allow Pop-ups' in your browser's address bar.
-                        </span>
                     </div>
                 </div>
 
                 <div class="threat-intel-controls">
-                    <input type="text" id="threat-intel-search" placeholder="Search articles..." onkeyup="window.threatIntel.filterArticles()">
-                    <select id="threat-intel-source-filter" onchange="window.threatIntel.filterArticles()">
+                    <input type="text" id="threat-intel-search" placeholder="Search articles..." onkeyup="threatIntel.filterArticles()">
+                    <select id="threat-intel-source-filter" onchange="threatIntel.filterArticles()">
                         <option value="all">All Sources</option>
                         </select>
-                    <select id="threat-intel-sort" onchange="window.threatIntel.sortArticles()">
+                    <select id="threat-intel-sort" onchange="threatIntel.sortArticles()">
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
                         <option value="title-asc">Title A-Z</option>
                         <option value="title-desc">Title Z-A</option>
                     </select>
-                    <select id="news-count-select" onchange="window.threatIntel.updatePageSize()">
-                        <option value="20">20 News</option>
-                        <option value="50">50 News</option>
-                        <option value="100">100 News</option>
-                    </select>
                 </div>
 
                 <div class="threat-intel-grid" id="threat-intel-grid">
-                    <div class="no-articles-state" id="no-articles-state" style="display: none;">
+                    <div class="no-articles-state" id="no-articles-state">
                         <i class="fas fa-newspaper"></i>
                         <h3>No Articles Found</h3>
                         <p>No articles match your current filters. Try adjusting your search or add new feeds.</p>
                     </div>
                 </div>
             </section>
-            <!--------Threat Intel End -->
 
 
             <!--------------------Cheatsheet Start--------------->
@@ -1437,14 +1540,6 @@
                         <button class="btn-secondary" onclick="window.cheatsheetsManager.loadCheatsheets()">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
-                        <div class="cheatsheet-view-toggle">
-                            <button class="view-btn active" id="grid-view-btn" onclick="window.cheatsheetsManager.setCheatsheetView('grid')">
-                                <i class="fas fa-th-large"></i> Grid
-                            </button>
-                            <button class="view-btn" id="list-view-btn" onclick="window.cheatsheetsManager.setCheatsheetView('list')">
-                                <i class="fas fa-list"></i> List
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -1486,7 +1581,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Add New Node to Graph</h3>
-                        <span class="close close-modal-btn">&times;</span>
+                        <span class="close close-modal-btn">&times;</span> 
                     </div>
                     <form id="tracelink-add-node-form">
                         <div class="form-group">
@@ -1499,19 +1594,16 @@
                                 <option value="">Select Type</option>
                             </select>
                         </div>
-
+                        
                         <div id="add-node-dynamic-fields">
                             </div>
 
                         <div id="add-custom-metadata-btn-container" style="display:none; margin-top: 1rem;">
-                            <button type="button" class="btn-secondary btn-small add-custom-metadata-button">
-                                <i class="fas fa-plus"></i> Add Custom Field
-                            </button>
-                        </div>
+                            </div>
 
                         <div id="add-node-custom-metadata-fields" style="margin-top: 1rem;">
                             </div>
-
+                        
                         <div class="form-actions">
                             <button type="button" class="btn-secondary close-modal-btn">Cancel</button>
                             <button type="submit" class="btn-primary">Add Node</button>
@@ -1524,7 +1616,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3>Edit Edge Label</h3>
-                        <span class="close close-modal-btn">&times;</span>
+                        <span class="close close-modal-btn">&times;</span> 
                     </div>
                     <form id="tracelink-edit-label-form">
                         <div class="form-group">
@@ -1571,356 +1663,17 @@
                     </form>
                 </div>
             </div>
-
-            <div id="tracelink-confirm-delete-modal" class="modal">
-                <div class="modal-content delete-modal">
-                    <div class="modal-header">
-                        <div class="delete-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h3 id="tracelink-confirm-delete-title">Confirm Deletion</h3>
-                        <span class="close">&times;</span>
-                    </div>
-                    <div class="modal-body">
-                        <p id="tracelink-confirm-delete-message">Are you sure you want to delete this item? This action cannot be undone.</p>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" id="tracelink-confirm-delete-cancel-btn">Cancel</button>
-                        <button type="button" class="btn-danger" id="tracelink-confirm-delete-btn">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tracelink-edge-details-panel" class="tracelink-edge-details-panel">
-                <div class="panel-header">
-                    <h4>Edge Details</h4>
-                    <button class="close-panel-btn" onclick="window.traceLinkManager.hideEdgeDetailsPanel()">&times;</button>
-                </div>
-                <div class="panel-content">
-                    <div class="detail-group">
-                        <label>Source Node:</label>
-                        <span id="edge-detail-source"></span>
-                    </div>
-                    <div class="detail-group">
-                        <label>Target Node:</label>
-                        <span id="edge-detail-target"></span>
-                    </div>
-                    <div class="detail-group">
-                        <label>Relationship:</label>
-                        <span id="edge-detail-label"></span>
-                    </div>
-                    <div class="detail-group">
-                        <label>Created:</label>
-                        <span id="edge-detail-created"></span>
-                    </div>
-                    <div class="detail-group">
-                        <label>Edge ID:</label>
-                        <span id="edge-detail-id"></span>
-                    </div>
-                    <div class="detail-group" id="edge-detail-custom-data" style="display:none;">
-                        <label>Custom Data:</label>
-                        <pre id="edge-detail-custom-data-content" class="custom-data-json"></pre>
-                    </div>
-                </div>
-                <div class="panel-actions">
-                    <button class="btn-secondary btn-small" onclick="window.traceLinkManager.showEditLabelModalForContextTarget()">
-                        <i class="fas fa-edit"></i> Edit Label
-                    </button>
-                    <button class="btn-danger-small" onclick="window.traceLinkManager.handleContextDelete()">
-                        <i class="fas fa-trash"></i> Delete Edge
-                    </button>
-                </div>
-            </div>
-
-            <div id="tracelink-connect-nodes-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Add Connection</h3>
-                        <span class="close close-modal-btn">&times;</span>
-                    </div>
-                    <form id="tracelink-connect-nodes-form">
-                        <div class="form-group">
-                            <label for="connect-source-node-select">From</label>
-                            <select id="connect-source-node-select" disabled>
-                                </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="connect-target-node-select">To</label>
-                            <select id="connect-target-node-select" required>
-                                <option value="">Select Target Entity</option>
-                                </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="connect-relationship-label">Relationship Label</label>
-                            <input type="text" id="connect-relationship-label" placeholder="e.g., owns, transferred to, located at">
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn-secondary close-modal-btn" onclick="window.traceLinkManager.closeConnectNodesModal()">Cancel</button>
-                            <button type="submit" class="btn-primary">Add Connection</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
             <!--------------------Tracelink End --------------->
 
-            <!------------Threat Hunting wiki ----------------->
-            <section id="threat-wiki" class="content-section">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Threat Wiki</h1>
-                        <p class="header-subtitle">Professional threat hunting rules database - Sigma & YARA</p>
-                    </div>
-                    <div class="header-actions">
-                        <div class="wiki-view-toggle">
-                            <button class="wiki-view-btn active" data-view="grid" onclick="threatWikiManager.setView('grid')">
-                                <i class="fas fa-th-large"></i>
-                                Grid
-                            </button>
-                            <button class="wiki-view-btn" data-view="list" onclick="threatWikiManager.setView('list')">
-                                <i class="fas fa-list"></i>
-                                List
-                            </button>
-                        </div>
-                        <button class="btn-secondary" onclick="threatWikiManager.exportAllRules()">
-                            <i class="fas fa-file-export"></i>
-                            Export All
-                        </button>
-                        <button class="btn-primary" onclick="threatWikiManager.showAddRuleModal()">
-                            <i class="fas fa-plus"></i>
-                            Add New Rule
-                        </button>
-                    </div>
-                </div>
 
-                <div class="threat-wiki-container">
-                    <!-- Stats Header -->
-                    <div class="threat-wiki-header">
-                        <div class="threat-wiki-stats">
-                            <div class="wiki-stat-card">
-                                <div class="wiki-stat-value" id="sigma-count">0</div>
-                                <div class="wiki-stat-label">Sigma Rules</div>
-                            </div>
-                            <div class="wiki-stat-card">
-                                <div class="wiki-stat-value" id="yara-count">0</div>
-                                <div class="wiki-stat-label">YARA Rules</div>
-                            </div>
-                            <div class="wiki-stat-card">
-                                <div class="wiki-stat-value" id="total-rules-count">0</div>
-                                <div class="wiki-stat-label">Total Rules</div>
-                            </div>
-                        </div>
-                    </div>
-                    
 
-                    <!-- Controls -->
-                    <div class="threat-wiki-controls">
-                        <div class="wiki-search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="wiki-search" placeholder="Search rules by name, description, or tags...">
-                        </div>
-                        <div class="wiki-filters">
-                            <select id="wiki-type-filter" class="wiki-filter-select">
-                                <option value="all">All Types</option>
-                                <option value="sigma">Sigma Rules</option>
-                                <option value="yara">YARA Rules</option>
-                            </select>
-                            <select id="wiki-severity-filter" class="wiki-filter-select">
-                                <option value="all">All Severities</option>
-                                <option value="critical">Critical</option>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
-                            </select>
-                            <select id="wiki-category-filter" class="wiki-filter-select">
-                                <option value="all">All Categories</option>
-                                <option value="malware">Malware Detection</option>
-                                <option value="apt">APT Activity</option>
-                                <option value="ransomware">Ransomware</option>
-                                <option value="persistence">Persistence</option>
-                                <option value="credential-access">Credential Access</option>
-                                <option value="lateral-movement">Lateral Movement</option>
-                                <option value="exfiltration">Exfiltration</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Category Tabs -->
-                    <div class="wiki-category-tabs">
-                        <div class="wiki-category-tab active" data-category="all" onclick="threatWikiManager.switchCategory('all')">
-                            <i class="fas fa-th-large"></i>
-                            <span>All Rules</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="malware" onclick="threatWikiManager.switchCategory('malware')">
-                            <i class="fas fa-virus"></i>
-                            <span>Malware</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="apt" onclick="threatWikiManager.switchCategory('apt')">
-                            <i class="fas fa-user-secret"></i>
-                            <span>APT</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="ransomware" onclick="threatWikiManager.switchCategory('ransomware')">
-                            <i class="fas fa-lock"></i>
-                            <span>Ransomware</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="persistence" onclick="threatWikiManager.switchCategory('persistence')">
-                            <i class="fas fa-anchor"></i>
-                            <span>Persistence</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="credential-access" onclick="threatWikiManager.switchCategory('credential-access')">
-                            <i class="fas fa-key"></i>
-                            <span>Credential Access</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="lateral-movement" onclick="threatWikiManager.switchCategory('lateral-movement')">
-                            <i class="fas fa-project-diagram"></i>
-                            <span>Lateral Movement</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        <div class="wiki-category-tab" data-category="exfiltration" onclick="threatWikiManager.switchCategory('exfiltration')">
-                            <i class="fas fa-share-square"></i>
-                            <span>Exfiltration</span>
-                            <span class="category-count">0</span>
-                        </div>
-                        
-                    </div>
-
-                    <!-- Rules Grid -->
-                    <div class="threat-wiki-grid" id="threat-wiki-grid">
-                        <!-- Rules will be rendered here -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Rule Detail Modal -->
-            <div id="wiki-detail-modal" class="modal wiki-detail-modal">
-                <div class="modal-content large-modal">
-                    <div class="modal-header">
-                        <h3>Rule Details</h3>
-                        <button class="modal-close" onclick="threatWikiManager.closeDetailModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="wiki-detail-body">
-                        <!-- Detail content will be rendered here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add/Edit Rule Modal -->
-            <div id="wiki-add-rule-modal" class="modal">
-                <div class="modal-content large-modal">
-                    <div class="modal-header">
-                        <h3 id="wiki-modal-title">Add New Rule</h3>
-                        <button class="modal-close" onclick="threatWikiManager.closeAddRuleModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <form id="wiki-rule-form" onsubmit="threatWikiManager.saveRule(event)">
-                        <div class="modal-body">
-                            <input type="hidden" id="wiki-rule-id" name="rule-id">
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="rule-type">Rule Type *</label>
-                                    <select id="rule-type" name="rule-type" required>
-                                        <option value="">Select Type</option>
-                                        <option value="sigma">Sigma Rule</option>
-                                        <option value="yara">YARA Rule</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="rule-severity">Severity *</label>
-                                    <select id="rule-severity" name="rule-severity" required>
-                                        <option value="">Select Severity</option>
-                                        <option value="critical">Critical</option>
-                                        <option value="high">High</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="low">Low</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="rule-title">Rule Title *</label>
-                                <input type="text" id="rule-title" name="rule-title" required placeholder="e.g., Suspicious PowerShell Execution">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="rule-description">Description</label>
-                                <textarea id="rule-description" name="rule-description" rows="3" placeholder="Describe what this rule detects..."></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="rule-code">Rule Code *</label>
-                                <textarea id="rule-code" name="rule-code" class="code-editor" required placeholder="Paste your Sigma or YARA rule code here..."></textarea>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="rule-category">Category *</label>
-                                    <select id="rule-category" name="rule-category" required>
-                                        <option value="">Select Category</option>
-                                        <option value="malware">Malware Detection</option>
-                                        <option value="apt">APT Activity</option>
-                                        <option value="ransomware">Ransomware</option>
-                                        <option value="persistence">Persistence</option>
-                                        <option value="credential-access">Credential Access</option>
-                                        <option value="lateral-movement">Lateral Movement</option>
-                                        <option value="exfiltration">Exfiltration</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="rule-technique">MITRE ATT&CK Technique</label>
-                                    <input type="text" id="rule-technique" name="rule-technique" placeholder="e.g., T1059.001">
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="rule-author">Author</label>
-                                    <input type="text" id="rule-author" name="rule-author" placeholder="Rule author name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="rule-platform">Platform</label>
-                                    <input type="text" id="rule-platform" name="rule-platform" placeholder="e.g., Windows, Linux, Multi-Platform">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="rule-tags">Tags (comma separated)</label>
-                                <input type="text" id="rule-tags" name="rule-tags" placeholder="e.g., powershell, execution, suspicious">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="rule-references">References (one per line)</label>
-                                <textarea id="rule-references" name="rule-references" rows="3" placeholder="https://attack.mitre.org/..."></textarea>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn-secondary" onclick="threatWikiManager.closeAddRuleModal()">Cancel</button>
-                            <button type="submit" class="btn-primary">
-                                <i class="fas fa-save"></i>
-                                Save Rule
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <!------------Threat Hunting wiki End ------------->
 
             <footer class="app-footer">
                 <div class="footer-content">
                     <div class="footer-bottom">
                         <div class="footer-copyright">
                             <div class="copyright-text">
-                                <p>&copy; 2026 OSINTrix Intelligence Platform. All rights reserved.</p>
+                                <p>&copy; 2025 ThreatNet Intelligence Platform. All rights reserved.</p>
                                 <p class="creator-info">
                                     Created with ❤️ by <strong>Rahul</strong> | 
                                     <a href="https://github.com/w3bcooki3" target="_blank" rel="noopener noreferrer" class="github-link">
@@ -1934,7 +1687,7 @@
                                 <a href="https://github.com/w3bcooki3" target="_blank" rel="noopener noreferrer" class="social-link github" title="GitHub">
                                     <i class="fab fa-github"></i>
                                 </a>
-                                <a href="https://www.linkedin.com/in/fnu-rahul" target="_blank" rel="noopener noreferrer" class="social-link linkedin" title="LinkedIn">
+                                <a href="https://www.linkedin.com/in/fnu-rahul-a48427199/" target="_blank" rel="noopener noreferrer" class="social-link linkedin" title="LinkedIn">
                                     <i class="fab fa-linkedin"></i>
                                 </a>
                             </div>
@@ -1943,13 +1696,10 @@
                         <div class="footer-disclaimer">
                             <p>
                                 <i class="fas fa-info-circle"></i>
-                                This platform designed to provides a centralized hub to <br>
-                                1. Organize and store specialized investigative tools.</br>
-                                2. Maintain structured investigation notes and case data.</br>
-                                3. Aggregate threat feeds and news from multiple sources in one view.</br>
-                                4. Store and manage Yara and Sigma rules.</br>
-                                5. Archive knowledge blogs and articles for learning and research.</br>
-                                6. Securely store evidence (photos, videos, audio, and IOCs) in a local environment.
+                                This platform is demo software for educational purposes only.
+                                It is not intended for real-world use and does not represent actual threat intelligence.
+                                You cannot use this plaform for any commericial or production purposes. All rights reserved.
+                                All data is fictional and generated for demonstration purposes. 
                             </p>
                         </div>
                     </div>
@@ -2137,7 +1887,6 @@
                         <label for="entryType">Entry Type *</label>
                         <select id="entryType" name="entryType" required onchange="updateEntryFields()">
                             <option value="">Select Entry Type</option>
-                            <option value="ioc">IOC Collection (Bulk Import)</option>
                             <option value="tool">Tool</option>
                             <option value="email">Email Address</option>
                             <option value="phone">Phone Number</option>
@@ -2218,19 +1967,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Custom Metadata</label>
-                    <div id="metadataContainer">
-                        <div class="metadata-pair">
-                            <input type="text" class="metadata-key" placeholder="Key">
-                            <input type="text" class="metadata-value" placeholder="Value">
-                            <button type="button" class="metadata-remove" onclick="removeMetadataPair(this)">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-secondary btn-small" onclick="addMetadataPair()">
-                        <i class="fas fa-plus"></i> Add Metadata
-                    </button>
+                    <label for="customMetadata">Custom Metadata (JSON)</label>
+                    <textarea id="customMetadata" name="customMetadata" rows="3" placeholder='{"key": "value", "additional_info": "data"}'></textarea>
+                    <small>Optional: Add custom metadata in JSON format</small>
                 </div>
                 
                 <div class="form-actions">
@@ -2241,49 +1980,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <div id="imageViewModal" class="modal">
-        <div class="modal-content image-viewer-modal">
-            <div class="modal-header">
-                <h3 id="imageViewerTitle">Media Viewer</h3>
-                <button class="modal-close" onclick="closeMediaViewer()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body image-viewer-body">
-                <div id="imageViewerContainer">
-                    </div>
-            </div>
-            <div class="modal-footer image-viewer-footer">
-                <span id="imageViewerCaption"></span>
-                <div class="footer-actions">
-                    <button class="btn-secondary" onclick="downloadFile()">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!----To view the details of evidence in multi-vault-->
-    <div id="entryDetailsModal" class="modal">
-        <div class="modal-content large-modal">
-            <div class="modal-header">
-                <h3 id="entryDetailsModalTitle">Entry Details</h3>
-                <button class="modal-close" onclick="closeEntryDetailsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="entryDetailsModalBody">
-                </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeEntryDetailsModal()">Close</button>
-                <button type="button" class="btn-primary" id="editEntryButton" onclick="">
-                    <i class="fas fa-edit"></i> Edit Entry
-                </button>
-            </div>
         </div>
     </div>
 
@@ -2685,22 +2381,32 @@
                     
                     <div class="import-format">
                         <h5>Expected JSON Format:</h5>
-                        <pre>
-                            <code style="text-align: left;">
-                            [
-                                {
-                                    "name": "Tool Name",
-                                    "url": "https://example.com",
-                                    "parentCategory": "osint",
-                                    "childCategory": "social-media",
-                                    "description": "Tool description",
-                                    "tags": ["tag1", "tag2"]
-                                }
-                            ]
-                            </code>
+                        <pre><code>[
+                            {
+                                "name": "Tool Name",
+                                "url": "https://example.com",
+                                "parentCategory": "osint",
+                                "childCategory": "social-media",
+                                "description": "Tool description",
+                                "tags": ["tag1", "tag2"]
+                            }
+                            ]</code>
                         </pre>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="actor-detail-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="actor-detail-title">Threat Actor Details</h3>
+                <span class="close" onclick="closeActorDetailModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="actor-detail-content">
+                    </div>
             </div>
         </div>
     </div>
@@ -2736,6 +2442,7 @@
     <div id="notificationContainer" class="notification-container"></div>
 
 
+    <script src="mitre-converter.js"></script>
     <script src="script.js"></script>
     <script src="dork-assistant.js"></script>
     <script src="investigation-notes.js"></script>
@@ -2744,8 +2451,6 @@
     <script src="threat-intel.js"></script>
     <script src="cheatsheets.js"></script>
     <script src="tracelink.js"></script>
-    <script src="threat-wiki.js"></script>
-    <script src="responsive.js"></script>
 
 </body>
 </html>

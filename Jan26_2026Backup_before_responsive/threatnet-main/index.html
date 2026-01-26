@@ -1,4 +1,22 @@
 <head>
+    <meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self'
+          https://cdnjs.cloudflare.com
+          https://unpkg.com;
+        style-src 'self'
+          'unsafe-inline'
+          https://cdnjs.cloudflare.com
+          https://fonts.googleapis.com;
+        font-src 'self'
+          https://fonts.gstatic.com;
+        img-src 'self'
+          data:
+          https:;
+        object-src 'none';
+        base-uri 'self';
+      ">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +41,7 @@
     <meta property="twitter:image" content="https://w3bcooki3.github.io/threatnet/favicon.png">
     
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="stylesheet" href="styles-responsive.css">
+
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="investigation-notes.css">
     <link rel="stylesheet" href="blueteam-playbook.css">
@@ -40,7 +58,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 </head>
 <body>
-
+    <div id="mobile-restriction" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0C1017; z-index: 999999; color: #E0E6F0; text-align: center; justify-content: center; align-items: center; flex-direction: column; padding: 20px; font-family: 'Inter', sans-serif; backdrop-filter: blur(10px);">
+        <div style="background: #171E28; border: 1px solid rgba(255, 170, 0, 0.3); padding: 50px 30px; border-radius: 16px; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-top: 4px solid #ffaa00;">
+            <i class="fas fa-desktop" style="font-size: 4.5rem; color: #ffaa00; margin-bottom: 25px; filter: drop-shadow(0 0 10px rgba(255, 170, 0, 0.3));"></i>
+            
+            <h2 style="margin-bottom: 15px; color: #E0E6F0; font-size: 1.8rem; letter-spacing: -0.5px;">Desktop Environment Required</h2>
+            
+            <p style="color: #9BAEC8; line-height: 1.6; margin-bottom: 30px; font-size: 1rem;">
+                OSINTrix is a specialized analyst workspace. The complex data grids, high-density intelligence feeds, and investigative tools require a <strong>Desktop Resolution</strong> (Windows/Mac/Linux) for proper operation and data integrity.
+            </p>
+            
+            <div style="display: inline-block; padding: 10px 20px; background: rgba(255, 170, 0, 0.1); border-radius: 6px; color: #ffaa00; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; border: 1px solid rgba(255, 170, 0, 0.2);">
+                <i class="fas fa-laptop" style="margin-right: 8px;"></i> Switch to Desktop to Access
+            </div>
+        </div>
+    </div>
     <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -2745,7 +2777,6 @@
     <script src="cheatsheets.js"></script>
     <script src="tracelink.js"></script>
     <script src="threat-wiki.js"></script>
-    <script src="responsive.js"></script>
 
 </body>
 </html>

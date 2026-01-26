@@ -1,0 +1,1538 @@
+/* ============================================
+   OSINTRIX RESPONSIVE STYLES
+   Mobile-First Responsive Design
+   ============================================ */
+
+/* ============================================
+   HAMBURGER MENU BUTTON (Mobile/Tablet)
+   ============================================ */
+.hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 10001;
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hamburger-menu:hover {
+    background: rgba(255, 71, 87, 0.15);
+    border-color: rgba(255, 71, 87, 0.3);
+}
+
+.hamburger-menu i {
+    font-size: 1.5rem;
+    color: #ff4757;
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+}
+
+/* ============================================
+   TABLET STYLES (768px - 1199px)
+   ============================================ */
+@media (max-width: 1199px) {
+    /* Sidebar adjustments for tablet */
+    .sidebar {
+        width: 240px;
+    }
+    
+    .main-content {
+        margin-left: 240px;
+    }
+    
+    /* Adjust logo size */
+    .logo-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.3rem;
+    }
+    
+    .logo-name {
+        font-size: 1.3rem;
+    }
+    
+    /* Adjust nav items */
+    .nav-item {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .nav-item i {
+        font-size: 1rem;
+    }
+    
+    /* Section headers */
+    .header-content h1 {
+        font-size: 2rem;
+    }
+    
+    .header-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Content sections */
+    .content-section {
+        padding: 1.5rem;
+    }
+    
+    /* Tools grid - 2 columns on tablet */
+    .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    /* Adjust vault controls */
+    .vault-controls {
+        gap: 1.5rem;
+        padding: 1.25rem;
+    }
+    
+    /* Parent and child tabs */
+    .parent-tab {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .child-tab {
+        padding: 0.625rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ============================================
+   MOBILE LANDSCAPE (768px - 991px)
+   ============================================ */
+@media (max-width: 991px) {
+    /* Show hamburger menu */
+    .hamburger-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Sidebar - slide in from left */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 280px;
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    /* Show overlay when sidebar is active */
+    .sidebar.active ~ .sidebar-overlay,
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    /* Main content takes full width */
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    /* Section header - stack on smaller tablets */
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+    
+    .header-actions,
+    .header-filters {
+        flex-wrap: wrap;
+    }
+    
+    /* Buttons - full width on mobile */
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Vault controls - stack vertically */
+    .vault-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .vault-search {
+        min-width: 100%;
+    }
+    
+    .vault-filters {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .vault-filters select {
+        width: 100%;
+    }
+    
+    .view-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Bulk actions */
+    .bulk-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    /* Tools grid - single column on small tablets */
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   MOBILE PORTRAIT (< 768px)
+   ============================================ */
+@media (max-width: 767px) {
+    /* Remove mobile restriction overlay */
+    #mobile-restriction {
+        display: none !important;
+    }
+    
+    /* Body adjustments */
+    body {
+        font-size: 14px;
+    }
+    
+    /* Hamburger menu positioning */
+    .hamburger-menu {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.625rem;
+    }
+    
+    .hamburger-menu i {
+        font-size: 1.25rem;
+    }
+    
+    /* Sidebar adjustments */
+    .sidebar {
+        width: 85%;
+        max-width: 320px;
+    }
+    
+    .sidebar-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .logo-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2rem;
+    }
+    
+    .logo-name {
+        font-size: 1.2rem;
+    }
+    
+    .logo-tagline {
+        font-size: 0.65rem;
+    }
+    
+    /* Nav items */
+    .nav-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .nav-item i {
+        width: 18px;
+        font-size: 0.95rem;
+    }
+    
+    .nav-item span {
+        font-size: 0.875rem;
+    }
+    
+    /* Hide nav indicator on mobile */
+    .nav-indicator {
+        display: none;
+    }
+    
+    /* Sidebar footer */
+    .sidebar-footer {
+        padding: 1rem;
+    }
+    
+    .threat-level-indicator {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .status-label {
+        font-size: 0.7rem;
+    }
+    
+    .status-value {
+        font-size: 0.85rem;
+    }
+    
+    /* Main content */
+    .main-content {
+        margin-left: 0;
+        padding-top: 60px; /* Space for hamburger menu */
+    }
+    
+    /* Content sections */
+    .content-section {
+        padding: 1rem;
+    }
+    
+    /* Section headers */
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        gap: 1rem;
+    }
+    
+    .header-content h1 {
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .header-subtitle {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .header-actions,
+    .header-filters {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+    
+    /* Search container */
+    .search-container {
+        min-width: 100%;
+    }
+    
+    .search-container input {
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .search-container i {
+        left: 1rem;
+        font-size: 1rem;
+    }
+    
+    /* Buttons - touch-friendly sizing */
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9rem;
+        width: 100%;
+        justify-content: center;
+        min-height: 44px; /* iOS touch target size */
+    }
+    
+    /* Header filters */
+    .header-filters select {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        width: 100%;
+    }
+    
+    /* Vault controls */
+    .vault-controls {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0.875rem;
+    }
+    
+    .vault-search {
+        width: 100%;
+    }
+    
+    .vault-filters {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .vault-filters select {
+        width: 100%;
+        min-height: 44px;
+    }
+    
+    .view-toggle {
+        width: 100%;
+    }
+    
+    .view-btn {
+        flex: 1;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+    
+    /* Bulk actions */
+    .bulk-actions {
+        flex-direction: column;
+        padding: 1rem;
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .selected-count {
+        font-size: 0.85rem;
+    }
+    
+    .bulk-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Parent and child tabs */
+    .parent-tabs,
+    .child-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .parent-tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        min-width: auto;
+    }
+    
+    .parent-tab i {
+        font-size: 1rem;
+    }
+    
+    .child-tab {
+        padding: 0.625rem 1rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    
+    /* Tools container */
+    .tools-container {
+        min-height: 300px;
+    }
+    
+    /* Tools grid - single column */
+    .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    /* Tool cards */
+    .tool-card {
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+    }
+    
+    .tool-card:hover {
+        transform: translateY(-4px);
+    }
+    
+    /* Tool checkbox */
+    .tool-checkbox {
+        top: 1rem;
+        left: 1rem;
+    }
+    
+    .tool-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Tool status */
+    .tool-status {
+        top: 1rem;
+        right: 1rem;
+    }
+    
+    /* Tool name */
+    .tool-name {
+        font-size: 1.2rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Tool URL */
+    .tool-url {
+        margin-bottom: 1rem;
+    }
+    
+    .tool-url a {
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+    
+    /* Tool description */
+    .tool-description {
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+        min-height: 50px;
+        -webkit-line-clamp: 3;
+    }
+    
+    /* Tool tags */
+    .tool-tags {
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .tool-tag {
+        padding: 0.25em 0.7em;
+        font-size: 0.65rem;
+    }
+    
+    /* Tool actions */
+    .tool-actions {
+        gap: 0.5rem;
+        padding-top: 0.875rem;
+        justify-content: center;
+    }
+    
+    .tool-action-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+    
+    /* Tool list items */
+    .tool-item {
+        flex-wrap: wrap;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .tool-item .tool-info {
+        width: 100%;
+        order: 2;
+    }
+    
+    .tool-item .tool-checkbox {
+        order: 1;
+    }
+    
+    .tool-item .tool-status {
+        order: 3;
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .tool-item .tool-actions {
+        order: 4;
+        width: 100%;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .tool-item .tool-name {
+        font-size: 1.05rem;
+    }
+    
+    .tool-item .tool-url {
+        font-size: 0.8rem;
+    }
+    
+    .tool-item .tool-description {
+        font-size: 0.8rem;
+        white-space: normal;
+        -webkit-line-clamp: 2;
+    }
+    
+    .tool-item .tool-action-btn {
+        flex: 1;
+        min-width: 44px;
+    }
+    
+    /* No tools message */
+    .no-tools {
+        padding: 3rem 1.5rem;
+    }
+    
+    .no-tools-icon {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .no-tools-icon i {
+        font-size: 1.75rem;
+    }
+    
+    .no-tools h3 {
+        font-size: 1.25rem;
+    }
+    
+    .no-tools p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* ============================================
+   SMALL MOBILE (< 480px)
+   ============================================ */
+@media (max-width: 479px) {
+    /* Further optimize for very small screens */
+    .sidebar {
+        width: 90%;
+    }
+    
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+    
+    .header-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .tool-name {
+        font-size: 1.1rem;
+    }
+    
+    .tool-card {
+        padding: 1.25rem 0.875rem;
+    }
+    
+    /* Parent tabs scroll horizontally */
+    .parent-tabs,
+    .child-tabs {
+        padding: 0.5rem;
+    }
+    
+    .parent-tab {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+    }
+    
+    .child-tab {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Tool actions - smaller on very small screens */
+    .tool-action-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ============================================
+   MODAL RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 767px) {
+    .modal {
+        padding: 1rem;
+    }
+    
+    .modal-content {
+        max-width: 100%;
+        width: 100%;
+        padding: 0;
+        max-height: 85vh;
+        border-radius: 16px;
+    }
+    
+    .modal-header {
+        padding: 1.5rem 1rem 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .delete-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+    
+    .delete-modal .modal-body p {
+        font-size: 0.9rem;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES FOR RESPONSIVE
+   ============================================ */
+
+/* Hide on mobile */
+@media (max-width: 767px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Hide on tablet */
+@media (max-width: 991px) {
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+/* Show only on mobile */
+.show-mobile {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    .show-mobile {
+        display: block !important;
+    }
+}
+
+/* Responsive text alignment */
+@media (max-width: 767px) {
+    .mobile-text-center {
+        text-align: center !important;
+    }
+}
+
+/* Responsive spacing */
+@media (max-width: 767px) {
+    .mobile-mt-1 { margin-top: 0.5rem !important; }
+    .mobile-mt-2 { margin-top: 1rem !important; }
+    .mobile-mt-3 { margin-top: 1.5rem !important; }
+    .mobile-mb-1 { margin-bottom: 0.5rem !important; }
+    .mobile-mb-2 { margin-bottom: 1rem !important; }
+    .mobile-mb-3 { margin-bottom: 1.5rem !important; }
+}
+
+/* ============================================
+   FORMS RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 767px) {
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+    
+    .form-group label {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        min-height: 44px;
+    }
+    
+    .form-group textarea {
+        min-height: 120px;
+    }
+    
+    .form-group small {
+        font-size: 0.75rem;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    
+    .form-actions button {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+    }
+}
+
+/* ============================================
+   IMPORT SECTION RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 991px) {
+    .import-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .import-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .import-header {
+        margin-bottom: 2rem;
+    }
+    
+    .import-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .import-header h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .import-header h4 {
+        font-size: 1.15rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .import-header p {
+        font-size: 0.9rem;
+    }
+    
+    .import-section h4 {
+        font-size: 1.15rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .import-section p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .file-upload-area {
+        padding: 2rem 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .upload-content i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .upload-content h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .upload-content p {
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .import-format {
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .import-format h5 {
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .import-format pre {
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        overflow-x: auto;
+    }
+    
+    .import-instructions {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .import-instructions h4 {
+        font-size: 1.05rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
+/* ============================================
+   NOTIFICATIONS RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 767px) {
+    .notification-container {
+        right: 1rem;
+        left: 1rem;
+        top: 70px; /* Below hamburger menu */
+    }
+    
+    .notification {
+        padding: 1rem;
+        border-radius: 12px;
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .notification-content {
+        gap: 0.5rem;
+    }
+    
+    .notification-content i {
+        font-size: 1rem;
+    }
+    
+    .notification-content span {
+        font-size: 0.85rem;
+    }
+}
+
+/* ============================================
+   METRICS & DASHBOARD RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 991px) {
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .metric-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .metric-header {
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+    
+    .metric-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+    }
+    
+    .metric-trend {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .metric-content {
+        margin-bottom: 1.25rem;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .metric-sublabel {
+        font-size: 0.8rem;
+    }
+    
+    .metric-chart {
+        height: 35px;
+        gap: 0.25rem;
+    }
+    
+    .dashboard-grid {
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .dashboard-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .card-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.875rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .card-title {
+        gap: 0.5rem;
+    }
+    
+    .card-title i {
+        font-size: 1.1rem;
+    }
+    
+    .card-title h3 {
+        font-size: 1.15rem;
+    }
+    
+    .card-action {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.875rem;
+    }
+}
+
+/* ============================================
+   ACTIVITY TIMELINE RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 767px) {
+    .activity-timeline {
+        gap: 1rem;
+    }
+    
+    .activity-item {
+        padding: 1rem;
+        gap: 0.875rem;
+    }
+    
+    .activity-item:hover {
+        transform: translateX(2px);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+    
+    .activity-title {
+        font-size: 0.95rem;
+        margin-bottom: 0.375rem;
+    }
+    
+    .activity-description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .activity-time {
+        font-size: 0.75rem;
+        margin-top: 0.375rem;
+    }
+}
+
+/* ============================================
+   THREAT ITEMS RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 767px) {
+    .top-threats-list {
+        gap: 0.875rem;
+    }
+    
+    .threat-item {
+        padding: 1rem;
+        gap: 0.875rem;
+        flex-wrap: wrap;
+    }
+    
+    .threat-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+    
+    .threat-name {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .threat-category {
+        font-size: 0.75rem;
+    }
+    
+    .threat-level-badge {
+        padding: 0.3rem 0.75rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* ============================================
+   THREAT MAP RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 991px) {
+    .threat-map {
+        height: 400px;
+    }
+}
+
+@media (max-width: 767px) {
+    .threat-map {
+        height: 350px;
+    }
+    
+    .map-overlay {
+        top: 1rem;
+        right: 1rem;
+        padding: 0.875rem;
+    }
+    
+    .map-stats {
+        gap: 0.5rem;
+    }
+    
+    .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+    }
+    
+    .map-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .map-placeholder p {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .map-legend {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    
+    .legend-item {
+        font-size: 0.85rem;
+    }
+    
+    .map-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .map-btn {
+        flex: 1;
+        min-width: calc(50% - 0.25rem);
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* ============================================
+   ACTORS GRID RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 991px) {
+    .actors-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .actors-grid {
+        gap: 1rem;
+    }
+    
+    .actor-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .actor-card:hover {
+        transform: translateY(-4px);
+    }
+    
+    .actor-header {
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .actor-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 1.75rem;
+        border-radius: 16px;
+    }
+    
+    .country-flag {
+        width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+        bottom: -6px;
+        right: -6px;
+    }
+    
+    .actor-name {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .actor-aliases {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .actor-category {
+        padding: 0.3rem 0.875rem;
+        font-size: 0.7rem;
+    }
+    
+    .actor-description {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+    
+    .actor-meta {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .meta-label {
+        font-size: 0.7rem;
+    }
+    
+    .meta-value {
+        font-size: 0.9rem;
+    }
+    
+    .actor-tags {
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .actor-tag {
+        padding: 0.3rem 0.625rem;
+        font-size: 0.7rem;
+    }
+    
+    .actor-footer {
+        padding-top: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+}
+
+/* ============================================
+   PROFILE PAGE RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 991px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .profile-main-content {
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .profile-container {
+        gap: 1.5rem;
+    }
+    
+    .profile-main-content {
+        gap: 1.5rem;
+    }
+    
+    .profile-sidebar {
+        gap: 1.5rem;
+    }
+    
+    .profile-section {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .section-title {
+        font-size: 1.15rem;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .section-title i {
+        font-size: 1rem;
+    }
+    
+    .profile-description {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    
+    .tags-grid {
+        gap: 0.5rem;
+    }
+    
+    .profile-tag {
+        padding: 0.4rem 0.875rem;
+        font-size: 0.8rem;
+        border-radius: 10px;
+    }
+    
+    .campaigns-list {
+        gap: 0.875rem;
+    }
+    
+    .campaign-item {
+        padding: 1rem;
+        gap: 0.875rem;
+        flex-wrap: wrap;
+    }
+    
+    .campaign-item i {
+        font-size: 1rem;
+    }
+    
+    .iocs-grid {
+        gap: 0.5rem;
+    }
+    
+    .ioc-item {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.75rem;
+        word-break: break-all;
+    }
+    
+    .intelligence-grid {
+        gap: 1.25rem;
+    }
+    
+    .intel-item {
+        padding: 0.875rem 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .intel-label {
+        font-size: 0.85rem;
+    }
+    
+    .intel-value {
+        text-align: left;
+        font-size: 0.9rem;
+    }
+    
+    .recent-activity-item {
+        padding: 1.25rem;
+    }
+    
+    .activity-date {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .activity-desc {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+}
+
+/* ============================================
+   COMING SOON RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 767px) {
+    .coming-soon {
+        padding: 4rem 1.5rem;
+    }
+    
+    .coming-soon-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .coming-soon-icon i {
+        font-size: 2.5rem;
+    }
+    
+    .coming-soon h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.875rem;
+    }
+    
+    .coming-soon p {
+        font-size: 0.95rem;
+        max-width: 100%;
+        line-height: 1.5;
+    }
+}
+
+/* ============================================
+   FOOTER RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 991px) {
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .app-footer {
+        margin-top: 3rem;
+    }
+    
+    .footer-content {
+        padding: 3rem 1.5rem 1.5rem;
+    }
+    
+    .footer-main {
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .footer-brand {
+        gap: 1.5rem;
+    }
+    
+    .footer-logo-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+    
+    .footer-logo-name {
+        font-size: 1.5rem;
+    }
+    
+    .footer-logo-tagline {
+        font-size: 0.75rem;
+    }
+    
+    .footer-description {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    .footer-stats {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .footer-stat {
+        flex: 1;
+        min-width: calc(50% - 0.5rem);
+        padding: 0.875rem;
+    }
+    
+    .footer-stat .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .footer-stat .stat-label {
+        font-size: 0.7rem;
+    }
+    
+    .footer-links {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .footer-column h4 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .footer-column ul {
+        gap: 0.625rem;
+    }
+    
+    .footer-column ul li a {
+        font-size: 0.85rem;
+        padding: 0.25rem 0;
+    }
+    
+    .footer-bottom {
+        padding-top: 1.5rem;
+        gap: 1.5rem;
+    }
+    
+    .footer-copyright {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .copyright-text {
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 479px) {
+    .footer-stats {
+        flex-direction: column;
+    }
+    
+    .footer-stat {
+        min-width: 100%;
+    }
+}

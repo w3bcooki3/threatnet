@@ -1,0 +1,59 @@
+<h1>Network Reconnaissance Techniques</h1>
+<div class="cheatsheet-detail-meta-info">
+    <span><i class="fas fa-user-circle"></i> ThreatNet Team</span>
+    <span><i class="fas fa-calendar-alt"></i> July 23, 2025</span>
+    <span><i class="fas fa-tag"></i> Network, Reconnaissance, Scanning</span>
+</div>
+<p>Network reconnaissance is the process of gathering information about a target network before launching an attack or conducting an assessment. It's a critical first step in both offensive and defensive cybersecurity.</p>
+
+<h2>Passive Reconnaissance</h2>
+<p>Gathering information without directly interacting with the target network. This minimizes detection risk.</p>
+<ul>
+    <li><b>WHOIS Lookups:</b> Determine domain registration details, IP ranges, and contact information.</li>
+    <li><b>DNS Lookups:</b> Use tools like `dig`, `nslookup`, or online DNS tools to find A, MX, NS, CNAME, and SPF records.</li>
+    <li><b>Google Hacking / Dorking:</b> Use search engines to find publicly exposed files, directories, or vulnerable systems related to the target.</li>
+    <li><b>Shodan/Censys:</b> Search for internet-connected devices, open ports, banners, and vulnerabilities.</li>
+    <li><b>Wayback Machine:</b> Access historical versions of websites for old configurations, sensitive paths, or forgotten subdomains.</li>
+    <li><b>Social Media:</b> Gather information about employees, technologies used, and company culture.</li>
+</ul>
+<pre><code>Example Shodan Query:
+port:8080 country:"US" product:"nginx"</code></pre>
+
+<h2>Active Reconnaissance</h2>
+<p>Directly interacting with the target network to gather more detailed information. This carries a higher risk of detection.</p>
+<h3>1. Ping Sweeps</h3>
+<p>Used to determine which hosts are active on a network. Tools like `nmap` can perform this.</p>
+<pre><code>nmap -sn 192.168.1.0/24</code></pre>
+
+<h3>2. Port Scanning</h3>
+<p>Identify open ports and services running on target hosts.</p>
+<pre><code>Popular tools:
+    - nmap (TCP SYN Scan, TCP Connect Scan, UDP Scan)
+    - masscan (high-performance port scanner)
+
+Example nmap scan:
+nmap -sV -p- 192.168.1.100</code></pre>
+
+<h3>3. Vulnerability Scanning</h3>
+<p>Identify known vulnerabilities in services and applications.</p>
+<pre><code>Tools:
+    - Nessus
+    - OpenVAS
+    - Nikto (web server scanner)</code></pre>
+
+<h3>4. OS Fingerprinting</h3>
+<p>Determine the operating system of a target host.</p>
+<pre><code>nmap -O 192.168.1.100</code></pre>
+
+<h3>5. Enumeration (SMB, SNMP, SMTP, etc.)</h3>
+<p>Extracting more specific information about network resources, users, and shares.</p>
+<pre><code>Tools for SMB enumeration:
+    - enum4linux
+    - smbclient</code></pre>
+
+<h2>Important Considerations</h2>
+<ul>
+    <li><b>Stealth vs. Speed:</b> Balance the need for secrecy with the efficiency of information gathering.</li>
+    <li><b>Legality & Ethics:</b> Always obtain proper authorization before conducting active reconnaissance on systems you do not own or have explicit permission to test.</li>
+    <li><b>Documentation:</b> Keep detailed records of all findings and methods used.</li>
+</ul>

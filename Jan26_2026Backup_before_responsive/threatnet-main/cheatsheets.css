@@ -1,0 +1,620 @@
+/* Cheatsheets Section Styles */
+
+.cheatsheets-grid {
+    display: grid;
+    /* Default grid: 3 columns for most desktops, adjusts down to 1 on small */
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjusted minmax for better balance */
+    gap: 1.8rem;
+    padding-top: 1.5rem;
+    transition: all 0.3s ease-in-out; /* Smooth transition for grid layout changes */
+}
+
+/* List View Styling */
+.cheatsheets-grid.list-view {
+    grid-template-columns: 1fr; /* Always single column for list view */
+    gap: 1rem; /* Smaller gap in list view */
+}
+
+.cheatsheets-grid.list-view .cheatsheet-card {
+    flex-direction: column; /* Stack header, description, and meta vertically */
+    align-items: flex-start; /* Align content to the start (left) */
+    padding: 1.2rem 1.8rem;
+    height: auto; /* Allow height to adjust based on content */
+    min-height: 140px; /* Ensure minimum height to accommodate content */
+    position: relative; /* Keep relative for background number positioning */
+    /* Remove hover effect specific to 3D tilt as it might look odd in list */
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* More subtle shadow for list view */
+}
+
+.cheatsheets-grid.list-view .cheatsheet-card:hover {
+    transform: translateY(-5px); /* Simple lift on hover */
+    border-color: #8be9fd;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 233, 253, 0.3);
+}
+
+.cheatsheets-grid.list-view .cheatsheet-card-header {
+    flex-direction: row; /* Keep icon and title side-by-side */
+    align-items: center; /* Vertically align icon and title */
+    gap: 1rem;
+    margin-bottom: 0.8rem; /* Space between header and description */
+    width: 100%; /* Ensure it takes full width */
+    padding-right: 0; /* Remove extra padding */
+}
+
+.cheatsheets-grid.list-view .cheatsheet-card-header .cheatsheet-icon {
+    width: 40px; /* Slightly smaller icon in list view */
+    height: 40px;
+    font-size: 1rem;
+    border-radius: 10px;
+}
+
+.cheatsheets-grid.list-view .cheatsheet-title {
+    font-size: 1.3rem; /* Slightly smaller title in list view */
+    line-height: 1.2;
+    -webkit-text-fill-color: unset; /* Remove gradient for better contrast in list */
+    color: #f8f8f2; /* Solid white for list view title */
+    text-shadow: none; /* Remove text shadow */
+    background: none; /* Remove background for text fill */
+}
+
+.cheatsheets-grid.list-view .cheatsheet-description {
+    display: -webkit-box; /* Re-enable description */
+    font-size: 0.9rem; /* Slightly larger description font for readability in list */
+    line-height: 1.6;
+    margin-bottom: 1rem; /* Space before meta info */
+    min-height: unset; /* Remove min-height restriction */
+    -webkit-line-clamp: 2; /* Limit to 2 lines for compactness */
+    -webkit-box-orient: vertical;
+    color: #bd93f9; /* Keep purple accent for description */
+    padding-right: 0; /* No need for right padding here */
+}
+
+.cheatsheets-grid.list-view .cheatsheet-meta {
+    padding-top: 0.8rem; /* Add top padding to meta */
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Keep a subtle separator */
+    flex-direction: row; /* Keep meta items horizontal */
+    justify-content: space-between; /* Space them out */
+    align-items: center; /* Vertically align */
+    width: 100%; /* Take full width */
+    font-size: 0.8rem; /* Smaller font for meta info */
+}
+
+.cheatsheets-grid.list-view .cheatsheet-category-badge {
+    padding: 0.2em 0.6em;
+    font-size: 0.7rem;
+}
+
+
+
+/* Ensure ::before glow works consistently */
+.cheatsheets-grid.list-view .cheatsheet-card::before {
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #8be9fd, #50fa7b);
+}
+
+
+/* --- Base Card Styling (Grid View Default) --- */
+.cheatsheet-card {
+    background: linear-gradient(145deg, #2a2a3e 0%, #1e1e2d 100%);
+    border: 1px solid rgba(139, 233, 253, 0.1);
+    border-radius: 18px;
+    padding: 1.5rem;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
+}
+
+/* Subtle 3D tilt and glow on hover */
+.cheatsheet-card:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-8px) scale(1.02);
+    border-color: #8be9fd;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(139, 233, 253, 0.4);
+    z-index: 2;
+}
+
+/* Dynamic top border glow effect */
+.cheatsheet-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8be9fd, #6272a4, #50fa7b);
+    opacity: 0;
+    transition: all 0.6s ease-out;
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+.cheatsheet-card:hover::before {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+
+.cheatsheet-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    z-index: 1;
+}
+
+.cheatsheet-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(139, 233, 253, 0.2), rgba(80, 250, 123, 0.15));
+    border: 1px solid rgba(139, 233, 253, 0.3);
+    color: #8be9fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(139, 233, 253, 0.2);
+}
+
+.cheatsheet-card:hover .cheatsheet-icon {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(139, 233, 253, 0.3);
+}
+
+
+.cheatsheet-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #f8f8f2;
+    margin: 0;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #f8f8f2, #8be9fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    letter-spacing: -0.5px;
+    z-index: 1;
+}
+
+.cheatsheet-description {
+    color: #bd93f9;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    min-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    z-index: 1;
+}
+
+.cheatsheet-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.85rem;
+    color: #6272a4;
+    z-index: 1;
+}
+
+.cheatsheet-category-badge {
+    background: rgba(80, 250, 123, 0.15);
+    color: #50fa7b;
+    padding: 0.3em 0.8em;
+    border-radius: 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(80, 250, 123, 0.3);
+    box-shadow: 0 2px 8px rgba(80, 250, 123, 0.1);
+}
+
+.cheatsheet-date {
+    font-style: normal;
+    font-weight: 500;
+    color: #6272a4;
+}
+
+/* Cheatsheet Detail View (Blog/Article Style) */
+#cheatsheet-detail-view {
+    display: none;
+    background: linear-gradient(145deg, #2a2a3e, #1e1e2d);
+    border: 1px solid rgba(139, 233, 253, 0.15);
+    border-radius: 18px;
+    padding: 2.5rem 3.5rem;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color: #f8f8f2;
+    animation: fadeInSlideUp 0.8s ease-out forwards;
+}
+
+.cheatsheet-detail-back-button {
+    background: linear-gradient(135deg, rgba(98, 114, 164, 0.25), rgba(139, 233, 253, 0.2));
+    color: #bd93f9;
+    border: 1px solid rgba(98, 114, 164, 0.4);
+    padding: 0.7rem 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1.8rem;
+}
+
+.cheatsheet-detail-back-button:hover {
+    background: linear-gradient(135deg, rgba(98, 114, 164, 0.35), rgba(139, 233, 253, 0.3));
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #f8f8f2;
+}
+
+#cheatsheet-detail-view h1 {
+    font-size: 2.8rem;
+    color: #8be9fd;
+    margin-bottom: 1.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    letter-spacing: -1px;
+}
+
+#cheatsheet-detail-view h2 {
+    font-size: 2rem;
+    color: #f8f8f2;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(98, 114, 164, 0.3);
+    padding-bottom: 0.6rem;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+#cheatsheet-detail-view h3 {
+    font-size: 1.6rem;
+    color: #bd93f9;
+    margin-top: 2rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+#cheatsheet-detail-view p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    color: #f8f8f2;
+}
+
+#cheatsheet-detail-view ul,
+#cheatsheet-detail-view ol {
+    margin-bottom: 1.2rem;
+    padding-left: 1.8rem;
+    color: #f8f8f2;
+}
+
+#cheatsheet-detail-view li {
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+}
+
+#cheatsheet-detail-view code {
+    background: rgba(80, 250, 123, 0.15);
+    color: #50fa7b;
+    padding: 0.2em 0.4em;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+}
+
+#cheatsheet-detail-view pre {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(98, 114, 164, 0.3);
+    border-left: 5px solid #bd93f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.8rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #f8f8f2;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#cheatsheet-detail-view a {
+    color: #bd93f9;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+#cheatsheet-detail-view a:hover {
+    color: #ff79c6;
+    text-decoration: underline;
+    text-shadow: 0 0 5px rgba(255, 121, 198, 0.5);
+}
+
+#cheatsheet-detail-view img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(98, 114, 164, 0.2);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.cheatsheet-detail-meta-info {
+    font-size: 0.95rem;
+    color: #6272a4;
+    margin-top: 0.4rem;
+    margin-bottom: 1.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px dashed rgba(98, 114, 164, 0.2);
+}
+
+.cheatsheet-detail-meta-info span {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.cheatsheet-detail-meta-info span i {
+    margin-right: 0;
+    color: #8be9fd;
+    font-size: 1rem;
+}
+
+/* Empty State */
+.empty-cheatsheet-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 1.5rem;
+    text-align: center;
+    color: #6272a4;
+    min-height: 400px;
+}
+
+.empty-cheatsheet-state .empty-icon {
+    font-size: 4rem;
+    color: #8be9fd;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.empty-cheatsheet-state h3 {
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+    color: #f8f8f2;
+    font-weight: 800;
+}
+
+.empty-cheatsheet-state p {
+    font-size: 1rem;
+    max-width: 450px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+/* View Toggle Buttons */
+.cheatsheet-view-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto; /* Push to the right */
+    flex-shrink: 0; /* Prevent it from shrinking */
+}
+
+.cheatsheet-view-toggle .view-btn {
+    background-color: #3b3b4d;
+    color: #6272a4;
+    border: 1px solid #44475a;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cheatsheet-view-toggle .view-btn:hover {
+    background-color: #44475a;
+    color: #f8f8f2;
+    border-color: #8be9fd;
+}
+
+.cheatsheet-view-toggle .view-btn.active {
+    background-color: #50fa7b;
+    color: #282a36;
+    border-color: #50fa7b;
+    box-shadow: 0 2px 10px rgba(80, 250, 123, 0.4);
+}
+
+
+/* --- Responsive Adjustments --- */
+
+/* For smaller desktops / larger tablets where 3 columns might become 2 or 1 */
+@media (max-width: 1200px) {
+    .cheatsheets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+/* For tablets and up */
+@media (max-width: 992px) {
+    .cheatsheets-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Generally 2 columns here */
+        gap: 1.5rem;
+    }
+    .cheatsheet-card {
+        padding: 1.2rem;
+        height: 200px; /* Slightly reduce fixed height in grid view */
+    }
+    .cheatsheet-title {
+        font-size: 1.3rem;
+    }
+    .cheatsheet-description {
+        font-size: 0.85rem;
+        min-height: 40px; /* Adjust min-height */
+        -webkit-line-clamp: 2; /* Adjust line clamp for shorter descriptions */
+    }
+
+    /* List view specific adjustments for this breakpoint */
+    .cheatsheets-grid.list-view .cheatsheet-card {
+        padding: 1rem 1.5rem;
+        min-height: 120px;
+    }
+    .cheatsheets-grid.list-view .cheatsheet-title {
+        font-size: 1.15rem;
+    }
+    .cheatsheets-grid.list-view .cheatsheet-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+    }
+
+    /* Header actions layout for smaller screens */
+    .section-header .header-actions {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: flex-end; /* Align them to the right */
+        gap: 0.8rem;
+        width: auto; /* Allow content to dictate width */
+    }
+    .cheatsheet-view-toggle {
+        margin-left: 0; /* Remove auto margin */
+        width: 100%; /* Take full width */
+        justify-content: flex-end; /* Push buttons to the right */
+    }
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .section-header .header-content {
+        width: 100%;
+    }
+}
+
+/* For mobile devices (single column) */
+@media (max-width: 768px) {
+    .cheatsheets-grid {
+        grid-template-columns: 1fr; /* Always single column */
+        gap: 1rem;
+    }
+    .cheatsheet-card {
+        padding: 1rem;
+        height: auto; /* Allow height to be dynamic */
+        min-height: unset; /* Remove fixed min-height for flexible content */
+    }
+    .cheatsheet-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    .cheatsheet-title {
+        font-size: 1.2rem;
+    }
+    .cheatsheet-description {
+        font-size: 0.8rem;
+        min-height: unset;
+        -webkit-line-clamp: 3; /* Allow more lines if needed */
+    }
+    .cheatsheet-meta {
+        font-size: 0.75rem;
+        padding-top: 0.8rem;
+        margin-top: 0.8rem;
+    }
+    
+
+    /* Detail View adjustments for mobile */
+    #cheatsheet-detail-view {
+        padding: 1rem 0.8rem;
+    }
+    #cheatsheet-detail-view h1 {
+        font-size: 2rem;
+    }
+    #cheatsheet-detail-view h2 {
+        font-size: 1.6rem;
+    }
+    #cheatsheet-detail-view h3 {
+        font-size: 1.3rem;
+    }
+    #cheatsheet-detail-view p {
+        font-size: 0.95rem;
+    }
+    #cheatsheet-detail-view pre {
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+    .cheatsheet-detail-meta-info {
+        font-size: 0.8rem;
+        gap: 0.6rem;
+    }
+    .cheatsheet-detail-meta-info span i {
+        font-size: 0.9rem;
+    }
+    .cheatsheet-detail-back-button {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+
+    /* Header actions on smallest screens */
+    .section-header .header-actions {
+        flex-direction: column;
+        align-items: stretch; /* Stretch buttons to full width */
+    }
+    .cheatsheet-view-toggle {
+        justify-content: center; /* Center buttons if they span full width */
+        gap: 0.8rem;
+    }
+    .cheatsheet-view-toggle .view-btn {
+        flex-grow: 1; /* Make buttons grow to fill space */
+        justify-content: center;
+    }
+    .btn-secondary { /* Apply to refresh button too */
+        flex-grow: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .cheatsheet-title {
+        font-size: 1.1rem;
+    }
+    .cheatsheet-description {
+        font-size: 0.75rem;
+    }
+    #cheatsheet-detail-view h1 {
+        font-size: 1.6rem;
+    }
+    #cheatsheet-detail-view h2 {
+        font-size: 1.3rem;
+    }
+    #cheatsheet-detail-view h3 {
+        font-size: 1.1rem;
+    }
+    #cheatsheet-detail-view p {
+        font-size: 0.9rem;
+    }
+}
