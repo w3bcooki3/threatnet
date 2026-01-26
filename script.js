@@ -3684,3 +3684,34 @@ function observeElements() {
 
 // Call observe elements after DOM updates
 setTimeout(observeElements, 100);
+
+/**
+ * OSINTrix Mobile Guard
+ * Ensures the app only runs on Desktop for UI/UX integrity.
+ */
+function enforceDesktopAccess() {
+    const mobileOverlay = document.getElementById('mobile-restriction');
+    if (!mobileOverlay) return;
+
+    // Detection: Width < 1024px OR Mobile User Agent
+    const isSmallScreen = window.innerWidth < 1024;
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isSmallScreen || isMobileDevice) {
+        mobileOverlay.style.display = 'flex';
+        
+        // Stop background execution to save mobile resources
+        if (window.stop) window.stop(); 
+        
+        // Lock scrolling on the main page
+        document.body.style.overflow = 'hidden';
+    } else {
+        mobileOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Attach listeners
+window.addEventListener('load', enforceDesktopAccess);
+// Uses your existing debounce function from script.js
+window.addEventListener('resize', debounce(enforceDesktopAccess, 250));
