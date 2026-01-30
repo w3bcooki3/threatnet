@@ -3,7 +3,7 @@
    Professional Threat Hunting Database
    ========================================== */
 
-class ThreatWikiManager {
+   class ThreatWikiManager {
     constructor() {
         this.rules = [];
         this.currentCategory = 'all';
@@ -35,26 +35,29 @@ class ThreatWikiManager {
             
             if (savedRules && savedRules.length > 0) {
                 this.rules = savedRules;
+                console.log('Loaded rules from local storage:', this.rules.length);
             } else {
                 // 2. If nothing in local storage, fetch the external JSON file
-                const response = await fetch('threat-rules.json'); // Adjust path as needed
+                const response = await fetch('threat-rules.json');
                 if (!response.ok) throw new Error('Failed to fetch rules.json');
                 
                 const defaultRules = await response.json();
                 this.rules = defaultRules;
+                console.log('Loaded rules from JSON file:', this.rules.length);
                 
                 // 3. Save to localforage so user can start editing/adding
                 await this.saveRules();
             }
         } catch (err) {
             console.error("Critical error loading threat rules:", err);
-            this.rules = []; // Fallback to empty if both fail
+            this.rules = [];
         }
     }
 
     async saveRules() {
         try {
             await localforage.setItem('threatWikiRules', this.rules);
+            console.log('Rules saved to local storage');
         } catch (err) {
             console.error("Storage Quota Exceeded or Error:", err);
             if (typeof window.showNotification === 'function') {
@@ -80,7 +83,7 @@ class ThreatWikiManager {
         }
         
         // Save preference
-        localStorage.setItem('threatWikiView', view);
+        localforage.setItem('threatWikiView', view);
     }
 
     setupEventListeners() {
@@ -433,17 +436,13 @@ class ThreatWikiManager {
         const rule = this.rules.find(r => r.id === ruleId);
         if (!rule) return;
 
-        showConfirmDeleteModal(
-            'Confirm Rule Deletion',
-            `Are you sure you want to delete "${rule.title}"? This action cannot be undone.`,
-            () => {
-                this.rules = this.rules.filter(r => r.id !== ruleId);
-                this.saveRules();
-                this.renderRules();
-                this.updateStats();
-                showNotification('Rule deleted successfully', 'success');
-            }
-        );
+        if (confirm(`Are you sure you want to delete "${rule.title}"? This action cannot be undone.`)) {
+            this.rules = this.rules.filter(r => r.id !== ruleId);
+            this.saveRules();
+            this.renderRules();
+            this.updateStats();
+            showNotification('Rule deleted successfully', 'success');
+        }
     }
 
     toggleStar(ruleId) {
@@ -481,23 +480,93 @@ class ThreatWikiManager {
             return;
         }
 
-        // Convert the entire rules array to a JSON string
         const dataStr = JSON.stringify(this.rules, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
         
-        // Create a temporary link to trigger download
         const link = document.createElement('a');
         link.href = url;
         link.download = `all_threat_rules_${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link);
         link.click();
         
-        // Clean up
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
         showNotification('All rules exported successfully', 'success');
+    }
+
+    // NEW: Import rules from JSON file
+    importRules() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            try {
+                const text = await file.text();
+                const importedRules = JSON.parse(text);
+                
+                if (!Array.isArray(importedRules)) {
+                    throw new Error('Invalid JSON format');
+                }
+                
+                // Ask user: merge or replace?
+                const merge = confirm('Merge with existing rules? (Cancel to replace all rules)');
+                
+                if (merge) {
+                    // Add imported rules that don't exist
+                    let addedCount = 0;
+                    importedRules.forEach(rule => {
+                        if (!this.rules.find(r => r.id === rule.id)) {
+                            this.rules.push(rule);
+                            addedCount++;
+                        }
+                    });
+                    showNotification(`${addedCount} new rules imported`, 'success');
+                } else {
+                    // Replace all
+                    this.rules = importedRules;
+                    showNotification(`All rules replaced. Total: ${this.rules.length}`, 'success');
+                }
+                
+                await this.saveRules();
+                this.renderRules();
+                this.updateStats();
+            } catch (err) {
+                console.error('Import error:', err);
+                showNotification('Failed to import rules: ' + err.message, 'error');
+            }
+        };
+        
+        input.click();
+    }
+
+    // NEW: Reset to default rules from JSON
+    async resetToDefault() {
+        if (!confirm('Reset to default rules? All your custom rules and edits will be lost. This cannot be undone!')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('threat-rules.json');
+            if (!response.ok) throw new Error('Failed to fetch default rules');
+            
+            const defaultRules = await response.json();
+            this.rules = defaultRules;
+            
+            await localforage.setItem('threatWikiRules', this.rules);
+            
+            this.renderRules();
+            this.updateStats();
+            showNotification('Rules reset to default from JSON file', 'success');
+        } catch (err) {
+            console.error('Reset error:', err);
+            showNotification('Failed to reset rules: ' + err.message, 'error');
+        }
     }
 
     copyCode(ruleId) {
@@ -506,6 +575,9 @@ class ThreatWikiManager {
 
         navigator.clipboard.writeText(rule.code).then(() => {
             showNotification('Code copied to clipboard', 'success');
+        }).catch(err => {
+            console.error('Copy failed:', err);
+            showNotification('Failed to copy code', 'error');
         });
     }
 
@@ -518,10 +590,9 @@ class ThreatWikiManager {
         document.getElementById('yara-count').textContent = yaraCount;
         document.getElementById('total-rules-count').textContent = totalCount;
 
-        // --- ADD THIS LINE BELOW ---
+        // Update all category count
         const allCountEl = document.querySelector('[data-category="all"] .category-count');
         if (allCountEl) allCountEl.textContent = totalCount;
-        // ---------------------------
 
         // Update other category counts
         const categories = ['malware', 'apt', 'ransomware', 'persistence', 'credential-access', 'lateral-movement', 'exfiltration'];
@@ -554,13 +625,34 @@ document.addEventListener('DOMContentLoaded', () => {
 const scrollBtn = document.createElement('div');
 scrollBtn.className = 'scroll-to-top';
 scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+scrollBtn.style.cssText = `
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #ff4757, #ff6b7a);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+`;
 document.body.appendChild(scrollBtn);
 
 window.addEventListener('scroll', () => {
     if (window.scrollY > 500) {
-        scrollBtn.classList.add('visible');
+        scrollBtn.style.opacity = '1';
+        scrollBtn.style.visibility = 'visible';
     } else {
-        scrollBtn.classList.remove('visible');
+        scrollBtn.style.opacity = '0';
+        scrollBtn.style.visibility = 'hidden';
     }
 });
 
