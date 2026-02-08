@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="cheatsheets.css">
     <link rel="stylesheet" href="tracelink.css">
     <link rel="stylesheet" href="threat-wiki.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
@@ -123,9 +124,13 @@
         </aside>
 
         <main class="main-content">
+            <!-- ============================================
+            NEW OSINTRIX DASHBOARD WITH REAL DATA (FIXED)
+            ============================================ -->
+
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
-                    <div class="header-content" style="max-width: 900px;">
+                    <div class="header-content">
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                             <h1 style="margin: 0; font-size: 2.5rem; letter-spacing: -0.5px; color: #f1f5f9;">
                                 Unified Intelligence Hub
@@ -144,85 +149,38 @@
                             Development in progress — expect frequent updates and improvements.
                         </div>
                     </div>
+                    <div class="header-actions">
+                        <button class="btn-secondary" onclick="updateDashboard()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
                 </div>
 
+                <!-- Primary Metrics Grid -->
                 <div class="metrics-grid">
-                    <div class="metric-card critical">
+                    <!-- Total Tools -->
+                    <div class="metric-card info" id="dashboard-total-tools">
                         <div class="metric-header">
                             <div class="metric-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="metric-trend up">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+12</span>
+                                <i class="fas fa-toolbox"></i>
                             </div>
                         </div>
                         <div class="metric-content">
-                            <div class="metric-value">847</div>
-                            <div class="metric-label">Active Threat Actors</div>
-                            <div class="metric-sublabel">This week</div>
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Total Tools</div>
+                            <div class="metric-sublabel">In Intelligence Vault</div>
                         </div>
-                        <div class="metric-chart">
-                            <div class="chart-bar" style="height: 60%"></div>
-                            <div class="chart-bar" style="height: 80%"></div>
-                            <div class="chart-bar" style="height: 45%"></div>
-                            <div class="chart-bar" style="height: 90%"></div>
-                            <div class="chart-bar" style="height: 100%"></div>
+                        <div class="metric-chart" id="dashboard-weekly-chart">
+                            <!-- Weekly chart bars will be inserted here -->
                         </div>
                     </div>
-                    
-                    <div class="metric-card high">
+
+                    <!-- Tools Added This Week -->
+                    <div class="metric-card high" id="dashboard-tools-this-week">
                         <div class="metric-header">
                             <div class="metric-icon">
-                                <i class="fas fa-crosshairs"></i>
-                            </div>
-                            <div class="metric-trend down">
-                                <i class="fas fa-arrow-down"></i>
-                                <span>-3</span>
-                            </div>
-                        </div>
-                        <div class="metric-content">
-                            <div class="metric-value">234</div>
-                            <div class="metric-label">Active Campaigns</div>
-                            <div class="metric-sublabel">This week</div>
-                        </div>
-                        <div class="metric-chart">
-                            <div class="chart-bar" style="height: 70%"></div>
-                            <div class="chart-bar" style="height: 85%"></div>
-                            <div class="chart-bar" style="height: 60%"></div>
-                            <div class="chart-bar" style="height: 75%"></div>
-                            <div class="chart-bar" style="height: 80%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-card medium">
-                        <div class="metric-header">
-                            <div class="metric-icon">
-                                <i class="fas fa-fingerprint"></i>
-                            </div>
-                            <div class="metric-trend up">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+156</span>
-                            </div>
-                        </div>
-                        <div class="metric-content">
-                            <div class="metric-value">15.2K</div>
-                            <div class="metric-label">IOCs Tracked</div>
-                            <div class="metric-sublabel">Today</div>
-                        </div>
-                        <div class="metric-chart">
-                            <div class="chart-bar" style="height: 40%"></div>
-                            <div class="chart-bar" style="height: 65%"></div>
-                            <div class="chart-bar" style="height: 80%"></div>
-                            <div class="chart-bar" style="height: 95%"></div>
-                            <div class="chart-bar" style="height: 100%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-card info">
-                        <div class="metric-header">
-                            <div class="metric-icon">
-                                <i class="fas fa-globe"></i>
+                                <i class="fas fa-plus-circle"></i>
                             </div>
                             <div class="metric-trend neutral">
                                 <i class="fas fa-minus"></i>
@@ -230,68 +188,207 @@
                             </div>
                         </div>
                         <div class="metric-content">
-                            <div class="metric-value">67</div>
-                            <div class="metric-label">Countries</div>
-                            <div class="metric-sublabel">Coverage</div>
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Added This Week</div>
+                            <div class="metric-sublabel">New tools</div>
                         </div>
-                        <div class="metric-chart">
-                            <div class="chart-bar" style="height: 85%"></div>
-                            <div class="chart-bar" style="height: 85%"></div>
-                            <div class="chart-bar" style="height: 85%"></div>
-                            <div class="chart-bar" style="height: 85%"></div>
-                            <div class="chart-bar" style="height: 85%"></div>
+                    </div>
+
+                    <!-- Tools Added This Month -->
+                    <div class="metric-card medium" id="dashboard-tools-this-month">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Added This Month</div>
+                            <div class="metric-sublabel">30 days</div>
+                        </div>
+                    </div>
+
+                    <!-- Pinned Tools -->
+                    <div class="metric-card critical" id="dashboard-pinned-tools">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-thumbtack"></i>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Pinned Tools</div>
+                            <div class="metric-sublabel">Quick access</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="dashboard-card full-width map-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="fas fa-globe-americas"></i>
-                            <h3>Global Threat Intelligence Map</h3>
+                <!-- Secondary Metrics Grid -->
+                <div class="metrics-grid">
+                    <!-- Starred Tools -->
+                    <div class="metric-card high" id="dashboard-starred-tools">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
                         </div>
-                        <div class="map-controls">
-                            <button class="map-btn active">Live</button>
-                            <button class="map-btn">24h</button>
-                            <button class="map-btn">7d</button>
-                            <button class="map-btn">30d</button>
+                        <div class="metric-content">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Starred Tools</div>
+                            <div class="metric-sublabel">Favorites</div>
                         </div>
                     </div>
-                    <div class="threat-map">
-                        <div class="map-overlay">
-                            <div class="map-stats">
-                                <div class="map-stat">
-                                    <span class="stat-number">1,247</span>
-                                    <span class="stat-label">Active Threats</span>
-                                </div>
-                                <div class="map-stat">
-                                    <span class="stat-number">89</span>
-                                    <span class="stat-label">Countries</span>
-                                </div>
-                                <div class="map-stat">
-                                    <span class="stat-number">24/7</span>
-                                    <span class="stat-label">Monitoring</span>
-                                </div>
+
+                    <!-- Dork Templates -->
+                    <div class="metric-card medium" id="dashboard-dork-templates">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-search"></i>
                             </div>
                         </div>
-                        <div class="map-placeholder">
-                            <i class="fas fa-globe-americas"></i>
-                            <p>Interactive threat intelligence map showing global actor locations and recent activities</p>
-                            <div class="map-legend">
-                                <div class="legend-item">
-                                    <div class="legend-dot critical"></div>
-                                    <span>Critical Threats</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-dot high"></div>
-                                    <span>High Threats</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-dot medium"></div>
-                                    <span>Medium Threats</span>
-                                </div>
+                        <div class="metric-content">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Dork Templates</div>
+                            <div class="metric-sublabel">Search patterns</div>
+                        </div>
+                    </div>
+
+                    <!-- Threat Hunting Rules -->
+                    <div class="metric-card critical" id="dashboard-threat-hunting-rules">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-shield-alt"></i>
                             </div>
                         </div>
+                        <div class="metric-content">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Threat Hunting Rules</div>
+                            <div class="metric-sublabel">Detection rules</div>
+                        </div>
+                    </div>
+
+                    <!-- Case Studies -->
+                    <div class="metric-card info" id="dashboard-case-studies">
+                        <div class="metric-header">
+                            <div class="metric-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Case Studies</div>
+                            <div class="metric-sublabel">Documented cases</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Grid: Top Categories & Most Used Tools -->
+                <div class="dashboard-grid">
+                    <!-- Top Categories -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-chart-bar"></i>
+                                <h3>Top Categories</h3>
+                            </div>
+                            <button class="card-action" onclick="showSection('vault')">
+                                View Vault
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div id="dashboard-top-categories-list" class="categories-list">
+                            <!-- Categories will be populated by dashboard-data.js -->
+                            <div class="no-data">Loading categories...</div>
+                        </div>
+                    </div>
+
+                    <!-- Most Used Tools -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-fire"></i>
+                                <h3>Most Used Tools</h3>
+                            </div>
+                        </div>
+                        <div id="dashboard-most-used-tools-list" class="used-tools-list">
+                            <!-- Most used tools will be populated by dashboard-data.js -->
+                            <div class="no-data">No usage data yet. Start using your tools!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Distribution -->
+                <div class="dashboard-card full-width">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3>Category Distribution</h3>
+                        </div>
+                    </div>
+                    <div id="dashboard-category-distribution" class="category-distribution">
+                        <!-- Distribution will be populated by dashboard-data.js -->
+                        <div class="no-data">Loading distribution...</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-card full-width">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-history"></i>
+                            <h3>Recent Activity</h3>
+                        </div>
+                    </div>
+                    <div id="dashboard-recent-activity-timeline" class="activity-timeline">
+                        <!-- Activity will be populated by dashboard-data.js -->
+                        <div class="no-data">No recent activity</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-grid">
+                    <div class="quick-action-card" onclick="showSection('vault')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4>Add New Tool</h4>
+                            <p>Expand your intelligence vault</p>
+                        </div>
+                        <i class="fas fa-arrow-right quick-action-arrow"></i>
+                    </div>
+
+                    <div class="quick-action-card" onclick="showSection('dork-assistant')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4>Create Dork Template</h4>
+                            <p>Build search patterns</p>
+                        </div>
+                        <i class="fas fa-arrow-right quick-action-arrow"></i>
+                    </div>
+
+                    <div class="quick-action-card" onclick="showSection('case-studies')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4>Document Case Study</h4>
+                            <p>Record investigation findings</p>
+                        </div>
+                        <i class="fas fa-arrow-right quick-action-arrow"></i>
+                    </div>
+
+                    <div class="quick-action-card" onclick="showSection('investigation-notes')">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-sticky-note"></i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4>Take Notes</h4>
+                            <p>Capture important details</p>
+                        </div>
+                        <i class="fas fa-arrow-right quick-action-arrow"></i>
                     </div>
                 </div>
             </section>
@@ -2755,6 +2852,7 @@
     <script src="tracelink.js"></script>
     <script src="threat-wiki.js"></script>
     <script src="responsive.js"></script>
+    <script src="dashboard-data.js"></script>
 
 </body>
 </html>

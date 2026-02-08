@@ -278,6 +278,9 @@ function showSection(sectionName) {
             }
         } else if (sectionName === 'dashboard') {
             loadDashboard();
+            if (typeof updateDashboard === 'function') {
+                setTimeout(updateDashboard, 100);
+            }
         } else if (sectionName === 'import') {
             loadImportSection();
         } else if (sectionName === 'vault') {

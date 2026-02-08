@@ -53,7 +53,7 @@ function calculateDashboardMetrics() {
             return sum + (cat.templates?.length || 0);
         }, 0);
     } catch (e) {
-        console.log('Dork templates not available');
+        console.log('Dork templates not available yet');
     }
     
     // Get threat hunting rules (from blue team playbook if available)
@@ -64,7 +64,7 @@ function calculateDashboardMetrics() {
             item.type === 'detection' || item.type === 'hunting'
         ).length;
     } catch (e) {
-        console.log('Threat hunting rules not available');
+        console.log('Threat hunting rules not available yet');
     }
     
     // Get case studies count
@@ -73,7 +73,7 @@ function calculateDashboardMetrics() {
         const cases = JSON.parse(localStorage.getItem('caseStudies')) || [];
         caseStudiesCount = cases.length;
     } catch (e) {
-        console.log('Case studies not available');
+        console.log('Case studies not available yet');
     }
     
     // Get investigation notes count
@@ -82,7 +82,7 @@ function calculateDashboardMetrics() {
         const notes = JSON.parse(localStorage.getItem('investigationNotes')) || [];
         investigationNotesCount = notes.length;
     } catch (e) {
-        console.log('Investigation notes not available');
+        console.log('Investigation notes not available yet');
     }
     
     // Get threat intel items count
@@ -91,7 +91,7 @@ function calculateDashboardMetrics() {
         const threatItems = JSON.parse(localStorage.getItem('threatIntelItems')) || [];
         threatIntelCount = threatItems.length;
     } catch (e) {
-        console.log('Threat intel not available');
+        console.log('Threat intel not available yet');
     }
     
     // Get cheatsheets count
@@ -100,7 +100,16 @@ function calculateDashboardMetrics() {
         const cheatsheets = JSON.parse(localStorage.getItem('cheatsheets')) || [];
         cheatsheetsCount = cheatsheets.length;
     } catch (e) {
-        console.log('Cheatsheets not available');
+        console.log('Cheatsheets not available yet');
+    }
+    
+    // Get TraceLink projects count
+    let tracelinkProjectsCount = 0;
+    try {
+        const projects = JSON.parse(localStorage.getItem('traceLinkProjects')) || [];
+        tracelinkProjectsCount = projects.length;
+    } catch (e) {
+        console.log('TraceLink projects not available yet');
     }
     
     // Calculate most used tools (based on access count if you track it)
@@ -112,26 +121,31 @@ function calculateDashboardMetrics() {
             name: t.name,
             url: t.url,
             category: categoryMapping[t.parentCategory]?.name || t.parentCategory,
-            accessCount: t.accessCount || 0
+            accessCount: t.accessCount || 0,
+            icon: categoryMapping[t.parentCategory]?.icon || 'fas fa-toolbox'
         }));
     
     // Recent activity from all sections
     const recentActivity = [];
     
-    // Recent tools
+    // Recent tools (last 10)
     const recentTools = tools
         .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-        .slice(0, 3)
+        .slice(0, 10)
         .map(t => ({
             type: 'tool',
             title: `Added ${t.name}`,
-            description: `New tool added to ${categoryMapping[t.parentCategory]?.name || t.parentCategory}`,
+            description: `New tool in ${categoryMapping[t.parentCategory]?.name || t.parentCategory}`,
             date: t.dateAdded,
             icon: 'fas fa-plus-circle',
             iconClass: 'new'
         }));
     
     recentActivity.push(...recentTools);
+    
+    // Sort by date and limit to 15 most recent
+    recentActivity.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const limitedActivity = recentActivity.slice(0, 15);
     
     return {
         totalTools: tools.length,
@@ -147,10 +161,11 @@ function calculateDashboardMetrics() {
         investigationNotesCount,
         threatIntelCount,
         cheatsheetsCount,
+        tracelinkProjectsCount,
         categoryStats,
         topCategories,
         mostUsedTools,
-        recentActivity
+        recentActivity: limitedActivity
     };
 }
 
@@ -206,17 +221,17 @@ function getCategoryDistribution() {
 function updateDashboard() {
     const metrics = calculateDashboardMetrics();
     
-    // Update metric cards
-    updateMetricCard('total-tools', metrics.totalTools, null, 'Total Tools');
-    updateMetricCard('tools-this-week', metrics.toolsThisWeek, 
+    // Update metric cards (with 'dashboard-' prefix to avoid conflicts)
+    updateMetricCard('dashboard-total-tools', metrics.totalTools, null, 'Total Tools');
+    updateMetricCard('dashboard-tools-this-week', metrics.toolsThisWeek, 
         metrics.toolsChange, 'Added This Week');
-    updateMetricCard('tools-this-month', metrics.toolsThisMonth, 
+    updateMetricCard('dashboard-tools-this-month', metrics.toolsThisMonth, 
         null, 'Added This Month');
-    updateMetricCard('pinned-tools', metrics.pinnedTools, null, 'Pinned Tools');
-    updateMetricCard('starred-tools', metrics.starredTools, null, 'Starred Tools');
-    updateMetricCard('dork-templates', metrics.dorkTemplatesCount, null, 'Dork Templates');
-    updateMetricCard('threat-hunting-rules', metrics.threatHuntingRules, null, 'Threat Hunting Rules');
-    updateMetricCard('case-studies', metrics.caseStudiesCount, null, 'Case Studies');
+    updateMetricCard('dashboard-pinned-tools', metrics.pinnedTools, null, 'Pinned Tools');
+    updateMetricCard('dashboard-starred-tools', metrics.starredTools, null, 'Starred Tools');
+    updateMetricCard('dashboard-dork-templates', metrics.dorkTemplatesCount, null, 'Dork Templates');
+    updateMetricCard('dashboard-threat-hunting-rules', metrics.threatHuntingRules, null, 'Threat Hunting Rules');
+    updateMetricCard('dashboard-case-studies', metrics.caseStudiesCount, null, 'Case Studies');
     
     // Update top categories
     updateTopCategories(metrics.topCategories);
@@ -230,6 +245,8 @@ function updateDashboard() {
     // Update charts
     updateWeeklyChart();
     updateCategoryChart(metrics.categoryStats);
+    
+    console.log('✓ Dashboard updated with real data');
 }
 
 /**
@@ -279,13 +296,15 @@ function formatNumber(num) {
  * Update top categories list
  */
 function updateTopCategories(categories) {
-    const container = document.getElementById('top-categories-list');
+    const container = document.getElementById('dashboard-top-categories-list');
     if (!container) return;
     
     if (categories.length === 0) {
         container.innerHTML = '<div class="no-data">No categories yet. Start adding tools!</div>';
         return;
     }
+    
+    const maxCount = Math.max(...categories.map(c => c.count));
     
     container.innerHTML = categories.map(cat => `
         <div class="category-item">
@@ -294,10 +313,10 @@ function updateTopCategories(categories) {
             </div>
             <div class="category-info">
                 <div class="category-name">${cat.name}</div>
-                <div class="category-count">${cat.count} tools</div>
+                <div class="category-count">${cat.count} tool${cat.count !== 1 ? 's' : ''}</div>
             </div>
             <div class="category-bar">
-                <div class="category-bar-fill" style="width: ${(cat.count / intelligenceTools.length * 100)}%"></div>
+                <div class="category-bar-fill" style="width: ${(cat.count / maxCount * 100)}%"></div>
             </div>
         </div>
     `).join('');
@@ -307,11 +326,18 @@ function updateTopCategories(categories) {
  * Update most used tools list
  */
 function updateMostUsedTools(tools) {
-    const container = document.getElementById('most-used-tools-list');
+    const container = document.getElementById('dashboard-most-used-tools-list');
     if (!container) return;
     
     if (tools.length === 0) {
-        container.innerHTML = '<div class="no-data">No usage data yet. Start using your tools!</div>';
+        container.innerHTML = `
+            <div class="no-data">
+                <p>No usage data yet.</p>
+                <p style="font-size: 0.85rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.4);">
+                    Usage tracking will show your most-used tools here.
+                </p>
+            </div>
+        `;
         return;
     }
     
@@ -319,13 +345,13 @@ function updateMostUsedTools(tools) {
         <div class="used-tool-item">
             <div class="tool-rank">#${index + 1}</div>
             <div class="tool-details">
-                <div class="tool-name">${tool.name}</div>
+                <div class="tool-name">${escapeHtml(tool.name)}</div>
                 <div class="tool-meta">
-                    <span class="tool-category"><i class="fas fa-folder"></i> ${tool.category}</span>
-                    <span class="tool-uses"><i class="fas fa-mouse-pointer"></i> ${tool.accessCount} uses</span>
+                    <span class="tool-category"><i class="${tool.icon}"></i> ${escapeHtml(tool.category)}</span>
+                    <span class="tool-uses"><i class="fas fa-mouse-pointer"></i> ${tool.accessCount} use${tool.accessCount !== 1 ? 's' : ''}</span>
                 </div>
             </div>
-            <a href="${tool.url}" target="_blank" class="tool-quick-link" title="Open ${tool.name}">
+            <a href="${escapeHtml(tool.url)}" target="_blank" class="tool-quick-link" title="Open ${escapeHtml(tool.name)}">
                 <i class="fas fa-external-link-alt"></i>
             </a>
         </div>
@@ -336,11 +362,18 @@ function updateMostUsedTools(tools) {
  * Update recent activity timeline
  */
 function updateRecentActivity(activities) {
-    const container = document.getElementById('recent-activity-timeline');
+    const container = document.getElementById('dashboard-recent-activity-timeline');
     if (!container) return;
     
     if (activities.length === 0) {
-        container.innerHTML = '<div class="no-data">No recent activity</div>';
+        container.innerHTML = `
+            <div class="no-data">
+                <p>No recent activity</p>
+                <p style="font-size: 0.85rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.4);">
+                    Start adding tools to see activity here.
+                </p>
+            </div>
+        `;
         return;
     }
     
@@ -350,8 +383,8 @@ function updateRecentActivity(activities) {
                 <i class="${activity.icon}"></i>
             </div>
             <div class="activity-content">
-                <div class="activity-title">${activity.title}</div>
-                <div class="activity-description">${activity.description}</div>
+                <div class="activity-title">${escapeHtml(activity.title)}</div>
+                <div class="activity-description">${escapeHtml(activity.description)}</div>
                 <div class="activity-time">${getRelativeTime(activity.date)}</div>
             </div>
         </div>
@@ -373,6 +406,7 @@ function getRelativeTime(date) {
     if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? 's' : ''} ago`;
     
     return past.toLocaleDateString();
 }
@@ -384,28 +418,36 @@ function updateWeeklyChart() {
     const chartData = getWeeklyToolsChart();
     const maxCount = Math.max(...chartData.map(d => d.count), 1);
     
-    const container = document.getElementById('weekly-chart');
+    const container = document.getElementById('dashboard-weekly-chart');
     if (!container) return;
     
-    container.innerHTML = chartData.map(day => `
-        <div class="chart-bar" style="height: ${(day.count / maxCount * 100)}%">
-            <div class="chart-tooltip">${day.day}: ${day.count}</div>
-        </div>
-    `).join('');
+    container.innerHTML = chartData.map(day => {
+        const height = maxCount > 0 ? (day.count / maxCount * 100) : 0;
+        return `
+            <div class="chart-bar" style="height: ${height}%">
+                <div class="chart-tooltip">${day.day}: ${day.count}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 /**
  * Update category distribution chart
  */
 function updateCategoryChart(categoryStats) {
-    // This would create a visual representation
-    // For now, we'll update a simple list
-    const container = document.getElementById('category-distribution');
+    const container = document.getElementById('dashboard-category-distribution');
     if (!container) return;
+    
+    const entries = Object.entries(categoryStats);
+    
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="no-data">No categories yet. Start adding tools!</div>';
+        return;
+    }
     
     const total = Object.values(categoryStats).reduce((sum, count) => sum + count, 0);
     
-    container.innerHTML = Object.entries(categoryStats)
+    container.innerHTML = entries
         .sort((a, b) => b[1] - a[1])
         .slice(0, 8)
         .map(([cat, count]) => {
@@ -413,7 +455,7 @@ function updateCategoryChart(categoryStats) {
             const catName = categoryMapping[cat]?.name || cat;
             return `
                 <div class="distribution-item">
-                    <div class="distribution-label">${catName}</div>
+                    <div class="distribution-label">${escapeHtml(catName)}</div>
                     <div class="distribution-bar">
                         <div class="distribution-fill" style="width: ${percentage}%"></div>
                     </div>
@@ -424,17 +466,29 @@ function updateCategoryChart(categoryStats) {
 }
 
 /**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
  * Initialize dashboard on page load
  */
 function initDashboard() {
-    // Update dashboard when navigating to it
+    // Update dashboard if it's the active section
     const dashboardSection = document.getElementById('dashboard');
     if (dashboardSection && dashboardSection.classList.contains('active')) {
         updateDashboard();
     }
 }
 
-// Auto-refresh dashboard every 30 seconds when visible
+/**
+ * Auto-refresh dashboard every 30 seconds when visible
+ */
 let dashboardRefreshInterval;
 
 function startDashboardRefresh() {
@@ -453,15 +507,27 @@ function stopDashboardRefresh() {
     }
 }
 
-// Initialize on load
+/**
+ * Manually refresh dashboard (called by refresh button)
+ */
+function refreshDashboard() {
+    updateDashboard();
+    showNotification('Dashboard refreshed', 'success');
+}
+
+// Initialize on DOM ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
-        initDashboard();
-        startDashboardRefresh();
+        setTimeout(() => {
+            initDashboard();
+            startDashboardRefresh();
+        }, 500); // Small delay to ensure other components are loaded
     });
 } else {
-    initDashboard();
-    startDashboardRefresh();
+    setTimeout(() => {
+        initDashboard();
+        startDashboardRefresh();
+    }, 500);
 }
 
 console.log('✓ Dashboard Data Engine Initialized');
