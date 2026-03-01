@@ -1,0 +1,601 @@
+{
+  "version": "1.4.0",
+  "updated": "January 2025",
+  "bots": [
+    {
+      "id": "googlebot",
+      "name": "Googlebot",
+      "family": "Search Engine Crawlers",
+      "author": "Google LLC",
+      "classification": "legitimate",
+      "riskScore": "info",
+      "firstSeen": "1997-11",
+      "lastSeen": "Active (ongoing)",
+      "summary": "Google's primary web crawler for indexing pages in Google Search. Completely legitimate when verified via reverse DNS. Many impersonators exist — always verify before trusting. Site operators can control access via robots.txt.",
+      "recommendation": {
+        "action": "allow",
+        "text": "Allow verified Googlebot. Verify via rDNS: IP → hostname ending in .googlebot.com or .google.com → forward DNS back to same IP. Block any Googlebot UA from non-Google IP ranges immediately."
+      },
+      "targets": [
+        "All websites",
+        "E-commerce",
+        "News sites",
+        "Blogs"
+      ],
+      "techniques": [
+        "HTTP crawling",
+        "Sitemap parsing",
+        "robots.txt compliance",
+        "JavaScript rendering"
+      ],
+      "userAgents": [
+        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+        "Googlebot-Image/1.0",
+        "Googlebot-Video/1.0"
+      ],
+      "iocs": [
+        {
+          "type": "ua",
+          "value": "Googlebot/2.1",
+          "confidence": "medium",
+          "note": "Can be spoofed — verify via rDNS"
+        },
+        {
+          "type": "asn",
+          "value": "AS15169 (GOOGLE)",
+          "confidence": "high",
+          "note": "All legitimate Googlebot traffic"
+        },
+        {
+          "type": "domain",
+          "value": "*.googlebot.com",
+          "confidence": "high",
+          "note": "Verified rDNS hostname"
+        },
+        {
+          "type": "behavior",
+          "value": "Respects robots.txt",
+          "confidence": "high",
+          "note": "Legitimate Googlebot always respects crawl directives"
+        }
+      ],
+      "timeline": [
+        {
+          "date": "1997",
+          "event": "Googlebot first deployed to index the early web for BackRub."
+        },
+        {
+          "date": "2014",
+          "event": "Google announces Googlebot now renders JavaScript for indexing."
+        },
+        {
+          "date": "2019",
+          "event": "Googlebot moves to evergreen Chromium-based rendering engine."
+        },
+        {
+          "date": "2023",
+          "event": "Increased frequency of smartphone Googlebot for mobile-first indexing."
+        }
+      ],
+      "behaviors": [
+        {
+          "type": "normal",
+          "icon": "fas fa-check-circle",
+          "text": "Respects robots.txt and Crawl-delay directives."
+        },
+        {
+          "type": "normal",
+          "icon": "fas fa-check-circle",
+          "text": "Performs reverse DNS verification — rDNS resolves to *.googlebot.com."
+        },
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "IMPERSONATORS: Many malicious bots fake Googlebot UA. Always verify via rDNS."
+        }
+      ],
+      "mitigation": [
+        {
+          "title": "Verify via Reverse DNS",
+          "desc": "Run: host <IP>\nConfirm hostname ends in .googlebot.com or .google.com, then forward-resolve to confirm match.",
+          "priority": "immediate"
+        },
+        {
+          "title": "Block Impersonators",
+          "desc": "Create server rules to block any IP claiming Googlebot UA that fails rDNS verification.",
+          "priority": "high"
+        },
+        {
+          "title": "Control via robots.txt",
+          "desc": "Use Crawl-delay and Disallow directives to control crawl scope and frequency.",
+          "priority": "medium"
+        }
+      ],
+      "relatedBots": [
+        "bingbot",
+        "ahrefsbot"
+      ],
+      "detection": {
+        "signature": "User-Agent contains 'Googlebot' AND rDNS resolves to *.googlebot.com AND forward DNS matches source IP",
+        "yara": "rule Googlebot_UserAgent {\n    meta:\n        description = \"Detects Googlebot user-agent\"\n        author = \"OSINTrix Bot Wiki\"\n        date = \"2025-01\"\n    strings:\n        $ua1 = \"Googlebot/2.1\" ascii nocase\n        $ua2 = \"Googlebot-Image\" ascii nocase\n    condition:\n        any of ($ua*)\n}",
+        "nginx": "# Verify Googlebot — block impersonators\ngeo $is_google_ip {\n    default 0;\n    66.249.64.0/19  1;\n    66.249.80.0/20  1;\n    64.233.160.0/19 1;\n    74.125.0.0/16   1;\n    209.85.128.0/17 1;\n}\n\nmap $http_user_agent $is_googlebot_ua {\n    default         0;\n    ~*[Gg]ooglebot  1;\n}\n\nlocation / {\n    # Block if UA says Googlebot but IP is not Google\n    set $check \"\";\n    if ($is_googlebot_ua = 1) { set $check \"bot_\"; }\n    if ($is_google_ip = 0)    { set $check \"${check}noip\"; }\n    if ($check = \"bot_noip\")  { return 403; }\n}",
+        "apache": "# .htaccess — Block Googlebot from non-Google IPs\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteCond %{HTTP_USER_AGENT} [Gg]ooglebot [NC]\nRewriteCond %{REMOTE_ADDR} !^66\\.249\\.\nRewriteCond %{REMOTE_ADDR} !^64\\.233\\.\nRewriteCond %{REMOTE_ADDR} !^74\\.125\\.\nRewriteRule ^ - [F,L]\n</IfModule>",
+        "cloudflare": "# Cloudflare WAF — Block Googlebot Impersonators\n# Expression:\n(http.user_agent contains \"Googlebot\" and not ip.src in {66.249.64.0/19 66.249.80.0/20 64.233.160.0/19 74.125.0.0/16 209.85.128.0/17})\n# Action: Block",
+        "modsecurity": "SecRule REQUEST_HEADERS:User-Agent \"@contains Googlebot\" \\\n    \"id:9001001,phase:1,deny,status:403,\\\n    msg:'Googlebot Impersonation',tag:'BOT_IMPERSONATION',chain\"\n    SecRule REMOTE_ADDR \"!@ipMatch 66.249.64.0/19,66.249.80.0/20,64.233.160.0/19\""
+      }
+    },
+    {
+      "id": "ahrefsbot",
+      "name": "AhrefsBot",
+      "family": "SEO & Backlink Crawlers",
+      "author": "Ahrefs Pte Ltd",
+      "classification": "gray",
+      "riskScore": "medium",
+      "firstSeen": "2011-06",
+      "lastSeen": "Active (ongoing)",
+      "summary": "Commercial web crawler that builds Ahrefs' backlink database. Extremely aggressive crawl rate — often top-5 globally by volume. Provides no direct SEO benefit to crawled sites. Respects robots.txt. Many operators block it to save bandwidth, especially on shared hosting.",
+      "recommendation": {
+        "action": "monitor",
+        "text": "Block or rate-limit if bandwidth is a concern. AhrefsBot respects robots.txt. Blocking has no SEO penalty. Consider allowing if you actively use Ahrefs products."
+      },
+      "targets": [
+        "All public websites",
+        "E-commerce",
+        "News",
+        "Blogs"
+      ],
+      "techniques": [
+        "High-frequency HTTP crawling",
+        "Backlink discovery",
+        "Content analysis"
+      ],
+      "userAgents": [
+        "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)",
+        "Mozilla/5.0 (compatible; AhrefsBot/6.1; +http://ahrefs.com/robot/)"
+      ],
+      "iocs": [
+        {
+          "type": "ua",
+          "value": "AhrefsBot/7.0",
+          "confidence": "high",
+          "note": "Current version"
+        },
+        {
+          "type": "asn",
+          "value": "AS20473 (Vultr)",
+          "confidence": "medium",
+          "note": "Primary hosting ASN"
+        },
+        {
+          "type": "behavior",
+          "value": "Very high crawl frequency — millions req/day",
+          "confidence": "high",
+          "note": "Can cause measurable server load"
+        }
+      ],
+      "timeline": [
+        {
+          "date": "2011",
+          "event": "Ahrefs launches AhrefsBot to build backlink database."
+        },
+        {
+          "date": "2014",
+          "event": "Becomes one of top 5 most active crawlers globally."
+        },
+        {
+          "date": "2021",
+          "event": "AhrefsBot 7.0 launches with faster infrastructure."
+        }
+      ],
+      "behaviors": [
+        {
+          "type": "neutral",
+          "icon": "fas fa-exclamation-circle",
+          "text": "Respects robots.txt Disallow and Crawl-delay."
+        },
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "Extremely aggressive crawl rate — significant bandwidth impact on smaller hosts."
+        },
+        {
+          "type": "normal",
+          "icon": "fas fa-check-circle",
+          "text": "Provides opt-out at ahrefs.com/robot/"
+        }
+      ],
+      "mitigation": [
+        {
+          "title": "Block via robots.txt",
+          "desc": "User-agent: AhrefsBot\nDisallow: /\n\nSimplest method. Takes effect within 24–48h.",
+          "priority": "high"
+        },
+        {
+          "title": "Server-level UA Block",
+          "desc": "Block 'AhrefsBot' UA string at Nginx/Apache/Cloudflare for immediate effect.",
+          "priority": "high"
+        },
+        {
+          "title": "Rate Limiting",
+          "desc": "If you want Ahrefs data but lower frequency:\nCrawl-delay: 10",
+          "priority": "medium"
+        }
+      ],
+      "relatedBots": [
+        "semrushbot",
+        "googlebot"
+      ],
+      "detection": {
+        "yara": "rule AhrefsBot_Crawler {\n    meta:\n        description = \"Detects AhrefsBot SEO crawler\"\n        author = \"OSINTrix Bot Wiki\"\n        classification = \"gray\"\n    strings:\n        $ua1 = \"AhrefsBot\" ascii nocase\n        $ua2 = \"ahrefs.com/robot\" ascii nocase\n    condition:\n        any of ($ua*)\n}",
+        "nginx": "# Block AhrefsBot\nmap $http_user_agent $block_ahrefs {\n    default     0;\n    ~*AhrefsBot 1;\n}\n\nserver {\n    if ($block_ahrefs) { return 403; }\n}",
+        "apache": "# .htaccess — Block AhrefsBot\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteCond %{HTTP_USER_AGENT} AhrefsBot [NC]\nRewriteRule .* - [F,L]\n</IfModule>",
+        "cloudflare": "# Cloudflare WAF — Block AhrefsBot\n# Expression:\n(http.user_agent contains \"AhrefsBot\")\n# Action: Block or Challenge",
+        "modsecurity": "SecRule REQUEST_HEADERS:User-Agent \"@contains AhrefsBot\" \\\n    \"id:9002001,phase:1,deny,status:403,\\\n    msg:'AhrefsBot SEO Crawler Blocked',tag:'SEO_CRAWLER'\""
+      }
+    },
+    {
+      "id": "scrapy",
+      "name": "Scrapy Generic Scraper",
+      "family": "Web Scraping Frameworks",
+      "author": "Unknown / Various",
+      "classification": "malicious",
+      "riskScore": "high",
+      "firstSeen": "2013-01",
+      "lastSeen": "Active (ongoing)",
+      "summary": "Scrapy is a legitimate open-source Python framework, but unidentified generic Scrapy bots in logs typically indicate unauthorized scraping — harvesting prices, emails, listings, or copyrighted content. Default Scrapy UA in access logs is almost always unauthorized. Operators using Scrapy legitimately customize their user-agent.",
+      "recommendation": {
+        "action": "block",
+        "text": "Block the default Scrapy UA immediately. Implement rate limiting and honeypot traps as secondary defenses. Header anomaly detection catches rotating scrapers."
+      },
+      "targets": [
+        "E-commerce (price scraping)",
+        "Job boards",
+        "Real estate",
+        "Legal databases",
+        "Any structured data"
+      ],
+      "techniques": [
+        "High-concurrency requests",
+        "robots.txt violation",
+        "IP rotation",
+        "Sequential URL enumeration"
+      ],
+      "userAgents": [
+        "Scrapy/2.11.2 (+https://scrapy.org)",
+        "Scrapy/2.0",
+        "Python-urllib/3.x",
+        "python-requests/2.x"
+      ],
+      "iocs": [
+        {
+          "type": "ua",
+          "value": "Scrapy/",
+          "confidence": "high",
+          "note": "Default Scrapy UA — almost always unauthorized"
+        },
+        {
+          "type": "ua",
+          "value": "Python-urllib/",
+          "confidence": "medium",
+          "note": "Common after UA rotation"
+        },
+        {
+          "type": "behavior",
+          "value": "High request rate to structured data pages",
+          "confidence": "high",
+          "note": "Price lists, search results, product IDs"
+        },
+        {
+          "type": "behavior",
+          "value": "Sequential URL patterns (?page=1, ?page=2)",
+          "confidence": "high",
+          "note": "Classic pagination crawl"
+        },
+        {
+          "type": "behavior",
+          "value": "Missing Accept-Language and Sec-Fetch headers",
+          "confidence": "medium",
+          "note": "Script-based scrapers rarely include these"
+        }
+      ],
+      "timeline": [
+        {
+          "date": "2013",
+          "event": "Scrapy open-sourced; immediately adopted for unauthorized scraping."
+        },
+        {
+          "date": "2016",
+          "event": "Rise of scraping-as-a-service platforms built on Scrapy."
+        },
+        {
+          "date": "2021",
+          "event": "Residential proxy services enable Scrapy deployments evading IP blocks."
+        },
+        {
+          "date": "2024",
+          "event": "AI training data harvesting via Scrapy surges significantly."
+        }
+      ],
+      "behaviors": [
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "Often ignores robots.txt — check logs for crawl of Disallowed paths."
+        },
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "High concurrency — dozens of simultaneous requests causing load spikes."
+        },
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "Systematic URL enumeration — crawls paginated results or sequential product IDs."
+        },
+        {
+          "type": "neutral",
+          "icon": "fas fa-exclamation-circle",
+          "text": "Scrapy itself is a legitimate tool — block the behavior and default UA."
+        }
+      ],
+      "mitigation": [
+        {
+          "title": "Block Default Scrapy UA",
+          "desc": "Block any request with 'Scrapy' in User-Agent immediately. Legitimate users always set custom UAs.",
+          "priority": "immediate"
+        },
+        {
+          "title": "Rate Limiting",
+          "desc": "Limit to 60 req/min per IP. Return 429 Too Many Requests. Use Nginx limit_req or Cloudflare Rate Limiting.",
+          "priority": "immediate"
+        },
+        {
+          "title": "Honeypot Links",
+          "desc": "Add hidden links (display:none) to pages. Any bot following them is definitively a scraper. Auto-ban IP.",
+          "priority": "high"
+        },
+        {
+          "title": "Header Anomaly Detection",
+          "desc": "Block requests missing Accept-Language or Sec-Fetch-Site. Script scrapers rarely include these correctly.",
+          "priority": "high"
+        },
+        {
+          "title": "CAPTCHA on High-Value Pages",
+          "desc": "Deploy Cloudflare Turnstile or hCaptcha on pricing pages and data-rich search results.",
+          "priority": "medium"
+        }
+      ],
+      "relatedBots": [
+        "googlebot",
+        "ahrefsbot"
+      ],
+      "detection": {
+        "signature": "User-Agent contains 'Scrapy' OR missing Accept-Language AND high request rate from single IP",
+        "yara": "rule Scrapy_Scraper {\n    meta:\n        description = \"Detects Scrapy-based scraper by default UA\"\n        author = \"OSINTrix Bot Wiki\"\n        classification = \"malicious\"\n    strings:\n        $ua1 = \"Scrapy/\" ascii nocase\n        $ua2 = \"scrapy.org\" ascii nocase\n    condition:\n        any of ($ua*)\n}",
+        "sigma": "title: Scrapy Web Scraper Activity\nstatus: stable\ndescription: Detects Scrapy framework usage indicating potential unauthorized scraping\nlogsource:\n  category: webserver\ndetection:\n  selection:\n    cs-user-agent|contains: 'Scrapy/'\n  condition: selection\nlevel: high\ntags:\n  - attack.collection\n  - attack.t1119",
+        "nginx": "# Block Scrapy scrapers\nmap $http_user_agent $block_scraper {\n    default         0;\n    ~*[Ss]crapy     1;\n    ~*Python-urllib 1;\n}\n\nlimit_req_zone $binary_remote_addr zone=scraper_limit:10m rate=30r/m;\n\nserver {\n    if ($block_scraper) { return 403; }\n    location /products/ {\n        limit_req zone=scraper_limit burst=5 nodelay;\n    }\n}",
+        "apache": "# .htaccess — Block Scrapy\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteCond %{HTTP_USER_AGENT} Scrapy [NC]\nRewriteRule .* - [F,L]\nRewriteCond %{HTTP_USER_AGENT} Python-urllib [NC]\nRewriteRule .* - [F,L]\n</IfModule>",
+        "cloudflare": "# Cloudflare WAF — Block Scrapy\n# Expression:\n(http.user_agent contains \"Scrapy\")\n# Action: Block\n\n# Also add Rate Limiting rule:\n# Path: /products/* or /search\n# Threshold: 60 req/min\n# Action: Block",
+        "modsecurity": "SecRule REQUEST_HEADERS:User-Agent \"@rx [Ss]crapy\" \\\n    \"id:9003001,phase:1,deny,status:403,\\\n    msg:'Scrapy Scraper Detected',tag:'BOT_MALICIOUS',severity:'HIGH'\"\n\n# Header anomaly — missing Accept-Language\nSecRule &REQUEST_HEADERS:Accept-Language \"@eq 0\" \\\n    \"id:9003002,phase:1,pass,setvar:tx.bot_score=+2\"\n\nSecRule TX:BOT_SCORE \"@gt 3\" \\\n    \"id:9003003,phase:1,deny,status:403,msg:'Bot Anomaly Detected'\""
+      }
+    },
+    {
+      "id": "bingbot",
+      "name": "Bingbot",
+      "family": "Search Engine Crawlers",
+      "author": "Microsoft Corporation",
+      "classification": "legitimate",
+      "riskScore": "info",
+      "firstSeen": "2010-05",
+      "lastSeen": "Active (ongoing)",
+      "summary": "Microsoft's web crawler for Bing search. Like Googlebot, it should be verified via reverse DNS before being trusted. Verified Bingbot is completely benign. Blocking it removes your site from Bing search results.",
+      "recommendation": {
+        "action": "allow",
+        "text": "Allow verified Bingbot. Verify: IP should rDNS to *.search.msn.com, forward-resolve to same IP. Block any Bingbot UA from non-Microsoft IP ranges."
+      },
+      "targets": [
+        "All public websites",
+        "News sites",
+        "E-commerce"
+      ],
+      "techniques": [
+        "HTTP crawling",
+        "Sitemap parsing",
+        "JavaScript rendering"
+      ],
+      "userAgents": [
+        "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"
+      ],
+      "iocs": [
+        {
+          "type": "ua",
+          "value": "bingbot/2.0",
+          "confidence": "medium",
+          "note": "Always verify via rDNS"
+        },
+        {
+          "type": "domain",
+          "value": "*.search.msn.com",
+          "confidence": "high",
+          "note": "Verified rDNS hostname"
+        },
+        {
+          "type": "asn",
+          "value": "AS8075 (Microsoft)",
+          "confidence": "high",
+          "note": "Primary Microsoft ASN"
+        }
+      ],
+      "timeline": [
+        {
+          "date": "2009",
+          "event": "MSNBot succeeded by Bingbot as Microsoft launches Bing."
+        },
+        {
+          "date": "2020",
+          "event": "Bingbot gains JavaScript rendering capabilities."
+        },
+        {
+          "date": "2023",
+          "event": "Activity increases following Microsoft OpenAI/Bing integration."
+        }
+      ],
+      "behaviors": [
+        {
+          "type": "normal",
+          "icon": "fas fa-check-circle",
+          "text": "Respects robots.txt including Crawl-delay."
+        },
+        {
+          "type": "normal",
+          "icon": "fas fa-check-circle",
+          "text": "rDNS verifiable — resolves to *.search.msn.com."
+        },
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "Bingbot impersonation is common — always verify."
+        }
+      ],
+      "mitigation": [
+        {
+          "title": "Verify via Reverse DNS",
+          "desc": "host <IP> → must resolve to *.search.msn.com → forward resolve back to same IP.",
+          "priority": "immediate"
+        },
+        {
+          "title": "Block Impersonators",
+          "desc": "Block Bingbot UA from non-Microsoft ASN (AS8075, AS8068). Impersonators use Bingbot UA to appear legitimate.",
+          "priority": "high"
+        },
+        {
+          "title": "Use Bing Webmaster Tools",
+          "desc": "Monitor crawl stats and adjust crawl rate at webmaster.bing.com.",
+          "priority": "medium"
+        }
+      ],
+      "relatedBots": [
+        "googlebot",
+        "ahrefsbot"
+      ],
+      "detection": {
+        "nginx": "# Verify Bingbot — block impersonators\ngeo $is_msft_ip {\n    default 0;\n    40.77.167.0/24  1;\n    207.46.0.0/16   1;\n    157.54.0.0/15   1;\n    65.52.0.0/14    1;\n}\n\nmap $http_user_agent $is_bingbot {\n    default 0;\n    ~*bingbot 1;\n}\n\nlocation / {\n    set $bcheck \"\";\n    if ($is_bingbot = 1)  { set $bcheck \"bot_\"; }\n    if ($is_msft_ip = 0)  { set $bcheck \"${bcheck}noip\"; }\n    if ($bcheck = \"bot_noip\") { return 403; }\n}",
+        "apache": "# .htaccess — Block Bingbot from non-Microsoft IPs\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteCond %{HTTP_USER_AGENT} bingbot [NC]\nRewriteCond %{REMOTE_ADDR} !^40\\.77\\.167\\.\nRewriteCond %{REMOTE_ADDR} !^207\\.46\\.\nRewriteRule ^ - [F,L]\n</IfModule>",
+        "cloudflare": "# Cloudflare WAF — Block Bingbot Impersonators\n# Expression:\n(http.user_agent contains \"bingbot\" and not ip.src in {40.77.167.0/24 207.46.0.0/16 157.54.0.0/15 65.52.0.0/14})\n# Action: Block"
+      }
+    },
+    {
+      "id": "gptbot",
+      "name": "GPTBot / ChatGPT-User",
+      "family": "AI Training & Content Crawlers",
+      "author": "OpenAI",
+      "classification": "gray",
+      "riskScore": "medium",
+      "firstSeen": "2023-08",
+      "lastSeen": "Active (ongoing)",
+      "summary": "OpenAI operates two distinct crawlers: GPTBot harvests content for AI model training, and ChatGPT-User fetches real-time content for ChatGPT's browsing. GPTBot is controversial — it uses published content for commercial AI training without compensation. Many publishers now block it by default. Both respect robots.txt.",
+      "recommendation": {
+        "action": "monitor",
+        "text": "Block GPTBot if you don't want your content used for AI training (no SEO penalty). Allow ChatGPT-User if you want ChatGPT to cite and link to your content. Both respect robots.txt opt-out."
+      },
+      "targets": [
+        "News sites",
+        "Blogs",
+        "Academic content",
+        "Creative writing",
+        "Code repositories"
+      ],
+      "techniques": [
+        "Content harvesting for LLM training",
+        "Real-time content fetching"
+      ],
+      "userAgents": [
+        "GPTBot/1.0 (+https://openai.com/gptbot)",
+        "ChatGPT-User/1.0 (+https://openai.com/bot)"
+      ],
+      "iocs": [
+        {
+          "type": "ua",
+          "value": "GPTBot/1.0",
+          "confidence": "high",
+          "note": "AI training data crawler"
+        },
+        {
+          "type": "ua",
+          "value": "ChatGPT-User/1.0",
+          "confidence": "high",
+          "note": "Real-time browsing bot"
+        },
+        {
+          "type": "behavior",
+          "value": "Focuses on text-rich pages (articles, docs)",
+          "confidence": "high",
+          "note": ""
+        }
+      ],
+      "timeline": [
+        {
+          "date": "2023-08",
+          "event": "OpenAI announces GPTBot with robots.txt opt-out."
+        },
+        {
+          "date": "2023-09",
+          "event": "Major publishers (NYT, CNN) begin blocking GPTBot."
+        },
+        {
+          "date": "2024-02",
+          "event": "OpenAI lawsuit with NYT reveals scale of content harvesting."
+        },
+        {
+          "date": "2024-06",
+          "event": "Reddit, Wikipedia restrict AI crawlers amid licensing disputes."
+        }
+      ],
+      "behaviors": [
+        {
+          "type": "neutral",
+          "icon": "fas fa-exclamation-circle",
+          "text": "Respects robots.txt — add 'User-agent: GPTBot / Disallow: /' to opt out."
+        },
+        {
+          "type": "suspicious",
+          "icon": "fas fa-exclamation-triangle",
+          "text": "Content used for commercial AI training without compensation or consent."
+        },
+        {
+          "type": "normal",
+          "icon": "fas fa-check-circle",
+          "text": "Does not exploit vulnerabilities or exfiltrate user PII."
+        }
+      ],
+      "mitigation": [
+        {
+          "title": "Block GPTBot via robots.txt",
+          "desc": "User-agent: GPTBot\nDisallow: /\n\nOfficial opt-out. Takes effect within days.",
+          "priority": "high"
+        },
+        {
+          "title": "Differentiate Crawlers",
+          "desc": "Block GPTBot (training) but allow ChatGPT-User (citations/traffic). Use separate robots.txt rules.",
+          "priority": "high"
+        },
+        {
+          "title": "Server-Level Block",
+          "desc": "Block 'GPTBot' UA at Nginx/Apache/Cloudflare for immediate effect.",
+          "priority": "medium"
+        }
+      ],
+      "relatedBots": [
+        "googlebot",
+        "ahrefsbot"
+      ],
+      "detection": {
+        "yara": "rule OpenAI_Crawlers {\n    meta:\n        description = \"Detects OpenAI crawlers (GPTBot, ChatGPT-User)\"\n        author = \"OSINTrix Bot Wiki\"\n        classification = \"gray\"\n    strings:\n        $ua1 = \"GPTBot\" ascii nocase\n        $ua2 = \"ChatGPT-User\" ascii nocase\n    condition:\n        any of ($ua*)\n}",
+        "nginx": "# Block GPTBot AI training crawler\nmap $http_user_agent $block_gptbot {\n    default 0;\n    ~*GPTBot 1;\n}\n\nserver {\n    if ($block_gptbot) { return 403; }\n    # ChatGPT-User allowed by default (drives referral traffic)\n}",
+        "apache": "# .htaccess — Block GPTBot\n<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteCond %{HTTP_USER_AGENT} GPTBot [NC]\nRewriteRule .* - [F,L]\n</IfModule>",
+        "cloudflare": "# Cloudflare WAF — Block GPTBot\n# Expression:\n(http.user_agent contains \"GPTBot\")\n# Action: Block\n\n# Note: Cloudflare Security > Bots has\n# 'AI Scrapers and Crawlers' toggle in newer plans",
+        "modsecurity": "SecRule REQUEST_HEADERS:User-Agent \"@rx (GPTBot|ChatGPT-User)\" \\\n    \"id:9005001,phase:1,deny,status:403,\\\n    msg:'OpenAI AI Training Crawler Blocked',tag:'BOT_AI_CRAWLER'\""
+      }
+    }
+  ]
+}

@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="tracelink.css">
     <link rel="stylesheet" href="threat-wiki.css">
     <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="bot-wiki.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
@@ -65,6 +66,11 @@
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('threat-intel')"> <i class="fas fa-rss-square"></i>
                     <span>Threat Intel</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('bot-wiki')">
+                    <i class="fas fa-robot"></i>
+                    <span>Bot Wiki</span>
                     <div class="nav-indicator"></div>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('vault')">
@@ -1904,6 +1910,59 @@
                 </div>
             </section>
 
+            <!-- Bot Intelligence Wiki -->
+            <section id="bot-wiki" class="content-section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+                            <h1>Bot Intelligence Wiki</h1>
+                            <span style="background:rgba(255,71,87,0.12);color:#ff6b7a;border:1px solid rgba(255,71,87,0.3);padding:3px 10px;border-radius:6px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px">
+                                v1.4.0
+                            </span>
+                        </div>
+                        <p class="header-subtitle">
+                            Bot profiles with <strong>detection rules, IOCs, mitigation steps</strong> and ready-to-deploy
+                            configs for Nginx, Apache, Cloudflare &amp; ModSecurity.
+                        </p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-secondary" onclick="bwRefreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh DB
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bw-layout">
+                    <!-- Left: List panel -->
+                    <div class="bw-panel-left">
+                        <div class="bw-search-bar">
+                            <i class="fas fa-search"></i>
+                            <input id="bw-search" type="text" placeholder="Search bots, families, authors...">
+                        </div>
+                        <div class="bw-filter-row">
+                            <div class="bw-chip active" data-filter="all">All</div>
+                            <div class="bw-chip" data-filter="legitimate">Safe</div>
+                            <div class="bw-chip" data-filter="gray">Gray</div>
+                            <div class="bw-chip" data-filter="malicious">Threat</div>
+                        </div>
+                        <div class="bw-bot-list" id="bw-bot-list"></div>
+                        <div class="bw-list-stats" id="bw-list-stats"></div>
+                    </div>
+
+                    <!-- Right: Detail panel -->
+                    <div class="bw-panel-right">
+                        <div id="bw-detail-wrap" style="display:flex;flex-direction:column;height:100%">
+                            <div class="bw-empty">
+                                <div class="bw-empty-icon"><i class="fas fa-robot"></i></div>
+                                <h3>Select a bot to view its profile</h3>
+                                <p>Detection rules, IOCs, mitigation steps &amp; one-click server configs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--------------------Bot Intelligence Wiki End --------------->
+
             <!-- Rule Detail Modal -->
             <div id="wiki-detail-modal" class="modal wiki-detail-modal">
                 <div class="modal-content large-modal">
@@ -2853,6 +2912,7 @@
     <script src="threat-wiki.js"></script>
     <script src="responsive.js"></script>
     <script src="dashboard-data.js"></script>
+    <script src="bot-wiki.js"></script>
 
 </body>
 </html>
